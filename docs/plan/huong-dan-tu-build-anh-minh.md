@@ -38,33 +38,27 @@ Cả 4 đều có gói miễn phí đủ cho 1 người. Chi phí có thể phá
 | Phần mềm | Tải ở | Kiểm tra (mở Terminal gõ) |
 |---|---|---|
 | Node.js (bản LTS) | nodejs.org | `node -v` → ra số, vd `v22.x` |
-| Git | git-scm.com (Mac thường có sẵn) | `git --version` |
+
 
 ### 3.2. Tài khoản — 2 cái đã có, 2 cái cần tạo
 
 | Tài khoản | Tình trạng | Việc cần làm |
 |---|---|---|
-| **GitHub** (github.com) | ✅ đã có | Tạo repo **private trống** tên `english-mini-lms` (New repository → **không** tick "Add a README") |
+| **GitHub** (github.com) | ✅ đã có | Nhắn mentor username GitHub của anh → được mời làm **collaborator** của repo `english-mini-lms` → bấm **Accept invitation** (cần để lưu code anh làm lên GitHub) |
 | **Vercel** (vercel.com) | ✅ đã có | Chưa cần làm gì — đến Bước 7 mới dùng |
 | **Google AI Studio** (aistudio.google.com) | cần tạo | Đăng nhập Google → "Get API key" → tạo 1 key → **chép ra giấy/notes** |
 | **Supabase** (supabase.com) | cần tạo | New project → region **Singapore** → Settings → API: chép `Project URL`, `anon key`, `service_role key`; Database: chép `connection string` |
 
 ### 3.3. Tải bộ hồ sơ dự án — clone ngay trong Antigravity
 
-Repo mẫu là "bộ hồ sơ thi công" đã chuẩn bị sẵn: luật bắt buộc cho AI, prompt từng bước, tiêu chí kiểm tra, khuôn soạn bài học. Anh tải về rồi đưa lên repo **của chính mình** — để code, lịch sử và quyền deploy sau này thuộc về anh.
+Repo này là "bộ hồ sơ thi công" đã chuẩn bị sẵn: luật bắt buộc cho AI, prompt từng bước, tiêu chí kiểm tra, khuôn soạn bài học. **Anh làm luôn trên repo này** — mọi commit của anh push thẳng lên đây (anh đã được mời collaborator ở mục 3.2).
 
 1. Mở Antigravity → ở **màn hình chính** (trang chủ) chọn **Clone Git Repository** → dán:
    `https://github.com/thuanyogi/english-mini-lms.git`
-   → chọn thư mục lưu trên máy (ví dụ `Projects`) → Antigravity tự tải về và mở workspace. Repo nguồn đang **public** nên không cần xin quyền.
-2. Trong khung chat của Antigravity, dán prompt này để AI chuyển repo về tài khoản của anh:
+   → chọn thư mục lưu trên máy (ví dụ `Projects`) → Antigravity tự tải về và mở workspace.
+2. Lần đầu commit/push, GitHub có thể hỏi đăng nhập → làm theo hướng dẫn hiện ra (đăng nhập qua trình duyệt), hoặc hỏi AI trong chat: *"GitHub báo lỗi đăng nhập khi push, hướng dẫn tôi từng bước."*
 
-```
-Đổi remote "origin" của repo này sang https://github.com/<username-cua-anh>/english-mini-lms.git
-rồi push nhánh master lên. <username-cua-anh> là username GitHub của tôi; repo đó là repo
-private trống tôi vừa tạo. Nếu GitHub yêu cầu đăng nhập, hướng dẫn tôi từng bước bằng lời.
-```
-
-**Kiểm tra:** mở trang repo của anh trên GitHub → thấy đủ thư mục `docs`, `.agents`, `content`, `AGENTS.md` là đúng. Từ giờ mọi commit của anh đi lên repo của anh.
+**Kiểm tra:** trong workspace đã mở, thấy đủ thư mục `docs`, `.agents`, `content`, file `AGENTS.md` là đúng.
 
 ### 3.4. Mở trong Antigravity
 
@@ -82,7 +76,7 @@ GEMINI_API_KEY=
 
 > **Vì sao file này quan trọng?** Đây là "chìa khoá tủ" — app đọc key từ đây để nói chuyện với Supabase và Gemini. File này **không bao giờ** được dán vào chat, không lên GitHub (repo đã cấu hình sẵn chặn). AI hỏi key → trả lời: *"Đã có trong .env.local."*
 
-**Xong Bước 0 khi:** `node -v` chạy được; có đủ 4 tài khoản (GitHub/Vercel có sẵn + AI Studio/Supabase mới tạo); repo đã về máy và push được lên repo của anh; Antigravity thấy rules/workflows; `.env.local` điền đủ 5 dòng.
+**Xong Bước 0 khi:** `node -v` chạy được; có đủ 4 tài khoản (GitHub/Vercel có sẵn + AI Studio/Supabase mới tạo); đã accept lời mời collaborator và clone được repo về máy; Antigravity thấy rules/workflows; `.env.local` điền đủ 5 dòng.
 
 ## 4. Cách một bước diễn ra
 
@@ -104,7 +98,7 @@ GEMINI_API_KEY=
 
 | Bước | Anh được gì | Việc anh tự làm (AI không làm thay) |
 |---|---|---|
-| 0 | Môi trường sẵn sàng | Cài Node/Git, tạo tài khoản Supabase + AI Studio, clone repo, điền `.env.local` |
+| 0 | Môi trường sẵn sàng | Cài Node, tạo tài khoản Supabase + AI Studio, accept collaborator + clone repo, điền `.env.local` |
 | 1 | App chạy, đăng nhập được | Đăng ký email lần đầu; tắt public signup trong Supabase theo hướng dẫn |
 | 2 | Thư viện có bài thật | **Soạn 3 bài**: 1 đề email hội nghị, 1 đoạn sách siêu âm ~150 từ, 1 đề giới thiệu bản thân |
 | 3 ⭐ | Viết → chấm → viết lại | Viết thật 1 email trên điện thoại, đọc góp ý, viết bản 2 |
@@ -131,7 +125,7 @@ GEMINI_API_KEY=
 
 ## 7. Mentor hỗ trợ gì — và không hỗ trợ gì
 
-- **Hỗ trợ:** gỡ lỗi khi AI bế tắc, xem lại hướng đi cuối mỗi tuần, trả lời thắc mắc khái niệm.
+- **Hỗ trợ:** mời anh làm collaborator repo, gỡ lỗi khi AI bế tắc, cấp quyền Vercel đọc repo ở Bước 7, xem lại hướng đi cuối mỗi tuần.
 - **Không làm thay:** code, điền key, soạn bài, test — vì mục tiêu là anh tự chủ được hệ thống của mình.
 
 ## 8. Xong bản Lite khi anh tự tay làm được (trên điện thoại)

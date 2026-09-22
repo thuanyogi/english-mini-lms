@@ -16,7 +16,7 @@ Mỗi bước trong file hướng dẫn đầy đủ đều có sẵn: việc an
 
 | Bước | Làm gì |
 |---|---|
-| 0 | Cài Node.js, Git (Antigravity/GitHub/Vercel đã có); tạo tài khoản Google AI Studio + Supabase; clone repo trong Antigravity |
+| 0 | Cài Node.js (Antigravity/GitHub/Vercel đã có); tạo tài khoản Google AI Studio + Supabase; accept lời mời collaborator + clone repo trong Antigravity |
 | 1 | Khung app + đăng nhập email + database |
 | 2 | Thư viện: anh soạn 3 bài đầu (1 đề email, 1 đoạn sách siêu âm ~150 từ, 1 đề giới thiệu bản thân) |
 | 3 ⭐ | Viết bài → Gemini chấm có góp ý từng chỗ → viết bản sửa → so sánh 2 bản |

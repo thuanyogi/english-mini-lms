@@ -33,7 +33,7 @@ Từ ngữ Antigravity anh sẽ gặp: **Agent Manager** (màn tổng nơi giao 
 
 | Dịch vụ | Dùng để | Lấy gì |
 |---|---|---|
-| GitHub (github.com) | Lưu code, nối Vercel | Đã có sẵn → tạo repo private **trống** tên `english-mini-lms` |
+| GitHub (github.com) | Lưu code, nối Vercel | Đã có sẵn → nhắn mentor username để được mời **collaborator** vào repo `english-mini-lms` → Accept invitation |
 | Vercel (vercel.com) | Chạy web public | Đã có sẵn → chưa cần làm gì thêm |
 | Google AI Studio (aistudio.google.com) | Gemini API key | 1 API key → dán vào `.env.local` sau |
 | Supabase (supabase.com) | Database + đăng nhập + lưu file | Tạo project mới, region Singapore; lấy `Project URL`, `anon key`, `service_role key`, `DB connection string` |
@@ -205,7 +205,7 @@ C. Test: nộp speaking không có media → 422; feedback speaking từ text-on
 
 ## Bước 7 — Đưa lên mạng, backup
 
-**Anh làm tay:** push repo lên GitHub (agent hướng dẫn lệnh); vào Vercel → Import repo → thêm đúng 5 biến môi trường như `.env.local` → Deploy. Trong Supabase → Authentication → URL Configuration → thêm domain Vercel vào Redirect URLs.
+**Anh làm tay:** code đã push lên repo chung sẵn có; vào Vercel → Import repo (repo thuộc tài khoản mentor — nếu Vercel không thấy repo, nhờ mentor cấp quyền Vercel truy cập repo này trên GitHub) → thêm đúng 5 biến môi trường như `.env.local` → Deploy. Trong Supabase → Authentication → URL Configuration → thêm domain Vercel vào Redirect URLs.
 
 **Prompt:**
 
