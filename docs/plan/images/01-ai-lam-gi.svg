@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="380" viewBox="0 0 860 380" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif">
+  <rect width="860" height="380" fill="#ffffff"/>
+  <text x="430" y="36" text-anchor="middle" font-size="20" font-weight="700" fill="#1a1a2e">Ai làm gì trong dự án này?</text>
+
+  <!-- Anh Minh -->
+  <rect x="30" y="70" width="250" height="270" rx="14" fill="#e8f4fd" stroke="#2f80ed" stroke-width="2"/>
+  <text x="155" y="105" text-anchor="middle" font-size="17" font-weight="700" fill="#1a5fb4">ANH MINH</text>
+  <text x="155" y="128" text-anchor="middle" font-size="12" fill="#4a4a68">(người học + người quyết định)</text>
+  <text x="50" y="165" font-size="13" fill="#1a1a2e">• Duyệt kế hoạch của AI</text>
+  <text x="50" y="192" font-size="13" fill="#1a1a2e">• Soạn bài học, chọn sách/video</text>
+  <text x="50" y="219" font-size="13" fill="#1a1a2e">• Điền API key vào .env.local</text>
+  <text x="50" y="246" font-size="13" fill="#1a1a2e">• Test thật trên điện thoại</text>
+  <text x="50" y="273" font-size="13" fill="#1a1a2e">• Quyết định: tiếp / sửa / dừng</text>
+
+  <!-- Antigravity -->
+  <rect x="305" y="70" width="250" height="270" rx="14" fill="#fdf3e3" stroke="#e6a23c" stroke-width="2"/>
+  <text x="430" y="105" text-anchor="middle" font-size="17" font-weight="700" fill="#b26a00">ANTIGRAVITY</text>
+  <text x="430" y="128" text-anchor="middle" font-size="12" fill="#4a4a68">(AI viết code — “thợ xây”)</text>
+  <text x="325" y="165" font-size="13" fill="#1a1a2e">• Viết code theo kế hoạch</text>
+  <text x="325" y="192" font-size="13" fill="#1a1a2e">• Chạy lệnh, sửa lỗi</text>
+  <text x="325" y="219" font-size="13" fill="#1a1a2e">• Tự kiểm tra (/verify)</text>
+  <text x="325" y="246" font-size="13" fill="#1a1a2e">• Commit sau mỗi bước</text>
+  <text x="325" y="273" font-size="13" fill="#1a1a2e">• Giải thích bằng lời cho anh</text>
+
+  <!-- Mentor -->
+  <rect x="580" y="70" width="250" height="270" rx="14" fill="#eaf7ec" stroke="#3aa757" stroke-width="2"/>
+  <text x="705" y="105" text-anchor="middle" font-size="17" font-weight="700" fill="#237a3c">MENTOR</text>
+  <text x="705" y="128" text-anchor="middle" font-size="12" fill="#4a4a68">(anh Thuan — hỗ trợ khi kẹt)</text>
+  <text x="600" y="165" font-size="13" fill="#1a1a2e">• Cấp quyền repo GitHub</text>
+  <text x="600" y="192" font-size="13" fill="#1a1a2e">• Gỡ vướng khi AI bế tắc</text>
+  <text x="600" y="219" font-size="13" fill="#1a1a2e">• Xem lại hướng đi mỗi tuần</text>
+  <text x="600" y="246" font-size="13" fill="#1a1a2e">• Không code thay anh</text>
+  <text x="600" y="273" font-size="13" fill="#6b7280" font-style="italic">“Làm được tự làm, kẹt mới hỏi”</text>
+
+  <text x="430" y="366" text-anchor="middle" font-size="12.5" fill="#6b7280">AI viết code — anh ra quyết định và kiểm tra — mentor chỉ gỡ vướng.</text>
+</svg>
