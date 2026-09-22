@@ -105,7 +105,7 @@ GEMINI_API_KEY=
 
 | Bước | Anh được gì | Việc anh tự làm (AI không làm thay) |
 |---|---|---|
-| 0 | Môi trường sẵn sàng | Cài Node/Git, tạo 4 tài khoản, clone repo, điền `.env.local` |
+| 0 | Môi trường sẵn sàng | Cài Node/Git, tạo tài khoản Supabase + AI Studio, clone repo, điền `.env.local` |
 | 1 | App chạy, đăng nhập được | Đăng ký email lần đầu; tắt public signup trong Supabase theo hướng dẫn |
 | 2 | Thư viện có bài thật | **Soạn 3 bài**: 1 đề email hội nghị, 1 đoạn sách siêu âm ~150 từ, 1 đề giới thiệu bản thân |
 | 3 ⭐ | Viết → chấm → viết lại | Viết thật 1 email trên điện thoại, đọc góp ý, viết bản 2 |
@@ -132,7 +132,7 @@ GEMINI_API_KEY=
 
 ## 7. Mentor hỗ trợ gì — và không hỗ trợ gì
 
-- **Hỗ trợ:** cấp quyền repo, gỡ lỗi khi AI bế tắc, xem lại hướng đi cuối mỗi tuần.
+- **Hỗ trợ:** gỡ lỗi khi AI bế tắc, xem lại hướng đi cuối mỗi tuần, trả lời thắc mắc khái niệm.
 - **Không làm thay:** code, điền key, soạn bài, test — vì mục tiêu là anh tự chủ được hệ thống của mình.
 
 ## 8. Xong bản Lite khi anh tự tay làm được (trên điện thoại)

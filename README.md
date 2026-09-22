@@ -6,9 +6,10 @@ Dự án tách khỏi repo `dr-minh-clinic` ngày 22/09/2026; **không dùng, kh
 
 ## Bắt đầu từ đâu
 
-1. Đọc [docs/plan/huong-dan-xay-dung-voi-antigravity.md](docs/plan/huong-dan-xay-dung-voi-antigravity.md) — hướng dẫn từng bước (Bước 0 → 9).
-2. Phạm vi bản đầu: [docs/plan/lite-mvp-track.md](docs/plan/lite-mvp-track.md).
-3. Mở thư mục này trong Antigravity; gõ `/build-step 1`.
+1. **Anh Minh đọc trước:** [docs/plan/huong-dan-tu-build-anh-minh.md](docs/plan/huong-dan-tu-build-anh-minh.md) — hướng dẫn tự build có hình minh hoạ.
+2. Đọc [docs/plan/huong-dan-xay-dung-voi-antigravity.md](docs/plan/huong-dan-xay-dung-voi-antigravity.md) — hướng dẫn từng bước (Bước 0 → 9).
+3. Phạm vi bản đầu: [docs/plan/lite-mvp-track.md](docs/plan/lite-mvp-track.md).
+4. Mở thư mục này trong Antigravity; gõ `/build-step 1`.
 
 ## Cấu trúc
 
