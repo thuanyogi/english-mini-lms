@@ -46,20 +46,20 @@
 
 | Hành động | Đường dẫn đầy đủ | Nội dung dự kiến |
 |---|---|---|
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/library/source-import-service.ts` | Validate manifest, provenance, checksum, segments |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/library/activity-publication-service.ts` | Review/publish immutable activity version |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/learning/session-service.ts` | Session state machine và events |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/learning/submission-service.ts` | Immutable submissions/revisions + transactional job |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/learning/vocabulary-service.ts` | Quản lý Vocabulary Vault, Spaced Repetition, 1-Click capture preview |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/learning/progress-projection.ts` | Evidence-backed progress/review due |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/learning/recommendation-rules.ts` | Quy tắc gợi ý giải thích được |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/api/v1/sessions/route.ts` | Start/list sessions qua services |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/api/v1/sessions/[session-id]/submissions/route.ts` | Submit text/media idempotently |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/api/v1/vocabulary/route.ts` | CRUD Vocabulary Vault và danh sách từ đến hạn ôn |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/api/v1/vocabulary/quick-capture/route.ts` | Endpoint trích xuất ngữ cảnh và gợi ý cho 1-Click capture |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/db/migrations/0002-learning-core.sql` | Sources, segments (start/end/transcript), activities, sessions, submissions, vocabulary_vault, vocabulary_reviews |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/scripts/import-approved-sources.ts` | Controlled import, dry-run, report |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/tests/integration/library-learning-core.test.ts` | State/transaction/provenance tests |
+| Create | `src/server/library/source-import-service.ts` | Validate manifest, provenance, checksum, segments |
+| Create | `src/server/library/activity-publication-service.ts` | Review/publish immutable activity version |
+| Create | `src/server/learning/session-service.ts` | Session state machine và events |
+| Create | `src/server/learning/submission-service.ts` | Immutable submissions/revisions + transactional job |
+| Create | `src/server/learning/vocabulary-service.ts` | Quản lý Vocabulary Vault, Spaced Repetition, 1-Click capture preview |
+| Create | `src/server/learning/progress-projection.ts` | Evidence-backed progress/review due |
+| Create | `src/server/learning/recommendation-rules.ts` | Quy tắc gợi ý giải thích được |
+| Create | `src/app/api/v1/sessions/route.ts` | Start/list sessions qua services |
+| Create | `src/app/api/v1/sessions/[session-id]/submissions/route.ts` | Submit text/media idempotently |
+| Create | `src/app/api/v1/vocabulary/route.ts` | CRUD Vocabulary Vault và danh sách từ đến hạn ôn |
+| Create | `src/app/api/v1/vocabulary/quick-capture/route.ts` | Endpoint trích xuất ngữ cảnh và gợi ý cho 1-Click capture |
+| Create | `db/migrations/0002-learning-core.sql` | Sources, segments (start/end/transcript), activities, sessions, submissions, vocabulary_vault, vocabulary_reviews |
+| Create | `scripts/import-approved-sources.ts` | Controlled import, dry-run, report |
+| Create | `tests/integration/library-learning-core.test.ts` | State/transaction/provenance tests |
 | Delete | Không có | Không xóa file ở phase này |
 
 ## Các bước triển khai

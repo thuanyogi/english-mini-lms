@@ -41,16 +41,16 @@
 
 | Hành động | Đường dẫn đầy đủ | Nội dung dự kiến |
 |---|---|---|
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/config.ts` | Validate runtime config/secrets |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/auth/invite-auth.ts` | Invite, binding, roles, session lifecycle |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/storage/private-file-store.ts` | Namespace/checksum/atomic file operations |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/database/transaction.ts` | Transaction boundary dùng chung |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/jobs/database-job-queue.ts` | Claim/lease/retry/dead-letter |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/api/v1/health/route.ts` | Health/readiness không lộ secret |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/package.json` | Pinned manifest/scripts theo P1 |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/contracts/api-v1.ts` | Typed contract hiện thực hóa spec P1 |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/db/migrations/0001-foundation.sql` | Schema additive nền tảng |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/tests/foundation/` | Auth/storage/transaction/job tests |
+| Create | `src/server/config.ts` | Validate runtime config/secrets |
+| Create | `src/server/auth/invite-auth.ts` | Invite, binding, roles, session lifecycle |
+| Create | `src/server/storage/private-file-store.ts` | Namespace/checksum/atomic file operations |
+| Create | `src/server/database/transaction.ts` | Transaction boundary dùng chung |
+| Create | `src/server/jobs/database-job-queue.ts` | Claim/lease/retry/dead-letter |
+| Create | `src/app/api/v1/health/route.ts` | Health/readiness không lộ secret |
+| Create | `package.json` | Pinned manifest/scripts theo P1 |
+| Create | `src/contracts/api-v1.ts` | Typed contract hiện thực hóa spec P1 |
+| Create | `db/migrations/0001-foundation.sql` | Schema additive nền tảng |
+| Create | `tests/foundation/` | Auth/storage/transaction/job tests |
 | Delete | Không có | Không xóa file ở phase này |
 
 ## Các bước triển khai

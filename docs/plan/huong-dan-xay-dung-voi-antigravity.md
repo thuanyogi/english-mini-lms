@@ -18,25 +18,25 @@ Từ ngữ Antigravity anh sẽ gặp: **Agent Manager** (màn tổng nơi giao 
 
 ---
 
-## Bước 0 — Chuẩn bị công cụ và tài khoản (2–3h, làm tay)
+## Bước 0 — Chuẩn bị công cụ và tài khoản (làm tay)
 
 ### Cài trên máy
 
 | Công cụ | Lấy ở đâu | Kiểm tra |
 |---|---|---|
-| Antigravity | antigravity.google → tải bản macOS/Windows, đăng nhập Google | Mở được Agent Manager |
+| Antigravity | Đã cài sẵn | Mở được Agent Manager |
 | Node.js LTS | nodejs.org (bản LTS) | Terminal: `node -v` ra số phiên bản |
 | Git | git-scm.com (macOS thường có sẵn) | `git --version` |
 | Google Chrome | Để Browser subagent dùng | — |
 
-### Tạo tài khoản (đều có gói miễn phí)
+### Tài khoản (đều có gói miễn phí)
 
 | Dịch vụ | Dùng để | Lấy gì |
 |---|---|---|
+| GitHub (github.com) | Lưu code, nối Vercel | Đã có sẵn → tạo repo private **trống** tên `english-mini-lms` |
+| Vercel (vercel.com) | Chạy web public | Đã có sẵn → chưa cần làm gì thêm |
 | Google AI Studio (aistudio.google.com) | Gemini API key | 1 API key → dán vào `.env.local` sau |
 | Supabase (supabase.com) | Database + đăng nhập + lưu file | Tạo project mới, region Singapore; lấy `Project URL`, `anon key`, `service_role key`, `DB connection string` |
-| GitHub (github.com) | Lưu code, nối Vercel | 1 repo private tên `english-mini-lms` |
-| Vercel (vercel.com) | Chạy web public | Đăng nhập bằng GitHub; chưa cần làm gì thêm |
 
 > Quyền riêng tư: chọn Supabase/Vercel nghĩa là bài viết và voice của anh lưu trên cloud (mã hoá, chỉ anh đăng nhập được). Nếu anh không muốn, nói với agent ở Bước 1: "dùng Postgres local qua Docker và lưu file trong thư mục ./private" — cách này chỉ dùng được trên máy của anh.
 
@@ -54,9 +54,9 @@ english-mini-lms/
 └── content/english-lab/      # nguồn học: README, activities-inventory, manifest.example.yaml
 ```
 
-Nếu anh làm trên máy khác: clone repo từ GitHub về (sau khi anh/kỹ thuật push lên), ví dụ `git clone <url> ~/Projects/english-mini-lms`.
+Lấy repo về máy: mở Antigravity → trang chủ chọn **Clone Git Repository** → dán `https://github.com/thuanyogi/english-mini-lms.git` → Antigravity tự tải và mở workspace (chi tiết: [huong-dan-tu-build-anh-minh.md](huong-dan-tu-build-anh-minh.md) mục 3.3).
 
-Mở Antigravity → **Open Workspace** → chọn thư mục `english-mini-lms`. Vào `…` → Customizations → kiểm tra thấy rule `english-mini-lms` và 2 workflow `/build-step`, `/verify`.
+Trong workspace đã mở: vào `…` → Customizations → kiểm tra thấy rule `english-mini-lms` và 2 workflow `/build-step`, `/verify`.
 
 > Không mở workspace `dr-minh-clinic` để build LMS: agent sẽ nhìn thấy luật, dữ liệu và secret của phòng khám — vi phạm ranh giới dữ liệu của plan.
 
@@ -64,7 +64,7 @@ Mở Antigravity → **Open Workspace** → chọn thư mục `english-mini-lms`
 
 ---
 
-## Bước 1 — Khung app, database, đăng nhập (3–5h)
+## Bước 1 — Khung app, database, đăng nhập
 
 **Mục tiêu:** app Next.js chạy local, đăng nhập bằng email (magic link), database có bảng nền.
 
@@ -98,7 +98,7 @@ Lập Implementation Plan trước, chờ tôi duyệt.
 
 ---
 
-## Bước 2 — Thư viện và nạp nội dung (3–4h)
+## Bước 2 — Thư viện và nạp nội dung
 
 **Mục tiêu:** đọc `content/english-lab/manifest.yaml` → DB; trang Thư viện hiện activity theo mode.
 
@@ -117,7 +117,7 @@ Trang /library/[id]: chi tiết + nút "Bắt đầu 30 phút" / "Bắt đầu 4
 
 ---
 
-## Bước 3 — Writing mode chạy trọn vòng (5–8h) ⭐ mốc quan trọng nhất
+## Bước 3 — Writing mode chạy trọn vòng ⭐ mốc quan trọng nhất
 
 **Mục tiêu:** chọn W1 → viết → nộp → Gemini chấm có cấu trúc → xem góp ý → viết bản 2 → so sánh 2 bản.
 
@@ -140,7 +140,7 @@ Ghi usage_events (token in/out) mỗi lần gọi Gemini.
 
 ---
 
-## Bước 4 — Đọc–dịch y khoa + Sổ từ vựng (5–8h)
+## Bước 4 — Đọc–dịch y khoa + Sổ từ vựng
 
 **Mục tiêu:** đọc đoạn R1, dịch, được đối chiếu theo vị trí; bôi đen cụm từ → popup → "Lưu vào sổ" 1 chạm.
 
@@ -158,7 +158,7 @@ Ghi usage_events (token in/out) mỗi lần gọi Gemini.
 
 ---
 
-## Bước 5 — Speaking (audio thật) + Listening/Shadowing (8–12h)
+## Bước 5 — Speaking (audio thật) + Listening/Shadowing
 
 **Mục tiêu:** ghi âm trên điện thoại → upload → Gemini nghe → transcript + tối đa 3 góp ý → nói lại. Nghe đoạn video theo mốc giây → trả lời trước → mở transcript.
 
@@ -187,7 +187,7 @@ C. Test: nộp speaking không có media → 422; feedback speaking từ text-on
 
 ---
 
-## Bước 6 — Hôm nay, Tiến độ, ôn từ theo lịch (4–6h)
+## Bước 6 — Hôm nay, Tiến độ, ôn từ theo lịch
 
 **Prompt:**
 
@@ -203,7 +203,7 @@ C. Test: nộp speaking không có media → 422; feedback speaking từ text-on
 
 ---
 
-## Bước 7 — Đưa lên mạng, backup (3–5h)
+## Bước 7 — Đưa lên mạng, backup
 
 **Anh làm tay:** push repo lên GitHub (agent hướng dẫn lệnh); vào Vercel → Import repo → thêm đúng 5 biến môi trường như `.env.local` → Deploy. Trong Supabase → Authentication → URL Configuration → thêm domain Vercel vào Redirect URLs.
 

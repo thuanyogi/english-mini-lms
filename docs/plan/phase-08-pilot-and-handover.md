@@ -43,13 +43,13 @@
 
 | Hành động | Đường dẫn đầy đủ | Nội dung dự kiến |
 |---|---|---|
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/learner-guide.md` | Login, study, hint, audio, revision, data/support |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/admin-guide.md` | Sources, jobs, costs, review, export/delete |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/pilot-protocol.md` | 4-week protocol, equivalent tasks, evidence rules |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/pilot-report.md` | Usage, reliability, cost, learning evidence, decision |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/handover-checklist.md` | Owners, access, release, runbooks, backlog |
-| Modify | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/incident-response-runbook.md` | Cập nhật từ incident thực tế đã review |
-| Modify | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/backup-and-restore-runbook.md` | Cập nhật actual owner/timing từ drill/pilot |
+| Create | `docs/learner-guide.md` | Login, study, hint, audio, revision, data/support |
+| Create | `docs/admin-guide.md` | Sources, jobs, costs, review, export/delete |
+| Create | `docs/pilot-protocol.md` | 4-week protocol, equivalent tasks, evidence rules |
+| Create | `docs/pilot-report.md` | Usage, reliability, cost, learning evidence, decision |
+| Create | `docs/handover-checklist.md` | Owners, access, release, runbooks, backlog |
+| Modify | `docs/incident-response-runbook.md` | Cập nhật từ incident thực tế đã review |
+| Modify | `docs/backup-and-restore-runbook.md` | Cập nhật actual owner/timing từ drill/pilot |
 | Delete | Không có | Retention deletion chỉ qua flow đã duyệt, không xóa thủ công |
 
 ## Các bước triển khai

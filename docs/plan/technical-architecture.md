@@ -35,7 +35,7 @@ Web và Zalo cùng thao tác trên một phiên/bài nộp. Không để mỗi k
 
 ## Cấu trúc code dự kiến
 
-Gốc tuyệt đối: `/Volumes/SSD ME/AI4A/english-mini-lms/` (repo riêng, tách khỏi `dr-minh-clinic` ngày 22/09/2026; các đường dẫn `apps/english-mini-lms/` trong tài liệu cũ hiểu là gốc repo này).
+Gốc: thư mục gốc của repo `english-mini-lms` (repo riêng, tách khỏi `dr-minh-clinic` ngày 22/09/2026; các đường dẫn `apps/english-mini-lms/` trong tài liệu cũ hiểu là gốc repo này). Mọi đường dẫn trong tài liệu đều tương đối từ gốc repo.
 
 ```text
 english-mini-lms/

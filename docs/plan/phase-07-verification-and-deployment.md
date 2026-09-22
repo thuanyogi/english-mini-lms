@@ -42,18 +42,18 @@
 
 | Hành động | Đường dẫn đầy đủ | Nội dung dự kiến |
 |---|---|---|
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/Dockerfile` | Immutable web/worker release build |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/compose.yaml` | LMS-only services, volumes, health checks |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/scripts/backup-checkpoint.sh` | Consistent DB/file checkpoint + checksum |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/scripts/restore-checkpoint.sh` | Isolated restore + integrity entrypoint |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/scripts/apply-deletion-ledger.ts` | Reapply deletions/tombstones before restore opens |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/scripts/run-migrations.sh` | Single-owner backup-gated migration |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/tests/contracts/api-v1.contract.test.ts` | Public web/tool contract matrix |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/tests/integration/concurrency-and-recovery.test.ts` | Duplicate/race/crash/tombstone tests |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/tests/e2e/pilot-readiness.spec.ts` | Full web/OpenClaw learning journey |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/deployment-runbook.md` | Deploy, migration, rollback, process ownership |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/backup-and-restore-runbook.md` | RPO/RTO, checkpoint, drill steps |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/incident-response-runbook.md` | DB/file/provider/OpenClaw/security incidents |
+| Create | `Dockerfile` | Immutable web/worker release build |
+| Create | `compose.yaml` | LMS-only services, volumes, health checks |
+| Create | `scripts/backup-checkpoint.sh` | Consistent DB/file checkpoint + checksum |
+| Create | `scripts/restore-checkpoint.sh` | Isolated restore + integrity entrypoint |
+| Create | `scripts/apply-deletion-ledger.ts` | Reapply deletions/tombstones before restore opens |
+| Create | `scripts/run-migrations.sh` | Single-owner backup-gated migration |
+| Create | `tests/contracts/api-v1.contract.test.ts` | Public web/tool contract matrix |
+| Create | `tests/integration/concurrency-and-recovery.test.ts` | Duplicate/race/crash/tombstone tests |
+| Create | `tests/e2e/pilot-readiness.spec.ts` | Full web/OpenClaw learning journey |
+| Create | `docs/deployment-runbook.md` | Deploy, migration, rollback, process ownership |
+| Create | `docs/backup-and-restore-runbook.md` | RPO/RTO, checkpoint, drill steps |
+| Create | `docs/incident-response-runbook.md` | DB/file/provider/OpenClaw/security incidents |
 | Delete | Không có | Không xóa file ở phase này |
 
 ## Các bước triển khai

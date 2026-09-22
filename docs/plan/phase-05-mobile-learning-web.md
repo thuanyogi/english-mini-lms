@@ -42,19 +42,19 @@
 
 | Hành động | Đường dẫn đầy đủ | Nội dung dự kiến |
 |---|---|---|
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/(learner)/today/page.tsx` | Start/resume/recommendation, duration và từ vựng đến hạn |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/(learner)/vocabulary/page.tsx` | Sổ từ vựng theo ngữ cảnh (Vault), lọc theo chủ đề và tiến độ Spaced Repetition |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/(learner)/learn/[session-id]/page.tsx` | Learning workspace theo mode (bao gồm giao diện Shadowing) |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/(learner)/submissions/page.tsx` | Original–feedback–revision timeline |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/(learner)/progress/page.tsx` | Evidence-backed progress và empty state |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/(learner)/settings/page.tsx` | Consent, data requests, reminder opt-in |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/admin/page.tsx` | Source/jobs/review support tối thiểu |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/components/audio-recorder.tsx` | Record, preview, delete, upload, retry |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/components/smart-capture-popup.tsx` | Popup 1-Click Smart Capture khi bôi đen từ/cụm từ trong bài đọc |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/components/shadowing-player.tsx` | Nhúng YouTube Iframe Player, đồng bộ transcript mốc giây và mic thu âm |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/components/session-draft-editor.tsx` | Autosave, optimistic conflict, restore |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/lib/api-client.ts` | Typed calls, idempotency, error mapping |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/tests/e2e/mobile-learning-web.spec.ts` | Mobile/audio/offline/error journeys |
+| Create | `src/app/(learner)/today/page.tsx` | Start/resume/recommendation, duration và từ vựng đến hạn |
+| Create | `src/app/(learner)/vocabulary/page.tsx` | Sổ từ vựng theo ngữ cảnh (Vault), lọc theo chủ đề và tiến độ Spaced Repetition |
+| Create | `src/app/(learner)/learn/[session-id]/page.tsx` | Learning workspace theo mode (bao gồm giao diện Shadowing) |
+| Create | `src/app/(learner)/submissions/page.tsx` | Original–feedback–revision timeline |
+| Create | `src/app/(learner)/progress/page.tsx` | Evidence-backed progress và empty state |
+| Create | `src/app/(learner)/settings/page.tsx` | Consent, data requests, reminder opt-in |
+| Create | `src/app/admin/page.tsx` | Source/jobs/review support tối thiểu |
+| Create | `src/app/components/audio-recorder.tsx` | Record, preview, delete, upload, retry |
+| Create | `src/app/components/smart-capture-popup.tsx` | Popup 1-Click Smart Capture khi bôi đen từ/cụm từ trong bài đọc |
+| Create | `src/app/components/shadowing-player.tsx` | Nhúng YouTube Iframe Player, đồng bộ transcript mốc giây và mic thu âm |
+| Create | `src/app/components/session-draft-editor.tsx` | Autosave, optimistic conflict, restore |
+| Create | `src/app/lib/api-client.ts` | Typed calls, idempotency, error mapping |
+| Create | `tests/e2e/mobile-learning-web.spec.ts` | Mobile/audio/offline/error journeys |
 | Delete | Không có | Không xóa file ở phase này |
 
 ## Các bước triển khai

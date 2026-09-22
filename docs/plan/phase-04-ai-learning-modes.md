@@ -43,19 +43,19 @@
 
 | Hành động | Đường dẫn đầy đủ | Nội dung dự kiến |
 |---|---|---|
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/providers/assessment-provider.ts` | Provider-neutral structured assessment interface |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/assessment/feedback-schema.ts` | Validate feedback, limitations và score type |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/assessment/speaking-evaluator.ts` | Audio/transcript/retry evidence |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/assessment/shadowing-evaluator.ts` | Đối chiếu audio với verified transcript mốc giây, chấm phát âm/intonation |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/assessment/vocab-roleplay-evaluator.ts` | Tạo kịch bản micro-challenge 1 câu và chấm cách dùng từ ngữ cảnh thật |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/assessment/listening-evaluator.ts` | Answer-before-transcript semantics |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/assessment/medical-translation-evaluator.ts` | Source fidelity, language-only boundary |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/assessment/writing-evaluator.ts` | Draft/revision focused feedback |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/assessment/ielts-evaluator.ts` | Approved rubric, timed/practice estimate only |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/media/audio-evidence-service.ts` | Live audio validation và assessability |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/worker/assessment-worker.ts` | Claim, evaluate, commit feedback/outbox |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/db/migrations/0003-assessment-feedback.sql` | Canonical assessments, dependent jobs, rubrics, feedback, errors, outbox |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/tests/integration/learning-modes.test.ts` | Mode gates, schema, retries, revision tests |
+| Create | `src/server/providers/assessment-provider.ts` | Provider-neutral structured assessment interface |
+| Create | `src/server/assessment/feedback-schema.ts` | Validate feedback, limitations và score type |
+| Create | `src/server/assessment/speaking-evaluator.ts` | Audio/transcript/retry evidence |
+| Create | `src/server/assessment/shadowing-evaluator.ts` | Đối chiếu audio với verified transcript mốc giây, chấm phát âm/intonation |
+| Create | `src/server/assessment/vocab-roleplay-evaluator.ts` | Tạo kịch bản micro-challenge 1 câu và chấm cách dùng từ ngữ cảnh thật |
+| Create | `src/server/assessment/listening-evaluator.ts` | Answer-before-transcript semantics |
+| Create | `src/server/assessment/medical-translation-evaluator.ts` | Source fidelity, language-only boundary |
+| Create | `src/server/assessment/writing-evaluator.ts` | Draft/revision focused feedback |
+| Create | `src/server/assessment/ielts-evaluator.ts` | Approved rubric, timed/practice estimate only |
+| Create | `src/server/media/audio-evidence-service.ts` | Live audio validation và assessability |
+| Create | `src/worker/assessment-worker.ts` | Claim, evaluate, commit feedback/outbox |
+| Create | `db/migrations/0003-assessment-feedback.sql` | Canonical assessments, dependent jobs, rubrics, feedback, errors, outbox |
+| Create | `tests/integration/learning-modes.test.ts` | Mode gates, schema, retries, revision tests |
 | Delete | Không có | Không xóa file ở phase này |
 
 ## Các bước triển khai

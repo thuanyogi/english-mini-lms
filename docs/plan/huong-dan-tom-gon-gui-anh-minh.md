@@ -1,6 +1,6 @@
 # English Mini LMS — Hướng dẫn tóm gọn gửi anh Minh
 
-Anh sẽ tự xây app học tiếng Anh cá nhân (học 30–45 phút/ngày trên điện thoại) bằng công cụ Antigravity — AI làm phần code, anh làm phần quyết định và kiểm tra. Tổng ~30–40 giờ, chia 9 bước, **mỗi phiên chat chỉ làm đúng 1 bước**.
+Anh sẽ tự xây app học tiếng Anh cá nhân (học 30–45 phút/ngày trên điện thoại) bằng công cụ Antigravity — AI làm phần code, anh làm phần quyết định và kiểm tra. Chia 9 bước, **mỗi phiên chat chỉ làm đúng 1 bước**, làm theo nhịp của anh.
 
 Mỗi bước trong file hướng dẫn đầy đủ đều có sẵn: việc anh làm tay → prompt dán sẵn vào Antigravity → tiêu chí "xong" để anh tự kiểm.
 
@@ -14,18 +14,18 @@ Mỗi bước trong file hướng dẫn đầy đủ đều có sẵn: việc an
 
 ## Lộ trình 9 bước
 
-| Bước | Làm gì | Thời gian |
-|---|---|---|
-| 0 | Cài Antigravity, Node.js, Git; tạo tài khoản Google AI Studio, Supabase, GitHub, Vercel (đều miễn phí) | 2–3h, làm tay |
-| 1 | Khung app + đăng nhập email + database | 3–5h |
-| 2 | Thư viện: anh soạn 3 bài đầu (1 đề email, 1 đoạn sách siêu âm ~150 từ, 1 đề giới thiệu bản thân) | 3–4h |
-| 3 ⭐ | Viết bài → Gemini chấm có góp ý từng chỗ → viết bản sửa → so sánh 2 bản | 5–8h |
-| 4 | Đọc–dịch sách y khoa + bôi đen lưu từ vựng 1 chạm | 5–8h |
-| 5 | Ghi âm nói → AI chép lại + góp ý → nói lại; nghe video hội nghị + trả lời câu hỏi | 8–12h |
-| 6 | Trang "Hôm nay" gợi ý bài, ôn từ theo lịch, trang Tiến độ | 4–6h |
-| 7 | Đưa lên mạng (Vercel), cài như app trên điện thoại, backup | 3–5h |
-| 8 | Dùng thử 4 tuần: tuần 1 làm bài baseline, tuần 4 làm lại để so tiến bộ | học thật |
-| 9 | (Tuỳ chọn, về sau) IELTS có giờ + tích hợp Zalo | — |
+| Bước | Làm gì |
+|---|---|
+| 0 | Cài Node.js, Git (Antigravity/GitHub/Vercel đã có); tạo tài khoản Google AI Studio + Supabase; clone repo trong Antigravity |
+| 1 | Khung app + đăng nhập email + database |
+| 2 | Thư viện: anh soạn 3 bài đầu (1 đề email, 1 đoạn sách siêu âm ~150 từ, 1 đề giới thiệu bản thân) |
+| 3 ⭐ | Viết bài → Gemini chấm có góp ý từng chỗ → viết bản sửa → so sánh 2 bản |
+| 4 | Đọc–dịch sách y khoa + bôi đen lưu từ vựng 1 chạm |
+| 5 | Ghi âm nói → AI chép lại + góp ý → nói lại; nghe video hội nghị + trả lời câu hỏi |
+| 6 | Trang "Hôm nay" gợi ý bài, ôn từ theo lịch, trang Tiến độ |
+| 7 | Đưa lên mạng (Vercel), cài như app trên điện thoại, backup |
+| 8 | Dùng thử 4 tuần: tuần 1 làm bài baseline, tuần 4 làm lại để so tiến bộ |
+| 9 | (Tuỳ chọn, về sau) IELTS có giờ + tích hợp Zalo |
 
 ## Bị vấn đề thì sao
 

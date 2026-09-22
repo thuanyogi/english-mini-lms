@@ -1,7 +1,7 @@
 # Anh Minh tự xây English Mini LMS bằng Antigravity
 
 **Đối tượng:** anh Minh — bác sĩ, không cần biết lập trình. Đã cài Antigravity trên máy.
-**Thời gian:** ~30–40 giờ, trải 2–4 tuần, chia 9 bước nhỏ.
+**Nhịp làm:** chia 9 bước nhỏ, mỗi bước một phiên chat — làm theo lịch của anh, không cần dồn.
 **Nguyên tắc:** AI (Antigravity) viết toàn bộ code. Anh làm 4 việc AI không thay được: *ra quyết định, soạn bài học, điền API key, test thật trên điện thoại.*
 
 ---
@@ -31,7 +31,7 @@ Cả 4 đều có gói miễn phí đủ cho 1 người. Chi phí có thể phá
 
 > **Vì sao dữ liệu để trên mây?** Để học trên điện thoại ở mọi nơi và backup được. Bài làm/voice của anh được mã hoá, chỉ tài khoản của anh đọc được. Không liên quan gì dữ liệu phòng khám/bệnh nhân — tuyệt đối không đưa vào.
 
-## 3. Chuẩn bị một lần (Bước 0 — ~2h, làm tay)
+## 3. Chuẩn bị một lần (Bước 0 — làm tay)
 
 ### 3.1. Cài 2 phần mềm còn thiếu
 
@@ -49,27 +49,26 @@ Cả 4 đều có gói miễn phí đủ cho 1 người. Chi phí có thể phá
 | **Google AI Studio** (aistudio.google.com) | cần tạo | Đăng nhập Google → "Get API key" → tạo 1 key → **chép ra giấy/notes** |
 | **Supabase** (supabase.com) | cần tạo | New project → region **Singapore** → Settings → API: chép `Project URL`, `anon key`, `service_role key`; Database: chép `connection string` |
 
-### 3.3. Lấy bộ hồ sơ dự án về máy (clone repo)
+### 3.3. Tải bộ hồ sơ dự án — clone ngay trong Antigravity
 
-Repo mẫu là "bộ hồ sơ thi công" đã chuẩn bị sẵn: luật bắt buộc cho AI, prompt từng bước, tiêu chí kiểm tra, khuôn soạn bài học. Anh tải về rồi đưa lên repo **của chính mình** — để code, lịch sử và quyền deploy sau này thuộc về anh. Mở Terminal:
+Repo mẫu là "bộ hồ sơ thi công" đã chuẩn bị sẵn: luật bắt buộc cho AI, prompt từng bước, tiêu chí kiểm tra, khuôn soạn bài học. Anh tải về rồi đưa lên repo **của chính mình** — để code, lịch sử và quyền deploy sau này thuộc về anh.
 
-```bash
-mkdir -p ~/Projects && cd ~/Projects
-git clone https://github.com/thuanyogi/english-mini-lms.git
-cd english-mini-lms
-git remote set-url origin https://github.com/<username-cua-anh>/english-mini-lms.git
-git push -u origin master
+1. Mở Antigravity → ở **màn hình chính** (trang chủ) chọn **Clone Git Repository** → dán:
+   `https://github.com/thuanyogi/english-mini-lms.git`
+   → chọn thư mục lưu trên máy (ví dụ `Projects`) → Antigravity tự tải về và mở workspace. Repo nguồn đang **public** nên không cần xin quyền.
+2. Trong khung chat của Antigravity, dán prompt này để AI chuyển repo về tài khoản của anh:
+
 ```
-
-- `<username-cua-anh>` = username GitHub anh vừa tạo; `english-mini-lms` là repo private trống ở bước 3.2.
-- Repo nguồn đang **public** nên clone không cần xin quyền.
-- Push lần đầu GitHub hỏi đăng nhập → làm theo hướng dẫn hiện ra (đăng nhập qua trình duyệt), hoặc nhờ mentor hỗ trợ.
+Đổi remote "origin" của repo này sang https://github.com/<username-cua-anh>/english-mini-lms.git
+rồi push nhánh master lên. <username-cua-anh> là username GitHub của tôi; repo đó là repo
+private trống tôi vừa tạo. Nếu GitHub yêu cầu đăng nhập, hướng dẫn tôi từng bước bằng lời.
+```
 
 **Kiểm tra:** mở trang repo của anh trên GitHub → thấy đủ thư mục `docs`, `.agents`, `content`, `AGENTS.md` là đúng. Từ giờ mọi commit của anh đi lên repo của anh.
 
 ### 3.4. Mở trong Antigravity
 
-1. Mở Antigravity → **Open Workspace** → chọn thư mục `~/Projects/english-mini-lms`.
+1. Sau khi clone ở 3.3, Antigravity đã mở sẵn workspace `english-mini-lms` (lần sau: **Open Workspace** → chọn đúng thư mục đó).
 2. Vào menu `…` → **Customizations**: phải thấy rule `english-mini-lms` và 2 workflow `/build-step`, `/verify`. Thiếu → nhắn mentor.
 3. Tạo file `.env.local` ngay trong thư mục (Antigravity: chuột phải → New File), dán khung này rồi điền giá trị thật đã chép ở 3.2:
 

@@ -43,10 +43,10 @@
 
 | Hành động | Đường dẫn đầy đủ | Nội dung dự kiến |
 |---|---|---|
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/verified-runtime-matrix.md` | Version, provider, auth, OpenClaw probe evidence |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/source-and-rights-register.md` | Provenance, quyền, publish state, owner |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/decision-register.md` | D1 và unknown/gate/fallback |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/docs/api-and-tools-contract-v1.md` | Contract v1 đã freeze để P2 hiện thực hóa |
+| Create | `docs/verified-runtime-matrix.md` | Version, provider, auth, OpenClaw probe evidence |
+| Create | `docs/source-and-rights-register.md` | Provenance, quyền, publish state, owner |
+| Create | `docs/decision-register.md` | D1 và unknown/gate/fallback |
+| Create | `docs/api-and-tools-contract-v1.md` | Contract v1 đã freeze để P2 hiện thực hóa |
 | Delete | Không có | Không xóa file ở phase này |
 
 ## Các bước triển khai

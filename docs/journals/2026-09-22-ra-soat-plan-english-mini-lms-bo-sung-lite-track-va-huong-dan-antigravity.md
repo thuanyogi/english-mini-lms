@@ -38,6 +38,6 @@ summary: "Đánh giá bộ plan 15 file: thiết kế đủ nhưng lệch đối
 
 ## Bổ sung cùng ngày — tách repo
 
-- Theo quyết định người đặt dự án: **tách toàn bộ LMS thành repo riêng** `/Volumes/SSD ME/AI4A/english-mini-lms` (di chuyển hẳn, không giữ bản copy). Lý do: cô lập dữ liệu/secret phòng khám khỏi workspace Antigravity của anh Minh; khác stack, người làm, vòng đời deploy.
+- Theo quyết định người đặt dự án: **tách toàn bộ LMS thành repo riêng** `english-mini-lms` (di chuyển hẳn, không giữ bản copy). Lý do: cô lập dữ liệu/secret phòng khám khỏi workspace Antigravity của anh Minh; khác stack, người làm, vòng đời deploy.
 - Ánh xạ: `plans/260919-1141-english-mini-lms/` → `docs/plan/`; `antigravity-starter-kit/` → `AGENTS.md` + `.agents/rules|workflows/` (vị trí thật); `docs/sources/english-lab/` → `content/english-lab/`; 2 journal LMS → `docs/journals/`. Đường dẫn trong phase files đã đổi `apps/english-mini-lms/` → gốc repo.
 - Repo `dr-minh-clinic` chỉ còn file pointer `plans/english-mini-lms-MOVED.md`.

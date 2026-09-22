@@ -44,20 +44,20 @@
 
 | Hành động | Đường dẫn đầy đủ | Nội dung dự kiến |
 |---|---|---|
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/integrations/openclaw/tool-client.ts` | Thin authenticated client theo contract v1 |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/integrations/openclaw/trusted-actor-context.ts` | Verify issuer/proof/binding ngoài model args |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/server/integrations/openclaw/result-outbox-service.ts` | Bridge-only claim lease/ack/unknown semantics |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/src/app/api/v1/tools/route.ts` | Versioned allowlisted tool endpoint nếu P1 chọn HTTP |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/tests/contracts/openclaw-tools.contract.test.ts` | Actor, idempotency, media, polling tests |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/skills/en-session-coach/SKILL.md` | Session/onboarding/tool-use instruction |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/skills/en-output-gate/SKILL.md` | Assisted/submission/feedback boundary |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/skills/en-speaking-loop/SKILL.md` | Speaking/audio loop |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/skills/en-listening-loop/SKILL.md` | Listening/reveal loop |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/skills/en-medical-page/SKILL.md` | Approved medical-source language use |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/skills/en-vocab-review/SKILL.md` | Điều phối Micro-challenge roleplay 1 câu qua Zalo & lưu từ nhanh |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/skills/en-writing-feedback/SKILL.md` | Writing/revision loop |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/skills/en-ielts-task/SKILL.md` | IELTS rubric/timer limits |
-| Create | `/Volumes/SSD ME/AI4A/english-mini-lms/.agents/workflows/english-lab-zalo.md` | Runtime learning flow, không phải plan workflow |
+| Create | `src/server/integrations/openclaw/tool-client.ts` | Thin authenticated client theo contract v1 |
+| Create | `src/server/integrations/openclaw/trusted-actor-context.ts` | Verify issuer/proof/binding ngoài model args |
+| Create | `src/server/integrations/openclaw/result-outbox-service.ts` | Bridge-only claim lease/ack/unknown semantics |
+| Create | `src/app/api/v1/tools/route.ts` | Versioned allowlisted tool endpoint nếu P1 chọn HTTP |
+| Create | `tests/contracts/openclaw-tools.contract.test.ts` | Actor, idempotency, media, polling tests |
+| Create | `.agents/skills/en-session-coach/SKILL.md` | Session/onboarding/tool-use instruction |
+| Create | `.agents/skills/en-output-gate/SKILL.md` | Assisted/submission/feedback boundary |
+| Create | `.agents/skills/en-speaking-loop/SKILL.md` | Speaking/audio loop |
+| Create | `.agents/skills/en-listening-loop/SKILL.md` | Listening/reveal loop |
+| Create | `.agents/skills/en-medical-page/SKILL.md` | Approved medical-source language use |
+| Create | `.agents/skills/en-vocab-review/SKILL.md` | Điều phối Micro-challenge roleplay 1 câu qua Zalo & lưu từ nhanh |
+| Create | `.agents/skills/en-writing-feedback/SKILL.md` | Writing/revision loop |
+| Create | `.agents/skills/en-ielts-task/SKILL.md` | IELTS rubric/timer limits |
+| Create | `.agents/workflows/english-lab-zalo.md` | Runtime learning flow, không phải plan workflow |
 | Delete | Không có | Không xóa/sửa Zalo adapter hiện hữu |
 
 ## Các bước triển khai

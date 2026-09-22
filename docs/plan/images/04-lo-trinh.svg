@@ -20,56 +20,49 @@
   <text x="72" y="115" text-anchor="middle" font-size="16" font-weight="800" fill="#5a3fb8">0</text>
   <text x="72" y="140" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Tài khoản</text>
   <text x="72" y="155" text-anchor="middle" font-size="10.5" fill="#1a1a2e">+ mở repo</text>
-  <text x="72" y="185" text-anchor="middle" font-size="10" fill="#6b7280">~2h, làm tay</text>
+  <text x="72" y="185" text-anchor="middle" font-size="10" fill="#6b7280">làm tay</text>
 
   <!-- step 1 -->
   <rect x="125" y="90" width="85" height="120" rx="10" fill="#e8f4fd" stroke="#2f80ed" stroke-width="2"/>
   <text x="167" y="115" text-anchor="middle" font-size="16" font-weight="800" fill="#1a5fb4">1</text>
   <text x="167" y="140" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Khung app</text>
   <text x="167" y="155" text-anchor="middle" font-size="10.5" fill="#1a1a2e">+ đăng nhập</text>
-  <text x="167" y="185" text-anchor="middle" font-size="10" fill="#6b7280">3–5h</text>
 
   <!-- step 2 -->
   <rect x="220" y="90" width="85" height="120" rx="10" fill="#e8f4fd" stroke="#2f80ed" stroke-width="2"/>
   <text x="262" y="115" text-anchor="middle" font-size="16" font-weight="800" fill="#1a5fb4">2</text>
   <text x="262" y="140" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Thư viện</text>
   <text x="262" y="155" text-anchor="middle" font-size="10.5" fill="#1a1a2e">+ soạn 3 bài</text>
-  <text x="262" y="185" text-anchor="middle" font-size="10" fill="#6b7280">3–4h</text>
 
   <!-- step 3 -->
   <rect x="315" y="90" width="85" height="120" rx="10" fill="#fdf3e3" stroke="#e6a23c" stroke-width="2.5"/>
   <text x="357" y="115" text-anchor="middle" font-size="16" font-weight="800" fill="#b26a00">3 ⭐</text>
   <text x="357" y="140" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Viết → chấm</text>
   <text x="357" y="155" text-anchor="middle" font-size="10.5" fill="#1a1a2e">→ viết lại</text>
-  <text x="357" y="185" text-anchor="middle" font-size="10" fill="#6b7280">5–8h</text>
 
   <!-- step 4 -->
   <rect x="410" y="90" width="85" height="120" rx="10" fill="#fdf3e3" stroke="#e6a23c" stroke-width="2"/>
   <text x="452" y="115" text-anchor="middle" font-size="16" font-weight="800" fill="#b26a00">4</text>
   <text x="452" y="140" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Đọc–dịch</text>
   <text x="452" y="155" text-anchor="middle" font-size="10.5" fill="#1a1a2e">+ Sổ từ</text>
-  <text x="452" y="185" text-anchor="middle" font-size="10" fill="#6b7280">5–8h</text>
 
   <!-- step 5 -->
   <rect x="505" y="90" width="85" height="120" rx="10" fill="#fdf3e3" stroke="#e6a23c" stroke-width="2"/>
   <text x="547" y="115" text-anchor="middle" font-size="16" font-weight="800" fill="#b26a00">5</text>
   <text x="547" y="140" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Nói (ghi âm)</text>
   <text x="547" y="155" text-anchor="middle" font-size="10.5" fill="#1a1a2e">+ Nghe video</text>
-  <text x="547" y="185" text-anchor="middle" font-size="10" fill="#6b7280">8–12h</text>
 
   <!-- step 6 -->
   <rect x="600" y="90" width="85" height="120" rx="10" fill="#fdf3e3" stroke="#e6a23c" stroke-width="2"/>
   <text x="642" y="115" text-anchor="middle" font-size="16" font-weight="800" fill="#b26a00">6</text>
   <text x="642" y="140" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Hôm nay,</text>
   <text x="642" y="155" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Tiến độ</text>
-  <text x="642" y="185" text-anchor="middle" font-size="10" fill="#6b7280">4–6h</text>
 
   <!-- step 7 -->
   <rect x="695" y="90" width="85" height="120" rx="10" fill="#eaf7ec" stroke="#3aa757" stroke-width="2"/>
   <text x="737" y="115" text-anchor="middle" font-size="16" font-weight="800" fill="#237a3c">7</text>
   <text x="737" y="140" text-anchor="middle" font-size="10.5" fill="#1a1a2e">Lên mạng</text>
   <text x="737" y="155" text-anchor="middle" font-size="10.5" fill="#1a1a2e">+ backup</text>
-  <text x="737" y="185" text-anchor="middle" font-size="10" fill="#6b7280">3–5h</text>
 
   <!-- step 8 -->
   <rect x="790" y="90" width="85" height="120" rx="10" fill="#eaf7ec" stroke="#3aa757" stroke-width="2"/>
@@ -88,7 +81,7 @@
   <line x1="685" y1="150" x2="695" y2="150" stroke="#9aa7c2" stroke-width="2" marker-end="url(#arr3)"/>
   <line x1="780" y1="150" x2="790" y2="150" stroke="#9aa7c2" stroke-width="2" marker-end="url(#arr3)"/>
 
-  <text x="450" y="245" text-anchor="middle" font-size="12.5" fill="#1a1a2e">Tổng ~30–40 giờ, trải ra 2–4 tuần tuỳ lịch anh. Bước 3 là mốc quan trọng nhất: viết → AI chấm → viết lại.</text>
+  <text x="450" y="245" text-anchor="middle" font-size="12.5" fill="#1a1a2e">Làm theo nhịp của anh — không cần dồn. Bước 3 là mốc quan trọng nhất: viết → AI chấm → viết lại.</text>
   <text x="450" y="268" text-anchor="middle" font-size="12.5" fill="#6b7280">Bước 9 (IELTS có giờ + Zalo) làm sau, khi bản Lite đã ổn — không vội.</text>
 
   <!-- bottom note -->
