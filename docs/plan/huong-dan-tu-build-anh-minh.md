@@ -58,7 +58,7 @@ mkdir -p ~/Projects && cd ~/Projects
 git clone https://github.com/thuanyogi/english-mini-lms.git
 cd english-mini-lms
 git remote set-url origin https://github.com/<username-cua-anh>/english-mini-lms.git
-git push -u origin main
+git push -u origin master
 ```
 
 - `<username-cua-anh>` = username GitHub anh vừa tạo; `english-mini-lms` là repo private trống ở bước 3.2.
