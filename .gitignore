@@ -1,0 +1,28 @@
+# secrets
+.env
+.env.local
+.env.*.local
+
+# node / next
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
+coverage/
+
+# OS
+.DS_Store
+Icon?
+Thumbs.db
+
+# nguồn học có bản quyền / media (chỉ giữ metadata + trích đoạn ngắn trong repo)
+content/english-lab/**/*.pdf
+content/english-lab/**/*.mp3
+content/english-lab/**/*.m4a
+content/english-lab/**/*.wav
+content/english-lab/**/*.mp4
+
+# dữ liệu học riêng, backup local
+private/
+backups/
