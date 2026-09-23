@@ -1,7 +1,12 @@
-import { eq, and, desc, lte, gte } from "drizzle-orm";
+import { eq, and, desc, lte, gte, asc } from "drizzle-orm";
 import { db } from "@/db";
-import { vocabularyVault, usageEvents } from "@/db/schema";
-import { quickCaptureVocabulary, QuickCaptureResult } from "@/server/providers/gemini";
+import { vocabularyVault, vocabularyReviews, usageEvents } from "@/db/schema";
+import {
+  quickCaptureVocabulary,
+  QuickCaptureResult,
+  evaluateVocabUsage,
+  VocabUsageEvaluation,
+} from "@/server/providers/gemini";
 
 export class ValidationError extends Error {
   statusCode: number;
@@ -186,4 +191,216 @@ export async function updateVocabulary(
   }
 
   return updated;
+}
+
+// ──────────────────────────────────────────────
+// Spaced Repetition Review (1 → 3 → 7 → 14 ngày)
+// ──────────────────────────────────────────────
+
+const SPACED_INTERVALS_DAYS = [1, 3, 7, 14, 30];
+
+export function calculateNextReview(
+  currentMastery: number,
+  isCorrect: boolean
+): { nextMastery: number; nextDueAt: Date; intervalDays: number } {
+  if (isCorrect) {
+    const nextMastery = Math.min(5, currentMastery + 1);
+    const intervalDays =
+      nextMastery <= 4 ? SPACED_INTERVALS_DAYS[nextMastery] || 14 : 30;
+    const nextDueAt = new Date(Date.now() + intervalDays * 24 * 60 * 60 * 1000);
+    return { nextMastery, nextDueAt, intervalDays };
+  } else {
+    // Sai: về 1 ngày
+    const nextMastery = Math.max(0, currentMastery - 1);
+    const intervalDays = 1;
+    const nextDueAt = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
+    return { nextMastery, nextDueAt, intervalDays };
+  }
+}
+
+/**
+ * Lấy tối đa 5 từ vựng đến hạn ôn tập (due_at <= now)
+ */
+export async function getDueVocabularyForReview(
+  learnerId: string,
+  limit = 5,
+  allowPracticeExtra = false
+) {
+  const now = new Date();
+
+  // Lấy các từ đến hạn ôn (due_at <= now)
+  const dueItems = await db
+    .select({
+      id: vocabularyVault.id,
+      phrase: vocabularyVault.phrase,
+      ipa: vocabularyVault.ipa,
+      contextMeaning: vocabularyVault.contextMeaning,
+      originalSentence: vocabularyVault.originalSentence,
+      sourceRef: vocabularyVault.sourceRef,
+      myAttempt: vocabularyVault.myAttempt,
+      masteryLevel: vocabularyVault.masteryLevel,
+      dueAt: vocabularyVault.dueAt,
+    })
+    .from(vocabularyVault)
+    .where(
+      and(
+        eq(vocabularyVault.learnerId, learnerId),
+        lte(vocabularyVault.dueAt, now)
+      )
+    )
+    .orderBy(asc(vocabularyVault.dueAt))
+    .limit(limit);
+
+  const items = [...dueItems];
+
+  // Chỉ bổ sung thêm từ luyện tập nếu người dùng bật allowPracticeExtra
+  if (allowPracticeExtra && items.length < limit) {
+    const existingIds = new Set(items.map((i) => i.id));
+    const extraItems = await db
+      .select({
+        id: vocabularyVault.id,
+        phrase: vocabularyVault.phrase,
+        ipa: vocabularyVault.ipa,
+        contextMeaning: vocabularyVault.contextMeaning,
+        originalSentence: vocabularyVault.originalSentence,
+        sourceRef: vocabularyVault.sourceRef,
+        myAttempt: vocabularyVault.myAttempt,
+        masteryLevel: vocabularyVault.masteryLevel,
+        dueAt: vocabularyVault.dueAt,
+      })
+      .from(vocabularyVault)
+      .where(
+        and(
+          eq(vocabularyVault.learnerId, learnerId),
+          lte(vocabularyVault.masteryLevel, 3)
+        )
+      )
+      .orderBy(asc(vocabularyVault.masteryLevel), asc(vocabularyVault.dueAt))
+      .limit(limit * 2);
+
+    for (const extra of extraItems) {
+      if (!existingIds.has(extra.id) && items.length < limit) {
+        items.push(extra);
+        existingIds.add(extra.id);
+      }
+    }
+  }
+
+  // Tạo câu hỏi micro-challenge cho từng từ
+  return items.map((item) => ({
+    ...item,
+    challengePrompt: `Dùng cụm từ "${item.phrase}" (${item.contextMeaning || "chuyên ngành y tế"}) trong một câu tiếng Anh trao đổi với bệnh nhân hoặc đồng nghiệp.`,
+  }));
+}
+
+/**
+ * Nộp bài ôn từ (text hoặc voice): Gọi Gemini đánh giá và cập nhật lịch Spaced Repetition
+ */
+export async function submitVocabularyReview(
+  learnerId: string,
+  vocabId: string,
+  scenario: string,
+  userResponse: string,
+  modality: "text" | "audio" = "text",
+  preEvaluated?: VocabUsageEvaluation
+) {
+  if (!userResponse || !userResponse.trim()) {
+    throw new ValidationError("Câu trả lời không được để trống", 400);
+  }
+
+  // 1. Lấy thông tin từ vựng
+  const [vocab] = await db
+    .select()
+    .from(vocabularyVault)
+    .where(
+      and(
+        eq(vocabularyVault.id, vocabId),
+        eq(vocabularyVault.learnerId, learnerId)
+      )
+    )
+    .limit(1);
+
+  if (!vocab) {
+    throw new ValidationError("Từ vựng không tồn tại", 404);
+  }
+
+  // 2. Đánh giá câu trả lời qua Gemini nếu chưa có kết quả đánh giá trước
+  let evalResult: VocabUsageEvaluation;
+  let tokenIn = 0;
+  let tokenOut = 0;
+  let modelUsed = "gemini-2.5-flash";
+
+  if (preEvaluated) {
+    evalResult = preEvaluated;
+  } else {
+    const aiRes = await evaluateVocabUsage(
+      vocab.phrase,
+      vocab.contextMeaning || "",
+      scenario,
+      userResponse.trim()
+    );
+    evalResult = aiRes.result;
+    tokenIn = aiRes.tokenInput;
+    tokenOut = aiRes.tokenOutput;
+    modelUsed = aiRes.modelName;
+  }
+
+  // 3. Tính lịch ôn tập kế tiếp (1→3→7→14 ngày, sai về 1 ngày)
+  const isCorrect = evalResult.resultStatus === "correct";
+  const { nextMastery, nextDueAt, intervalDays } = calculateNextReview(
+    vocab.masteryLevel,
+    isCorrect
+  );
+
+  // 4. Ghi lịch sử vào vocabulary_reviews
+  const [review] = await db
+    .insert(vocabularyReviews)
+    .values({
+      vocabularyId: vocab.id,
+      learnerId,
+      reviewChannel: "web",
+      promptScenario: scenario,
+      userResponse: userResponse.trim(),
+      responseModality: modality,
+      aiAssessment: evalResult.aiAssessment,
+      resultStatus: evalResult.resultStatus,
+      nextDueAt,
+    })
+    .returning();
+
+  // 5. Cập nhật vocabulary_vault
+  const [updatedVocab] = await db
+    .update(vocabularyVault)
+    .set({
+      masteryLevel: nextMastery,
+      dueAt: nextDueAt,
+      myAttempt: userResponse.trim(),
+      updatedAt: new Date(),
+    })
+    .where(eq(vocabularyVault.id, vocab.id))
+    .returning();
+
+  // 6. Ghi log usage_event
+  try {
+    await db.insert(usageEvents).values({
+      learnerId,
+      action: "review_vocab",
+      entityType: "vocabulary",
+      entityId: vocab.id,
+      tokenInput: tokenIn,
+      tokenOutput: tokenOut,
+      modelName: modelUsed,
+    });
+  } catch (e) {
+    console.warn("Lỗi ghi log usage event ôn từ:", e);
+  }
+
+  return {
+    review,
+    vocabulary: updatedVocab,
+    evaluation: evalResult,
+    nextDueAt,
+    intervalDays,
+    masteryLevel: nextMastery,
+  };
 }

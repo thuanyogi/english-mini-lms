@@ -191,24 +191,44 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
           </p>
         </div>
 
-        <Link
-          href="/library"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "8px 14px",
-            borderRadius: "10px",
-            background: "#4f46e5",
-            color: "#ffffff",
-            fontSize: "0.875rem",
-            fontWeight: 600,
-            textDecoration: "none",
-            minHeight: "44px",
-          }}
-        >
-          <span>📖</span> Vào bài đọc tra từ
-        </Link>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          <Link
+            href="/vocab/review"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 14px",
+              borderRadius: "10px",
+              background: "#d97706",
+              color: "#ffffff",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              minHeight: "44px",
+            }}
+          >
+            <span>💡</span> Ôn từ theo lịch
+          </Link>
+          <Link
+            href="/library"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 14px",
+              borderRadius: "10px",
+              background: "#4f46e5",
+              color: "#ffffff",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              minHeight: "44px",
+            }}
+          >
+            <span>📖</span> Vào bài đọc tra từ
+          </Link>
+        </div>
       </div>
 
       {/* Tabs lọc: Tất cả / Đến hạn / Đã thuộc */}

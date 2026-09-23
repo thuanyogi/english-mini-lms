@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SmartCapturePopup } from "./smart-capture-popup";
+import { SessionWrapUpModal } from "./session-wrap-up-modal";
 
 interface ReadingSessionViewProps {
   sessionId: string;
@@ -70,7 +71,8 @@ export function ReadingSessionView({
 
   // Timer state
   const [secondsRemaining, setSecondsRemaining] = useState(targetMinutes * 60);
-  const [timerActive] = useState(true);
+  const [timerActive, setTimerActive] = useState(true);
+  const [showWrapUp, setShowWrapUp] = useState(false);
 
   // Text selection & Quick-capture popup state
   const [selectionData, setSelectionData] = useState<{
@@ -100,6 +102,8 @@ Direct sonographic monitoring substantially minimizes the risk of accidental int
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
+          setTimerActive(false);
+          setShowWrapUp(true);
           return 0;
         }
         return prev - 1;
@@ -180,6 +184,17 @@ Direct sonographic monitoring substantially minimizes the risk of accidental int
     } finally {
       setIsSavingDraft(false);
     }
+  }
+
+  async function handleSaveAndExit() {
+    await handleManualSaveDraft();
+    router.push("/today");
+  }
+
+  function handleExtendTimer() {
+    setSecondsRemaining(300);
+    setTimerActive(true);
+    setShowWrapUp(false);
   }
 
   // Helper to extract enclosing sentence around selection
@@ -685,6 +700,17 @@ Direct sonographic monitoring substantially minimizes the risk of accidental int
           </div>
         </div>
       </div>
+
+      {/* Modal đề nghị lưu/khép phiên tự pause ở phút 30/45 không xoá nháp */}
+      <SessionWrapUpModal
+        targetMinutes={targetMinutes}
+        isOpen={showWrapUp}
+        onSaveAndExit={handleSaveAndExit}
+        onSubmit={handleSubmit}
+        onExtend={handleExtendTimer}
+        isSaving={isSavingDraft}
+        canSubmit={Boolean(translation.trim())}
+      />
     </div>
   );
 }

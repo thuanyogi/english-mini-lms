@@ -637,4 +637,104 @@ Hãy lắng nghe trực tiếp tệp âm thanh đính kèm, bóc băng chính x�
   }
 }
 
+// ──────────────────────────────────────────────
+// Vocabulary Review / Spaced Repetition Evaluation
+// ──────────────────────────────────────────────
+
+export const VocabUsageEvaluationSchema = z.object({
+  resultStatus: z.enum(["correct", "incorrect", "partial"]),
+  aiAssessment: z.string(),
+  feedbackNotes: z.string(),
+  exampleCorrection: z.string().optional(),
+});
+
+export type VocabUsageEvaluation = z.infer<typeof VocabUsageEvaluationSchema>;
+
+export interface EvaluateVocabUsageResult {
+  result: VocabUsageEvaluation;
+  tokenInput: number;
+  tokenOutput: number;
+  modelName: string;
+}
+
+const VOCAB_USAGE_SYSTEM_INSTRUCTION = `Bạn là Chuyên gia Ngôn ngữ tiếng Anh Y khoa & Giao tiếp Hội nghị dành cho Bác sĩ Minh (chuyên khoa Cơ xương khớp, can thiệp giảm đau siêu âm).
+Nhiệm vụ: Đánh giá câu trả lời của bác sĩ trong bài tập ôn từ vựng ngắt quãng (Spaced Repetition Micro-challenge).
+
+QUY TẮC ĐÁNH GIÁ:
+1. resultStatus:
+   - "correct": Sử dụng từ/cụm từ đúng ngữ pháp, chuẩn collocation, và phù hợp với tình huống lâm sàng/giao tiếp.
+   - "incorrect": Không dùng từ yêu cầu, hoặc dùng sai hoàn toàn về nghĩa/ngữ pháp làm biến dạng thông điệp.
+   - "partial": Hiểu nghĩa và dùng được từ, nhưng còn lỗi ngữ pháp nhỏ, sai giới từ hoặc diễn đạt chưa thật tự nhiên.
+2. aiAssessment: Đánh giá 1-2 câu thẳng thắn, mang tính khuyến khích chuyên môn.
+3. feedbackNotes: Phân tích về cách kết hợp từ (collocation) và sắc thái ngữ nghĩa y tế nếu có.
+4. exampleCorrection: Đưa ra 1 câu mẫu tự nhiên, ngắn gọn, chuẩn phong cách y khoa quốc tế.
+5. Luôn trả về đúng định dạng JSON tuân thủ schema.`;
+
+const vocabUsageJsonSchema = {
+  type: "object",
+  properties: {
+    resultStatus: { type: "string", enum: ["correct", "incorrect", "partial"] },
+    aiAssessment: { type: "string" },
+    feedbackNotes: { type: "string" },
+    exampleCorrection: { type: "string" },
+  },
+  required: ["resultStatus", "aiAssessment", "feedbackNotes"],
+};
+
+export async function evaluateVocabUsage(
+  phrase: string,
+  contextMeaning: string,
+  scenario: string,
+  userResponse: string,
+  modelName = "gemini-2.5-flash"
+): Promise<EvaluateVocabUsageResult> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not set in environment");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `TỪ / CỤM TỪ CẦN ÔN TẬP: "${phrase}"
+Ý NGHĨA TRONG NGỮ CẢNH: "${contextMeaning}"
+TÌNH HUỐNG THỬ THÁCH (SCENARIO): "${scenario}"
+
+CÂU TRẢ LỜI CỦA BÁC SĨ MINH:
+"${userResponse}"
+
+Hãy đánh giá và trả về kết quả theo đúng JSON schema.`;
+
+  const response = await ai.models.generateContent({
+    model: modelName,
+    contents: prompt,
+    config: {
+      systemInstruction: VOCAB_USAGE_SYSTEM_INSTRUCTION,
+      responseMimeType: "application/json",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      responseSchema: vocabUsageJsonSchema as any,
+      temperature: 0.1,
+    },
+  });
+
+  const responseText = response.text || "";
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(responseText);
+  } catch (err) {
+    throw new Error(`Lỗi parse JSON từ Gemini: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  const validated = VocabUsageEvaluationSchema.safeParse(parsed);
+  if (!validated.success) {
+    throw new Error(`JSON từ Gemini không đúng schema: ${validated.error.message}`);
+  }
+
+  return {
+    result: validated.data,
+    tokenInput: response.usageMetadata?.promptTokenCount || 0,
+    tokenOutput: response.usageMetadata?.candidatesTokenCount || 0,
+    modelName,
+  };
+}
+
 

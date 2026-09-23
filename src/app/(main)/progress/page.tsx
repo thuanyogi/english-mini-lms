@@ -1,30 +1,17 @@
-export default function ProgressPage() {
-  return (
-    <div style={{ padding: "1.5rem" }}>
-      <h1
-        style={{
-          fontSize: "1.25rem",
-          fontWeight: 700,
-          color: "#0f172a",
-          margin: "0 0 1rem",
-        }}
-      >
-        📊 Tiến độ
-      </h1>
-      <div
-        style={{
-          background: "white",
-          borderRadius: "12px",
-          padding: "2rem 1.5rem",
-          textAlign: "center",
-          border: "1px solid #e2e8f0",
-        }}
-      >
-        <p style={{ color: "#64748b", margin: 0 }}>
-          Tiến độ học tập sẽ có ở Bước 6 — số phiên, kỹ năng, lỗi lặp, từ đã
-          thuộc.
-        </p>
-      </div>
-    </div>
-  );
+import { getCurrentLearner } from "@/server/auth";
+import { redirect } from "next/navigation";
+import { getProgressSummary } from "@/server/progress/service";
+import ProgressView from "./progress-view";
+
+export const dynamic = "force-dynamic";
+
+export default async function ProgressPage() {
+  const learner = await getCurrentLearner();
+  if (!learner) {
+    redirect("/login");
+  }
+
+  const summary = await getProgressSummary(learner.id);
+
+  return <ProgressView initialSummary={summary} />;
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AudioRecorder } from "./audio-recorder";
 import { SpeakingFeedback } from "@/server/providers/gemini";
+import { SessionWrapUpModal } from "./session-wrap-up-modal";
 
 interface SpeakingSessionViewProps {
   sessionId: string;
@@ -55,6 +56,7 @@ export function SpeakingSessionView({
   // Timer state
   const [secondsRemaining, setSecondsRemaining] = useState(targetMinutes * 60);
   const [timerActive, setTimerActive] = useState(true);
+  const [showWrapUp, setShowWrapUp] = useState(false);
 
   // Hint / help state
   const [hintShown, setHintShown] = useState(false);
@@ -71,6 +73,8 @@ export function SpeakingSessionView({
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
+          setTimerActive(false);
+          setShowWrapUp(true);
           return 0;
         }
         return prev - 1;
@@ -79,6 +83,16 @@ export function SpeakingSessionView({
 
     return () => clearInterval(interval);
   }, [timerActive, secondsRemaining]);
+
+  function handleSaveAndExit() {
+    router.push("/today");
+  }
+
+  function handleExtendTimer() {
+    setSecondsRemaining(300);
+    setTimerActive(true);
+    setShowWrapUp(false);
+  }
 
   // Format seconds -> MM:SS
   const formatTime = (secs: number) => {
@@ -609,6 +623,17 @@ export function SpeakingSessionView({
           </p>
         )}
       </div>
+
+      {/* Modal đề nghị lưu/khép phiên tự pause ở phút 30/45 không xoá nháp */}
+      <SessionWrapUpModal
+        targetMinutes={targetMinutes}
+        isOpen={showWrapUp}
+        onSaveAndExit={handleSaveAndExit}
+        onSubmit={handleSubmit}
+        onExtend={handleExtendTimer}
+        isSaving={false}
+        canSubmit={Boolean(recordedBlob)}
+      />
     </div>
   );
 }

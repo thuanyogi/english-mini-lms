@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { YouTubePlayer } from "./youtube-player";
 import { AudioRecorder } from "./audio-recorder";
 import { SpeakingFeedback } from "@/server/providers/gemini";
+import { SessionWrapUpModal } from "./session-wrap-up-modal";
 
 interface Question {
   id: string;
@@ -57,6 +59,8 @@ export function ListeningSessionView({
   activity,
   listening,
 }: ListeningSessionViewProps) {
+  const router = useRouter();
+
   // Answers state: { [questionId]: optionId }
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
@@ -89,6 +93,7 @@ export function ListeningSessionView({
   // Timer state
   const [secondsRemaining, setSecondsRemaining] = useState(targetMinutes * 60);
   const [timerActive, setTimerActive] = useState(true);
+  const [showWrapUp, setShowWrapUp] = useState(false);
 
   // Countdown timer effect
   useEffect(() => {
@@ -98,6 +103,8 @@ export function ListeningSessionView({
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
+          setTimerActive(false);
+          setShowWrapUp(true);
           return 0;
         }
         return prev - 1;
@@ -106,6 +113,16 @@ export function ListeningSessionView({
 
     return () => clearInterval(interval);
   }, [timerActive, secondsRemaining]);
+
+  function handleSaveAndExit() {
+    router.push("/today");
+  }
+
+  function handleExtendTimer() {
+    setSecondsRemaining(300);
+    setTimerActive(true);
+    setShowWrapUp(false);
+  }
 
   const formatTime = (secs: number) => {
     const mins = Math.floor(secs / 60);
@@ -1064,6 +1081,17 @@ export function ListeningSessionView({
           )}
         </div>
       )}
+
+      {/* Modal đề nghị lưu/khép phiên tự pause ở phút 30/45 không xoá nháp */}
+      <SessionWrapUpModal
+        targetMinutes={targetMinutes}
+        isOpen={showWrapUp}
+        onSaveAndExit={handleSaveAndExit}
+        onSubmit={handleSubmit}
+        onExtend={handleExtendTimer}
+        isSaving={false}
+        canSubmit={!isSubmitting}
+      />
     </div>
   );
 }

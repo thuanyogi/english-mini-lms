@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { SessionWrapUpModal } from "./session-wrap-up-modal";
 import { WritingFeedback } from "@/server/providers/gemini";
 
 interface WritingSessionViewProps {
@@ -59,6 +60,7 @@ export function WritingSessionView({
   // Timer state
   const [secondsRemaining, setSecondsRemaining] = useState(targetMinutes * 60);
   const [timerActive, setTimerActive] = useState(true);
+  const [showWrapUp, setShowWrapUp] = useState(false);
 
   // Toggle parent reference panel
   const [showParentRef, setShowParentRef] = useState(Boolean(parentData));
@@ -74,6 +76,8 @@ export function WritingSessionView({
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
+          setTimerActive(false);
+          setShowWrapUp(true);
           return 0;
         }
         return prev - 1;
@@ -147,6 +151,17 @@ export function WritingSessionView({
     } finally {
       setIsSavingDraft(false);
     }
+  }
+
+  async function handleSaveAndExit() {
+    await handleSaveDraft();
+    router.push("/today");
+  }
+
+  function handleExtendTimer() {
+    setSecondsRemaining(300);
+    setTimerActive(true);
+    setShowWrapUp(false);
   }
 
   // Request hint
@@ -523,7 +538,7 @@ export function WritingSessionView({
                     Các điểm cần tập trung sửa từ bản 1:
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    {parentData.feedback.observations.map((obs, idx) => (
+                    {parentData.feedback.observations.map((obs: { location: string; issue: string; suggestion: string }, idx: number) => (
                       <div
                         key={idx}
                         style={{
@@ -669,6 +684,17 @@ export function WritingSessionView({
           </button>
         </div>
       </div>
+
+      {/* Modal đề nghị lưu/khép phiên tự pause ở phút 30/45 không xoá nháp */}
+      <SessionWrapUpModal
+        targetMinutes={targetMinutes}
+        isOpen={showWrapUp}
+        onSaveAndExit={handleSaveAndExit}
+        onSubmit={handleSubmit}
+        onExtend={handleExtendTimer}
+        isSaving={isSavingDraft}
+        canSubmit={Boolean(text.trim())}
+      />
     </div>
   );
 }
