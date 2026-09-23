@@ -10,8 +10,10 @@ import {
   errorObservations,
   usageEvents,
   activities,
+  sourceSegments,
+  sources,
 } from "@/db/schema";
-import { evaluateWriting, WritingFeedback } from "@/server/providers/gemini";
+import { evaluateWriting, evaluateReading, WritingFeedback } from "@/server/providers/gemini";
 
 /**
  * 1. Tạo phiên học mới (learning_sessions)
@@ -136,8 +138,10 @@ export async function createSubmissionAndAssess(
   const [activity] = await db
     .select({
       id: activities.id,
+      mode: activities.mode,
       promptText: activities.promptText,
       rubricJson: activities.rubricJson,
+      segmentIds: activities.segmentIds,
     })
     .from(activities)
     .where(eq(activities.id, session.activityId))
@@ -212,11 +216,46 @@ export async function createSubmissionAndAssess(
       .set({ status: "processing", updatedAt: new Date() })
       .where(eq(assessments.id, assessment.id));
 
-    const evalResult = await evaluateWriting(
-      activity.promptText || "",
-      activity.rubricJson,
-      body
-    );
+    let evalResult;
+    if (activity.mode === "reading") {
+      let segmentText = "";
+      if (activity.segmentIds && activity.segmentIds.length > 0) {
+        const [seg] = await db
+          .select({ textContent: sourceSegments.textContent })
+          .from(sourceSegments)
+          .where(eq(sourceSegments.id, activity.segmentIds[0]))
+          .limit(1);
+        if (seg?.textContent) {
+          segmentText = seg.textContent;
+        }
+      }
+
+      let readingSubmission = {
+        mainIdea: "",
+        translation: body,
+        keyTerms: "",
+      };
+      try {
+        const parsed = JSON.parse(body);
+        if (parsed && typeof parsed === "object") {
+          readingSubmission = {
+            mainIdea: parsed.mainIdea || "",
+            translation: parsed.translation || body,
+            keyTerms: parsed.keyTerms || "",
+          };
+        }
+      } catch {
+        // body is plain text
+      }
+
+      evalResult = await evaluateReading(segmentText, readingSubmission);
+    } else {
+      evalResult = await evaluateWriting(
+        activity.promptText || "",
+        activity.rubricJson,
+        body
+      );
+    }
 
     // Ghi nhận feedback_versions
     const [feedback] = await db
@@ -242,7 +281,7 @@ export async function createSubmissionAndAssess(
       await db.insert(errorObservations).values({
         learnerId,
         sourceFeedbackId: feedback.id,
-        category: "writing",
+        category: activity.mode === "reading" ? "reading" : "writing",
         evidence: obs.original,
       });
     }
@@ -250,7 +289,7 @@ export async function createSubmissionAndAssess(
     // Ghi nhận usage_events (token input / output)
     await db.insert(usageEvents).values({
       learnerId,
-      action: "evaluate_writing",
+      action: activity.mode === "reading" ? "evaluate_reading" : "evaluate_writing",
       entityType: "submission",
       entityId: submission.id,
       tokenInput: evalResult.tokenInput,
@@ -321,7 +360,13 @@ export async function retryAssessment(assessmentId: string, learnerId: string) {
     .limit(1);
 
   const [activity] = await db
-    .select({ promptText: activities.promptText, rubricJson: activities.rubricJson })
+    .select({
+      id: activities.id,
+      mode: activities.mode,
+      promptText: activities.promptText,
+      rubricJson: activities.rubricJson,
+      segmentIds: activities.segmentIds,
+    })
     .from(activities)
     .where(eq(activities.id, session.activityId))
     .limit(1);
@@ -332,11 +377,46 @@ export async function retryAssessment(assessmentId: string, learnerId: string) {
     .where(eq(assessments.id, assessment.id));
 
   try {
-    const evalResult = await evaluateWriting(
-      activity.promptText || "",
-      activity.rubricJson,
-      submission.body
-    );
+    let evalResult;
+    if (activity.mode === "reading") {
+      let segmentText = "";
+      if (activity.segmentIds && activity.segmentIds.length > 0) {
+        const [seg] = await db
+          .select({ textContent: sourceSegments.textContent })
+          .from(sourceSegments)
+          .where(eq(sourceSegments.id, activity.segmentIds[0]))
+          .limit(1);
+        if (seg?.textContent) {
+          segmentText = seg.textContent;
+        }
+      }
+
+      let readingSubmission = {
+        mainIdea: "",
+        translation: submission.body,
+        keyTerms: "",
+      };
+      try {
+        const parsed = JSON.parse(submission.body);
+        if (parsed && typeof parsed === "object") {
+          readingSubmission = {
+            mainIdea: parsed.mainIdea || "",
+            translation: parsed.translation || submission.body,
+            keyTerms: parsed.keyTerms || "",
+          };
+        }
+      } catch {
+        // plain text
+      }
+
+      evalResult = await evaluateReading(segmentText, readingSubmission);
+    } else {
+      evalResult = await evaluateWriting(
+        activity.promptText || "",
+        activity.rubricJson,
+        submission.body
+      );
+    }
 
     const [feedback] = await db
       .insert(feedbackVersions)
@@ -356,9 +436,19 @@ export async function retryAssessment(assessmentId: string, learnerId: string) {
       })
       .returning();
 
+    // Ghi nhận error_observations
+    for (const obs of evalResult.feedback.observations) {
+      await db.insert(errorObservations).values({
+        learnerId,
+        sourceFeedbackId: feedback.id,
+        category: activity.mode === "reading" ? "reading" : "writing",
+        evidence: obs.original,
+      });
+    }
+
     await db.insert(usageEvents).values({
       learnerId,
-      action: "evaluate_writing",
+      action: activity.mode === "reading" ? "evaluate_reading" : "evaluate_writing",
       entityType: "submission",
       entityId: submission.id,
       tokenInput: evalResult.tokenInput,
@@ -422,10 +512,39 @@ export async function getSessionDetails(sessionId: string, learnerId: string) {
       promptText: activities.promptText,
       feedbackGuide: activities.feedbackGuide,
       output: activities.output,
+      segmentIds: activities.segmentIds,
     })
     .from(activities)
     .where(eq(activities.id, session.activityId))
     .limit(1);
+
+  // Nếu activity.mode === "reading", lấy thêm thông tin segment & source
+  let segment: {
+    id: string;
+    page: number | null;
+    textContent: string | null;
+    sourceId: string;
+    sourceTitle: string | null;
+  } | null = null;
+
+  if (activity && activity.mode === "reading" && activity.segmentIds && activity.segmentIds.length > 0) {
+    const [seg] = await db
+      .select({
+        id: sourceSegments.id,
+        page: sourceSegments.page,
+        textContent: sourceSegments.textContent,
+        sourceId: sourceSegments.sourceId,
+        sourceTitle: sources.title,
+      })
+      .from(sourceSegments)
+      .leftJoin(sources, eq(sourceSegments.sourceId, sources.id))
+      .where(eq(sourceSegments.id, activity.segmentIds[0]))
+      .limit(1);
+
+    if (seg) {
+      segment = seg;
+    }
+  }
 
   // Lấy bản nháp gần nhất nếu có
   const [draft] = await db
@@ -441,6 +560,7 @@ export async function getSessionDetails(sessionId: string, learnerId: string) {
   return {
     session,
     activity,
+    segment,
     draft: draft || null,
   };
 }

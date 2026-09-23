@@ -105,6 +105,56 @@ export function MyWorkView({
     }
   }
 
+  function renderSubmissionContent(body: string | null) {
+    if (!body) return "(Không có nội dung)";
+    try {
+      const parsed = JSON.parse(body);
+      if (
+        parsed &&
+        typeof parsed === "object" &&
+        (parsed.translation || parsed.mainIdea || parsed.keyTerms)
+      ) {
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {parsed.mainIdea && (
+              <div>
+                <div style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#475569", marginBottom: "4px" }}>
+                  🎯 1. Ý chính của đoạn:
+                </div>
+                <div style={{ color: "#334155", background: "#ffffff", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  {parsed.mainIdea}
+                </div>
+              </div>
+            )}
+            {parsed.translation && (
+              <div>
+                <div style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#475569", marginBottom: "4px" }}>
+                  🇻🇳 2. Bản dịch tiếng Việt:
+                </div>
+                <div style={{ color: "#0f172a", background: "#ffffff", padding: "12px", borderRadius: "8px", border: "1px solid #e2e8f0", whiteSpace: "pre-wrap" }}>
+                  {parsed.translation}
+                </div>
+              </div>
+            )}
+            {parsed.keyTerms && (
+              <div>
+                <div style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#475569", marginBottom: "4px" }}>
+                  🔬 3. Ba thuật ngữ tự giải thích:
+                </div>
+                <div style={{ color: "#334155", background: "#ffffff", padding: "10px 12px", borderRadius: "8px", border: "1px solid #e2e8f0", whiteSpace: "pre-wrap" }}>
+                  {parsed.keyTerms}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+    } catch {
+      // not JSON
+    }
+    return <div style={{ whiteSpace: "pre-wrap" }}>{body}</div>;
+  }
+
   return (
     <div
       style={{
@@ -355,7 +405,7 @@ export function MyWorkView({
                   whiteSpace: "pre-wrap",
                 }}
               >
-                {parent.submission.body}
+                {renderSubmissionContent(parent.submission.body)}
               </div>
             </div>
 
@@ -388,7 +438,7 @@ export function MyWorkView({
                   whiteSpace: "pre-wrap",
                 }}
               >
-                {submission.body}
+                {renderSubmissionContent(submission.body)}
               </div>
             </div>
           </div>
@@ -428,7 +478,7 @@ export function MyWorkView({
               border: "1px solid #f1f5f9",
             }}
           >
-            {submission.body}
+            {renderSubmissionContent(submission.body)}
           </div>
         </div>
       )}

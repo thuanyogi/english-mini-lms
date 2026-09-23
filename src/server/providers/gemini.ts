@@ -178,3 +178,200 @@ Hãy phân tích bài viết trên và trả về kết quả JSON theo đúng s
     }
   }
 }
+
+// ──────────────────────────────────────────────
+// Reading Evaluation
+// ──────────────────────────────────────────────
+
+const READING_SYSTEM_INSTRUCTION = `Bạn là Chuyên gia Cố vấn Ngôn ngữ Y khoa hỗ trợ Bác sĩ Minh (chuyên ngành Cơ xương khớp và can thiệp giảm đau siêu âm).
+Nhiệm vụ: Đánh giá bài đọc–dịch y khoa từ tiếng Anh sang tiếng Việt của học viên.
+
+QUY TẮC BẮT BUỘC:
+1. Chỉ nhận xét về độ trung thành của bản dịch so với đoạn gốc tiếng Anh, các câu hoặc ý bị bỏ sót/dịch lệch nghĩa, tính chính xác của các thuật ngữ giải phẫu/can thiệp, và độ tự nhiên của câu văn tiếng Việt chuyên ngành y tế.
+2. TUYỆT ĐỐI KHÔNG nhận xét chuyên môn y khoa, KHÔNG đưa ra khuyến nghị điều trị, KHÔNG phỏng đoán ca bệnh lâm sàng hay thuốc điều trị.
+3. Trường limitations BẮT BUỘC phải ghi: "Nhận xét của AI chỉ mang tính chất rèn luyện kỹ năng ngôn ngữ và độ trung thành với đoạn gốc; tuyệt đối không phải là khuyến nghị điều trị y khoa."
+4. Mỗi observation phải chỉ rõ:
+   - location: Vị trí câu trong bài dịch hoặc đoạn gốc
+   - original: Câu gốc hoặc câu dịch cần sửa
+   - issue: Giải thích tại sao dịch sót, lệch nghĩa hoặc diễn đạt chưa tự nhiên
+   - suggestion: Đề xuất cách dịch tối ưu
+   - example: Câu dịch mẫu tiếng Việt hoàn chỉnh
+   - retry_prompt: Yêu cầu thử thách người học dịch lại câu này
+5. Scores chỉ mang kind: "practice_estimate" với các tiêu chí: fidelity (độ trung thành), terminology (thuật ngữ chuyên ngành), expression (cách diễn đạt tiếng Việt). Tuyệt đối không có trường "official IELTS band".
+6. Trả về đúng định dạng JSON theo schema.`;
+
+export async function evaluateReading(
+  segmentText: string,
+  submission: {
+    mainIdea?: string;
+    translation: string;
+    keyTerms?: string;
+  },
+  modelName = "gemini-2.5-flash"
+): Promise<EvaluateWritingResult> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not set in environment");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  const userContent = `ĐOẠN VĂN BẢN GỐC TIẾNG ANH (TỪ SÁCH CHUYÊN NGÀNH Y KHOA):
+${segmentText}
+
+BÀI LÀM CỦA HỌC VIÊN:
+1. Ý CHÍNH CỦA ĐOẠN:
+${submission.mainIdea || "(Không có)"}
+
+2. BẢN DỊCH TIẾNG VIỆT:
+${submission.translation}
+
+3. CÁC THUẬT NGỮ TỰ GIẢI THÍCH:
+${submission.keyTerms || "(Không có)"}
+
+Hãy đối chiếu bản dịch với đoạn gốc và trả về JSON nhận xét chi tiết.`;
+
+  async function callGeminiOnce() {
+    const response = await ai.models.generateContent({
+      model: modelName,
+      contents: userContent,
+      config: {
+        systemInstruction: READING_SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        responseSchema: geminiResponseSchema as any,
+        temperature: 0.2,
+      },
+    });
+
+    const responseText = response.text || "";
+    const tokenInput = response.usageMetadata?.promptTokenCount || 0;
+    const tokenOutput = response.usageMetadata?.candidatesTokenCount || 0;
+
+    let parsedJson: unknown;
+    try {
+      parsedJson = JSON.parse(responseText);
+    } catch (parseError) {
+      throw new Error(`Gemini không trả về JSON hợp lệ: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+    }
+
+    const validated = WritingFeedbackSchema.safeParse(parsedJson);
+    if (!validated.success) {
+      throw new Error(`JSON không đúng schema: ${validated.error.message}`);
+    }
+
+    // Đảm bảo limitations có cảnh báo y khoa
+    if (!validated.data.limitations.toLowerCase().includes("khuyến nghị")) {
+      validated.data.limitations = "Nhận xét của AI chỉ đánh giá kỹ năng ngôn ngữ và mức độ trung thành với đoạn gốc; tuyệt đối không mang tính chất khuyến nghị điều trị y khoa.";
+    }
+
+    return {
+      feedback: validated.data,
+      tokenInput,
+      tokenOutput,
+      modelName,
+    };
+  }
+
+  try {
+    return await callGeminiOnce();
+  } catch (firstError) {
+    console.warn("⚠️ Gemini evaluateReading lần 1 thất bại, thử lại lần 2...", firstError);
+    try {
+      return await callGeminiOnce();
+    } catch (secondError) {
+      console.error("❌ Gemini evaluateReading lần 2 tiếp tục thất bại:", secondError);
+      throw new Error(`Đánh giá bài đọc–dịch thất bại sau 2 lần thử: ${secondError instanceof Error ? secondError.message : String(secondError)}`);
+    }
+  }
+}
+
+// ──────────────────────────────────────────────
+// Vocabulary Quick-Capture
+// ──────────────────────────────────────────────
+
+export const QuickCaptureSchema = z.object({
+  phrase: z.string(),
+  ipa: z.string(),
+  context_meaning: z.string(),
+  example_sentence: z.string(),
+});
+
+export type QuickCaptureResult = z.infer<typeof QuickCaptureSchema>;
+
+const QUICK_CAPTURE_SYSTEM_INSTRUCTION = `Bạn là Trợ lý Từ vựng Y khoa dành cho Bác sĩ Minh (chuyên ngành Cơ xương khớp và can thiệp giảm đau dưới hướng dẫn siêu âm).
+Nhiệm vụ: Khi bác sĩ bôi đen một từ hoặc cụm từ trong tài liệu y khoa, hãy phân tích và trả về đúng định dạng JSON:
+{
+  "phrase": string (cụm từ chuẩn hóa),
+  "ipa": string (phiên âm quốc tế IPA chuẩn),
+  "context_meaning": string (nghĩa chính xác và chuyên biệt trong ngữ cảnh lâm sàng Cơ xương khớp / siêu âm can thiệp, không liệt kê nghĩa chung chung),
+  "example_sentence": string (câu ví dụ tiếng Anh thực tế trong giao tiếp y khoa hoặc hội nghị)
+}
+Trả về đúng định dạng JSON, không thêm chữ markdown ngoài JSON.`;
+
+const quickCaptureJsonSchema = {
+  type: "object",
+  properties: {
+    phrase: { type: "string" },
+    ipa: { type: "string" },
+    context_meaning: { type: "string" },
+    example_sentence: { type: "string" },
+  },
+  required: ["phrase", "ipa", "context_meaning", "example_sentence"],
+};
+
+export async function quickCaptureVocabulary(
+  selectedText: string,
+  surroundingSentence: string,
+  sourceRef?: string,
+  modelName = "gemini-2.5-flash"
+): Promise<{ result: QuickCaptureResult; tokenInput: number; tokenOutput: number; modelName: string }> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not set in environment");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  const userContent = `TỪ / CỤM TỪ ĐƯỢC CHỌN: "${selectedText}"
+CÂU NGỮ CẢNH GỐC: "${surroundingSentence}"
+NGUỒN THAM KHẢO: "${sourceRef || "Tài liệu y khoa"}"
+
+Hãy tra cứu và trả về JSON theo đúng schema.`;
+
+  const response = await ai.models.generateContent({
+    model: modelName,
+    contents: userContent,
+    config: {
+      systemInstruction: QUICK_CAPTURE_SYSTEM_INSTRUCTION,
+      responseMimeType: "application/json",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      responseSchema: quickCaptureJsonSchema as any,
+      temperature: 0.1,
+    },
+  });
+
+  const responseText = response.text || "";
+  const tokenInput = response.usageMetadata?.promptTokenCount || 0;
+  const tokenOutput = response.usageMetadata?.candidatesTokenCount || 0;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(responseText);
+  } catch (err) {
+    throw new Error(`Lỗi parse JSON từ Gemini: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  const validated = QuickCaptureSchema.safeParse(parsed);
+  if (!validated.success) {
+    throw new Error(`JSON từ Gemini không đúng schema: ${validated.error.message}`);
+  }
+
+  return {
+    result: validated.data,
+    tokenInput,
+    tokenOutput,
+    modelName,
+  };
+}
+

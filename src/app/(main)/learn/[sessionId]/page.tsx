@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentLearner } from "@/server/auth";
 import { getSessionDetails, getSubmissionWithFeedback } from "@/server/learning/service";
 import { WritingSessionView } from "./writing-session-view";
+import { ReadingSessionView } from "./reading-session-view";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,28 @@ export default async function LearnSessionPage({ params, searchParams }: PagePro
   const data = await getSessionDetails(sessionId, learner.id);
   if (!data) {
     notFound();
+  }
+
+  // Chế độ Đọc - Dịch y khoa (Reading Mode)
+  if (data.activity.mode === "reading") {
+    return (
+      <ReadingSessionView
+        sessionId={sessionId}
+        targetMinutes={data.session.targetMinutes}
+        activity={{
+          id: data.activity.id,
+          slot: data.activity.slot,
+          title: data.activity.title,
+          mode: data.activity.mode,
+          objective: data.activity.objective,
+          promptText: data.activity.promptText,
+          feedbackGuide: data.activity.feedbackGuide,
+          durationMinutes: data.activity.durationMinutes,
+        }}
+        segment={data.segment}
+        initialDraft={data.draft?.content || ""}
+      />
+    );
   }
 
   let parentData = null;
