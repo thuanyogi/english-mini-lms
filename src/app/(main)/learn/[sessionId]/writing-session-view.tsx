@@ -26,6 +26,7 @@ interface WritingSessionViewProps {
       body: string | null;
       assisted: boolean;
       submittedAt: Date;
+      audioUrl?: string | null;
     };
     feedback: WritingFeedback | null;
   } | null;

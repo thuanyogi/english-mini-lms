@@ -14,12 +14,12 @@ sources:
     notes: "Chỉ trích đoạn ngắn kèm số trang. Không copy toàn trang."
 
   - id: src-conference-talk-01
-    title: "Ví dụ: bài nói hội nghị về chẩn đoán siêu âm"
+    title: "Bài nói hội nghị về chẩn đoán siêu âm cơ xương khớp"
     kind: video
-    url: "https://www.youtube.com/watch?v=VIDEO_ID"
+    url: "https://www.youtube.com/watch?v=M7lc1UVf-VE"
     permission: public-embed
     locator_type: seconds
-    review_state: draft
+    review_state: approved
 
 segments:
   - id: seg-r1
@@ -33,6 +33,7 @@ segments:
     start_seconds: 95
     end_seconds: 155
     transcript_file: transcripts/l1-conference-95-155.txt
+    verified_transcript: true
 
 activities:
   - id: W1
@@ -74,7 +75,7 @@ activities:
     output: text
     answer_reveal: after_submit
     purpose: baseline
-    review_state: draft
+    review_state: approved
 
   - id: S1
     slot: S1

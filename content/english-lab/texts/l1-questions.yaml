@@ -1,0 +1,50 @@
+# Bộ câu hỏi nghe hiểu cho bài L1 (Nghe đoạn hội nghị y khoa 60s)
+# Đáp án bị khóa đến khi nộp bài (answer_reveal: after_submit)
+
+title: "Nghe hiểu: Ứng dụng siêu âm động trong chẩn đoán và can thiệp khớp vai"
+segment_id: "seg-l1"
+questions:
+  - id: "q1"
+    prompt: "Theo diễn giả, ưu điểm trực tiếp lớn nhất của siêu âm thời gian thực trong bệnh lý chóp xoay là gì?"
+    options:
+      - id: "A"
+        text: "Chi phí thấp hơn nhiều so với chụp X-quang thông thường."
+      - id: "B"
+        text: "Quan sát trực tiếp sự chuyển động của gân trong quá trình dạng khớp chủ động."
+      - id: "C"
+        text: "Thay thế hoàn toàn các xét nghiệm chỉ dấu sinh học máu."
+      - id: "D"
+        text: "Tự động chẩn đoán bệnh bằng thuật toán máy tính mà không cần bác sĩ."
+    correct_option_id: "B"
+    explanation: "Ở mốc giây 106–119 (01:46), diễn giả nhấn mạnh: 'In rotator cuff pathology, real-time ultrasound provides an immediate advantage by visualizing tendon movement during active abduction.'"
+    timestamp_reference: 110
+
+  - id: "q2"
+    prompt: "Tại sao siêu âm động phát hiện hội chứng chèn ép dưới mỏm cùng vai tốt hơn MRI trong ngữ cảnh này?"
+    options:
+      - id: "A"
+        text: "MRI có độ phân giải không gian kém hơn đối với xương gãy."
+      - id: "B"
+        text: "Chụp MRI tĩnh dễ bỏ sót các xung đột chỉ xảy ra khi khớp vai vận động thực tế."
+      - id: "C"
+        text: "Siêu âm sử dụng tia xạ đâm xuyên qua mỏm cùng vai tốt hơn."
+      - id: "D"
+        text: "Chụp MRI đòi hỏi gây mê toàn thân đối với bệnh nhân đau vai."
+    correct_option_id: "B"
+    explanation: "Ở mốc giây 119–131 (01:59), diễn giả chỉ ra: 'Notice how dynamic scanning easily identifies subacromial impingement that static MRI scans often miss.'"
+    timestamp_reference: 124
+
+  - id: "q3"
+    prompt: "Lợi ích then chốt của việc theo dõi đầu kim liên tục dưới siêu âm trong thủ thuật tiêm can thiệp là gì?"
+    options:
+      - id: "A"
+        text: "Không cần thực hiện sát khuẩn da trước khi tiêm."
+      - id: "B"
+        text: "Tối thiểu hóa biến chứng và bảo đảm thuốc được đưa chính xác vào vị trí mong muốn."
+      - id: "C"
+        text: "Rút ngắn thời gian hồi phục chức năng xuống một nửa."
+      - id: "D"
+        text: "Cho phép tiêm liều thuốc cao hơn mà không gây tác dụng phụ."
+    correct_option_id: "B"
+    explanation: "Ở mốc giây 131–144 (02:11), diễn giả kết luận: 'continuous sonographic tracking of the needle tip minimizes complications and ensures accurate delivery.'"
+    timestamp_reference: 136

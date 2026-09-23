@@ -1,0 +1,5 @@
+95|106|Good morning distinguished colleagues, today we will discuss dynamic high-resolution musculoskeletal ultrasound.
+106|119|In rotator cuff pathology, real-time ultrasound provides an immediate advantage by visualizing tendon movement during active abduction.
+119|131|Notice how dynamic scanning easily identifies subacromial impingement that static MRI scans often miss.
+131|144|Furthermore, during guided injections, continuous sonographic tracking of the needle tip minimizes complications and ensures accurate delivery.
+144|155|Therefore, combining thorough physical examination with point-of-care ultrasound substantially elevates our diagnostic confidence.

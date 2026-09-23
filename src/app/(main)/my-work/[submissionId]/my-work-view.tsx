@@ -13,6 +13,7 @@ interface MyWorkViewProps {
     body: string | null;
     assisted: boolean;
     submittedAt: Date;
+    audioUrl?: string | null;
   };
   activity: {
     id: string;
@@ -26,7 +27,9 @@ interface MyWorkViewProps {
     status: string;
     resultRef: string | null;
   } | null;
-  feedback: WritingFeedback | null;
+  feedback: (WritingFeedback & {
+    pronunciation?: { status: "assessed" | "not_assessable"; notes: string } | null;
+  }) | null;
   parent: {
     submission: {
       id: string;
@@ -34,8 +37,11 @@ interface MyWorkViewProps {
       body: string | null;
       assisted: boolean;
       submittedAt: Date;
+      audioUrl?: string | null;
     };
-    feedback: WritingFeedback | null;
+    feedback: (WritingFeedback & {
+      pronunciation?: { status: "assessed" | "not_assessable"; notes: string } | null;
+    }) | null;
   } | null;
 }
 
@@ -51,6 +57,33 @@ export function MyWorkView({
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"current" | "compare">("current");
+
+  // Transcript confirmation state (Speaking mode)
+  const [transcriptText, setTranscriptText] = useState(submission.body || "");
+  const [isEditingTranscript, setIsEditingTranscript] = useState(false);
+  const [isSavingTranscript, setIsSavingTranscript] = useState(false);
+  const [transcriptSaveSuccess, setTranscriptSaveSuccess] = useState(false);
+
+  async function handleSaveTranscript() {
+    try {
+      setIsSavingTranscript(true);
+      const res = await fetch(`/api/v1/submissions/${submission.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: transcriptText }),
+      });
+      if (!res.ok) {
+        throw new Error("Không thể lưu transcript");
+      }
+      setIsEditingTranscript(false);
+      setTranscriptSaveSuccess(true);
+      setTimeout(() => setTranscriptSaveSuccess(false), 3000);
+    } catch (e) {
+      console.error("Lỗi lưu transcript:", e);
+    } finally {
+      setIsSavingTranscript(false);
+    }
+  }
 
   // Format date
   const submittedDate = new Date(submission.submittedAt);
@@ -264,7 +297,7 @@ export function MyWorkView({
           {activity.title}
         </h1>
 
-        {/* Nút Viết bản sửa */}
+        {/* Nút Viết bản sửa hoặc Nói lại */}
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <button
             onClick={handleStartRevision}
@@ -285,9 +318,15 @@ export function MyWorkView({
               boxShadow: "0 2px 4px rgba(37,99,235,0.2)",
             }}
           >
-            <span>✍️</span>
+            <span>{activity.mode === "speaking" ? "🎙️" : "✍️"}</span>
             <span>
-              {isCreatingRevision ? "Đang mở editor..." : `Viết bản sửa (Bản ${submission.revision + 1})`}
+              {isCreatingRevision
+                ? activity.mode === "speaking"
+                  ? "Đang mở phiên nói lại..."
+                  : "Đang mở editor..."
+                : activity.mode === "speaking"
+                ? `Nói lại (Bản ${submission.revision + 1})`
+                : `Viết bản sửa (Bản ${submission.revision + 1})`}
             </span>
           </button>
 
@@ -397,6 +436,38 @@ export function MyWorkView({
               >
                 Bản 1 (Gốc)
               </div>
+
+              {/* Âm thanh Bản 1 nếu có */}
+              {parent.submission.audioUrl && (
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", marginBottom: "4px" }}>
+                    🔊 Ghi âm Bản 1 (Signed URL 10 phút):
+                  </div>
+                  <audio
+                    controls
+                    src={parent.submission.audioUrl}
+                    style={{ width: "100%", height: "36px" }}
+                  />
+                </div>
+              )}
+
+              {/* Nhận xét phát âm Bản 1 nếu có */}
+              {parent.feedback?.pronunciation && (
+                <div
+                  style={{
+                    background: "#f0fdf4",
+                    border: "1px solid #bbf7d0",
+                    borderRadius: "8px",
+                    padding: "8px 10px",
+                    fontSize: "0.75rem",
+                    color: "#166534",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <strong>🗣️ Phát âm Bản 1:</strong> {parent.feedback.pronunciation.notes}
+                </div>
+              )}
+
               <div
                 style={{
                   fontSize: "0.875rem",
@@ -430,6 +501,38 @@ export function MyWorkView({
               >
                 Bản 2 (Đã sửa)
               </div>
+
+              {/* Âm thanh Bản 2 nếu có */}
+              {submission.audioUrl && (
+                <div style={{ marginBottom: "12px" }}>
+                  <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#2563eb", marginBottom: "4px" }}>
+                    🔊 Ghi âm Bản 2 (Signed URL 10 phút):
+                  </div>
+                  <audio
+                    controls
+                    src={submission.audioUrl}
+                    style={{ width: "100%", height: "36px" }}
+                  />
+                </div>
+              )}
+
+              {/* Nhận xét phát âm Bản 2 nếu có */}
+              {feedback?.pronunciation && (
+                <div
+                  style={{
+                    background: "#eff6ff",
+                    border: "1px solid #bfdbfe",
+                    borderRadius: "8px",
+                    padding: "8px 10px",
+                    fontSize: "0.75rem",
+                    color: "#1e40af",
+                    marginBottom: "10px",
+                  }}
+                >
+                  <strong>🗣️ Phát âm Bản 2:</strong> {feedback.pronunciation.notes}
+                </div>
+              )}
+
               <div
                 style={{
                   fontSize: "0.875rem",
@@ -445,40 +548,168 @@ export function MyWorkView({
         </div>
       ) : (
         /* Tab hiển thị bài làm hiện tại */
-        <div
-          style={{
-            background: "#ffffff",
-            borderRadius: "14px",
-            border: "1px solid #e2e8f0",
-            padding: "18px 20px",
-            marginBottom: "16px",
-          }}
-        >
+        <div>
+          {/* Trình phát âm thanh nếu bài nộp có file ghi âm */}
+          {submission.audioUrl && (
+            <div
+              style={{
+                background: "#ffffff",
+                borderRadius: "14px",
+                border: "1px solid #e2e8f0",
+                padding: "16px 20px",
+                marginBottom: "16px",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "8px",
+                }}
+              >
+                <div style={{ fontWeight: 700, fontSize: "0.875rem", color: "#334155" }}>
+                  🔊 Bản ghi âm của bạn:
+                </div>
+                <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                  Bảo mật · Signed URL (10 phút)
+                </span>
+              </div>
+              <audio controls src={submission.audioUrl} style={{ width: "100%", height: "40px" }} />
+            </div>
+          )}
+
           <div
             style={{
-              fontSize: "0.8125rem",
-              fontWeight: 700,
-              color: "#475569",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              marginBottom: "10px",
+              background: "#ffffff",
+              borderRadius: "14px",
+              border: "1px solid #e2e8f0",
+              padding: "18px 20px",
+              marginBottom: "16px",
             }}
           >
-            📄 Nội dung bài nộp:
-          </div>
-          <div
-            style={{
-              fontSize: "0.9375rem",
-              lineHeight: 1.7,
-              color: "#1e293b",
-              whiteSpace: "pre-wrap",
-              background: "#f8fafc",
-              padding: "16px",
-              borderRadius: "10px",
-              border: "1px solid #f1f5f9",
-            }}
-          >
-            {renderSubmissionContent(submission.body)}
+            <div
+              style={{
+                fontSize: "0.8125rem",
+                fontWeight: 700,
+                color: "#475569",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: "10px",
+              }}
+            >
+              {activity.mode === "speaking" ? "📝 Transcript bài nói:" : "📄 Nội dung bài nộp:"}
+            </div>
+
+            {/* Chế độ sửa/xác nhận transcript đối với Speaking */}
+            {activity.mode === "speaking" && isEditingTranscript ? (
+              <div>
+                <textarea
+                  value={transcriptText}
+                  onChange={(e) => setTranscriptText(e.target.value)}
+                  rows={4}
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    borderRadius: "8px",
+                    border: "1px solid #2563eb",
+                    fontSize: "0.875rem",
+                    lineHeight: 1.6,
+                    color: "#0f172a",
+                    boxSizing: "border-box",
+                    outline: "none",
+                  }}
+                />
+                <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", marginTop: "8px" }}>
+                  <button
+                    onClick={() => {
+                      setTranscriptText(submission.body || "");
+                      setIsEditingTranscript(false);
+                    }}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "1px solid #cbd5e1",
+                      background: "#f1f5f9",
+                      fontSize: "0.8125rem",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Huỷ
+                  </button>
+                  <button
+                    onClick={handleSaveTranscript}
+                    disabled={isSavingTranscript}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "6px",
+                      border: "none",
+                      background: "#16a34a",
+                      color: "#ffffff",
+                      fontWeight: 600,
+                      fontSize: "0.8125rem",
+                      cursor: isSavingTranscript ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {isSavingTranscript ? "Đang lưu..." : "✅ Lưu transcript đã xác nhận"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div
+                  style={{
+                    fontSize: "0.9375rem",
+                    lineHeight: 1.7,
+                    color: "#1e293b",
+                    whiteSpace: "pre-wrap",
+                    background: "#f8fafc",
+                    padding: "16px",
+                    borderRadius: "10px",
+                    border: "1px solid #f1f5f9",
+                  }}
+                >
+                  {renderSubmissionContent(transcriptText || submission.body)}
+                </div>
+
+                {activity.mode === "speaking" && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: "10px",
+                    }}
+                  >
+                    {transcriptSaveSuccess ? (
+                      <span style={{ fontSize: "0.8125rem", color: "#16a34a", fontWeight: 600 }}>
+                        ✓ Đã cập nhật transcript làm bằng chứng học tập!
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                        Bác sĩ có thể chỉnh sửa các thuật ngữ chuyên ngành AI nhận diện chưa chuẩn.
+                      </span>
+                    )}
+                    <button
+                      onClick={() => setIsEditingTranscript(true)}
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: "6px",
+                        border: "1px solid #cbd5e1",
+                        background: "#ffffff",
+                        fontSize: "0.8125rem",
+                        color: "#2563eb",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      ✏️ Chỉnh sửa / Xác nhận
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -486,6 +717,60 @@ export function MyWorkView({
       {/* Đánh giá và Feedback từ Gemini */}
       {feedback && (
         <div>
+          {/* Đánh giá phát âm (Pronunciation Assessment) */}
+          {feedback.pronunciation && (
+            <div
+              style={{
+                background: feedback.pronunciation.status === "assessed" ? "#ecfdf5" : "#fef2f2",
+                border: feedback.pronunciation.status === "assessed" ? "1px solid #a7f3d0" : "1px solid #fecaca",
+                borderRadius: "14px",
+                padding: "16px 20px",
+                marginBottom: "16px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "6px",
+                }}
+              >
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: "0.9375rem",
+                    color: feedback.pronunciation.status === "assessed" ? "#065f46" : "#991b1b",
+                  }}
+                >
+                  🗣️ Đánh giá phát âm (Pronunciation Assessment)
+                </div>
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    padding: "2px 8px",
+                    borderRadius: "6px",
+                    background: feedback.pronunciation.status === "assessed" ? "#d1fae5" : "#fee2e2",
+                    color: feedback.pronunciation.status === "assessed" ? "#065f46" : "#991b1b",
+                  }}
+                >
+                  {feedback.pronunciation.status === "assessed"
+                    ? "Đã phân tích âm thanh"
+                    : "Không thể đánh giá âm thanh"}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontSize: "0.875rem",
+                  color: feedback.pronunciation.status === "assessed" ? "#047857" : "#b91c1c",
+                  lineHeight: 1.5,
+                }}
+              >
+                {feedback.pronunciation.notes}
+              </div>
+            </div>
+          )}
           {/* Điểm ước tính luyện tập (practice_estimate) */}
           {feedback.scores && feedback.scores.length > 0 && (
             <div

@@ -3,10 +3,28 @@ dotenv.config({ path: ".env.local" });
 dotenv.config();
 
 import { describe, it, expect } from "vitest";
+import { db } from "@/db";
+import { activities as activitiesTable } from "@/db/schema";
 import { getApprovedActivities, getActivityDetail } from "@/server/library/service";
 
 describe("Library Service", () => {
   it("getApprovedActivities should only return approved activities", async () => {
+    // Upsert a draft activity to verify filtering
+    await db
+      .insert(activitiesTable)
+      .values({
+        id: "TEST-DRAFT-99",
+        slot: "TEST",
+        title: "Draft Activity",
+        mode: "writing",
+        output: "text",
+        reviewState: "draft",
+      })
+      .onConflictDoUpdate({
+        target: activitiesTable.id,
+        set: { reviewState: "draft" },
+      });
+
     const activities = await getApprovedActivities();
 
     expect(Array.isArray(activities)).toBe(true);
@@ -16,8 +34,8 @@ describe("Library Service", () => {
     expect(ids).toContain("W1");
     expect(ids).toContain("R1");
     expect(ids).toContain("S1");
-    // Draft activity L1 MUST NOT be present
-    expect(ids).not.toContain("L1");
+    expect(ids).toContain("L1");
+    expect(ids).not.toContain("TEST-DRAFT-99");
   });
 
   it("getApprovedActivities MUST NOT expose questions_file, rubric_json, or prompt_text to client", async () => {
@@ -69,9 +87,8 @@ describe("Library Service", () => {
   });
 
   it("getActivityDetail MUST return null for unapproved (draft) activities", async () => {
-    // L1 is in manifest with review_state: draft
-    const l1 = await getActivityDetail("L1");
-    expect(l1).toBeNull();
+    const draft = await getActivityDetail("TEST-DRAFT-99");
+    expect(draft).toBeNull();
   });
 
   it("getActivityDetail should return null for non-existent id", async () => {
