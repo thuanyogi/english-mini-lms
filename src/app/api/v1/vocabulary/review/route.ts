@@ -14,6 +14,8 @@ const SubmitReviewSchema = z.object({
   modality: z.enum(["text", "audio"]).default("text"),
 });
 
+export const maxDuration = 60;
+
 export async function GET(req: NextRequest) {
   try {
     const learner = await getCurrentLearner();

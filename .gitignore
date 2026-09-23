@@ -28,3 +28,4 @@ content/english-lab/**/*.mp4
 # dữ liệu học riêng, backup local
 private/
 backups/
+*.sql

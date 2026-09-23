@@ -6,6 +6,8 @@ interface RouteProps {
   params: Promise<{ id: string }>;
 }
 
+export const maxDuration = 60;
+
 export async function POST(_req: NextRequest, { params }: RouteProps) {
   try {
     const learner = await getCurrentLearner();
@@ -14,7 +16,11 @@ export async function POST(_req: NextRequest, { params }: RouteProps) {
     }
 
     const { id: assessmentId } = await params;
-    const result = await retryAssessment(assessmentId, learner.id);
+    const result = await retryAssessment(
+      assessmentId,
+      learner.id,
+      learner.role === "admin"
+    );
 
     return NextResponse.json(result, { status: 200 });
   } catch (error) {

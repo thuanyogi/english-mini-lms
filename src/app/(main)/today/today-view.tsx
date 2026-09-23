@@ -142,12 +142,20 @@ export default function TodayView({
               Duy trì 30–45 phút mỗi ngày để nâng cao phản xạ tiếng Anh y khoa.
             </p>
           </div>
-          <Link
-            href="/onboarding"
-            className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-full transition font-medium backdrop-blur-sm"
-          >
-            Hồ sơ học tập ⚙️
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/onboarding"
+              className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-full transition font-medium backdrop-blur-sm"
+            >
+              Hồ sơ 📋
+            </Link>
+            <Link
+              href="/settings"
+              className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-full transition font-medium backdrop-blur-sm"
+            >
+              Cài đặt ⚙️
+            </Link>
+          </div>
         </div>
 
         {/* Bộ chọn thời lượng 30 / 45 phút */}

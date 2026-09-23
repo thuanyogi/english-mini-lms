@@ -18,6 +18,8 @@ interface RouteProps {
   params: Promise<{ id: string }>;
 }
 
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest, { params }: RouteProps) {
   try {
     const learner = await getCurrentLearner();

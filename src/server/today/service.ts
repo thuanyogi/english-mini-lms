@@ -1,4 +1,4 @@
-import { eq, and, desc, gte, lte, sql } from "drizzle-orm";
+import { eq, and, desc, gte, lte, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   activities,
@@ -98,7 +98,12 @@ export async function getTodayRecommendation(
     })
     .from(submissions)
     .innerJoin(learningSessions, eq(submissions.sessionId, learningSessions.id))
-    .where(eq(submissions.learnerId, learnerId))
+    .where(
+      and(
+        eq(submissions.learnerId, learnerId),
+        isNull(submissions.deletedAt)
+      )
+    )
     .orderBy(desc(submissions.submittedAt))
     .limit(20);
 
@@ -117,7 +122,11 @@ export async function getTodayRecommendation(
     .innerJoin(learningSessions, eq(submissions.sessionId, learningSessions.id))
     .innerJoin(activities, eq(learningSessions.activityId, activities.id))
     .where(
-      and(eq(submissions.learnerId, learnerId), gte(submissions.submittedAt, sevenDaysAgo))
+      and(
+        eq(submissions.learnerId, learnerId),
+        isNull(submissions.deletedAt),
+        gte(submissions.submittedAt, sevenDaysAgo)
+      )
     );
 
   const skillCounts: Record<string, number> = {

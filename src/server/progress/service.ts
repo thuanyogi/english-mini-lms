@@ -6,7 +6,7 @@ import {
   submissions,
   vocabularyVault,
 } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, and, desc, isNull } from "drizzle-orm";
 
 export interface SkillCount {
   skill: "writing" | "reading" | "speaking" | "listening";
@@ -90,7 +90,12 @@ export async function getProgressSummary(learnerId: string): Promise<ProgressSum
     .from(submissions)
     .innerJoin(learningSessions, eq(submissions.sessionId, learningSessions.id))
     .innerJoin(activities, eq(learningSessions.activityId, activities.id))
-    .where(eq(submissions.learnerId, learnerId))
+    .where(
+      and(
+        eq(submissions.learnerId, learnerId),
+        isNull(submissions.deletedAt)
+      )
+    )
     .orderBy(desc(submissions.submittedAt));
 
   const totalSubmissions = allSubmissions.length;

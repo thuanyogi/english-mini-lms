@@ -517,11 +517,19 @@ export async function createSubmissionAndAssess(
 /**
  * 5. Chấm lại bài làm bị lỗi (retryAssessment)
  */
-export async function retryAssessment(assessmentId: string, learnerId: string) {
+export async function retryAssessment(
+  assessmentId: string,
+  learnerId: string,
+  isAdmin = false
+) {
+  const whereClause = isAdmin
+    ? eq(assessments.id, assessmentId)
+    : and(eq(assessments.id, assessmentId), eq(assessments.learnerId, learnerId));
+
   const [assessment] = await db
     .select()
     .from(assessments)
-    .where(and(eq(assessments.id, assessmentId), eq(assessments.learnerId, learnerId)))
+    .where(whereClause)
     .limit(1);
 
   if (!assessment) {

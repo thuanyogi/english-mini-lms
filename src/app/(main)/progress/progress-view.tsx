@@ -28,13 +28,21 @@ export default function ProgressView({ initialSummary }: ProgressViewProps) {
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
       {/* 1. Header */}
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <span>📊</span> Báo cáo Tiến độ Học tập
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Theo dõi bằng chứng thực tế: thời lượng tập trung, lỗi lặp và các bản sửa bài cải thiện.
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <span>📊</span> Báo cáo Tiến độ Học tập
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Theo dõi bằng chứng thực tế: thời lượng tập trung, lỗi lặp và các bản sửa bài cải thiện.
+          </p>
+        </div>
+        <Link
+          href="/settings"
+          className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg transition font-medium shrink-0"
+        >
+          ⚙️ Cài đặt
+        </Link>
       </div>
 
       {/* 2. Cảnh báo khi dữ liệu chưa đủ (dưới 3 bài) */}

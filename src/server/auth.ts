@@ -8,6 +8,7 @@ export interface CurrentLearner {
   userId: string;
   displayName: string | null;
   role: "learner" | "admin";
+  preferences?: Record<string, unknown> | null;
 }
 
 const DEV_USER_ID = "00000000-0000-0000-0000-000000000001";
@@ -30,13 +31,14 @@ export async function getCurrentLearner(): Promise<CurrentLearner | null> {
         userId: learners.userId,
         displayName: learners.displayName,
         role: learners.role,
+        preferences: learners.preferences,
       })
       .from(learners)
       .where(eq(learners.userId, user.id))
       .limit(1);
 
     if (existing) {
-      return existing;
+      return existing as CurrentLearner;
     }
 
     // Tự động tạo bản ghi learner đầu tiên cho user
@@ -45,16 +47,18 @@ export async function getCurrentLearner(): Promise<CurrentLearner | null> {
       .values({
         userId: user.id,
         displayName: user.email ? user.email.split("@")[0] : "BS. Minh",
-        role: "learner",
+        role: "admin", // Người dùng duy nhất là admin
+        preferences: { remindEnabled: false, remindTime: "20:00" },
       })
       .returning({
         id: learners.id,
         userId: learners.userId,
         displayName: learners.displayName,
         role: learners.role,
+        preferences: learners.preferences,
       });
 
-    return created;
+    return created as CurrentLearner;
   }
 
   // Chế độ phát triển dev bypass
@@ -68,13 +72,14 @@ export async function getCurrentLearner(): Promise<CurrentLearner | null> {
         userId: learners.userId,
         displayName: learners.displayName,
         role: learners.role,
+        preferences: learners.preferences,
       })
       .from(learners)
       .where(eq(learners.userId, DEV_USER_ID))
       .limit(1);
 
     if (devLearner) {
-      return devLearner;
+      return devLearner as CurrentLearner;
     }
 
     const [createdDev] = await db
@@ -82,16 +87,18 @@ export async function getCurrentLearner(): Promise<CurrentLearner | null> {
       .values({
         userId: DEV_USER_ID,
         displayName: "BS. Minh (Dev)",
-        role: "learner",
+        role: "admin", // Bác sĩ Minh là admin duy nhất
+        preferences: { remindEnabled: false, remindTime: "20:00" },
       })
       .returning({
         id: learners.id,
         userId: learners.userId,
         displayName: learners.displayName,
         role: learners.role,
+        preferences: learners.preferences,
       });
 
-    return createdDev;
+    return createdDev as CurrentLearner;
   }
 
   return null;
