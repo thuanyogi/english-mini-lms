@@ -2,6 +2,8 @@
 .env
 .env.local
 .env.*.local
+# supabase
+supabase/.temp/
 
 # node / next
 node_modules/
