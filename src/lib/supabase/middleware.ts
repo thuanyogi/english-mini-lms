@@ -46,7 +46,12 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith(path)
   );
 
-  if (!user && !isPublicPath) {
+  // Allow dev bypass when DEV_BYPASS_AUTH=true in development
+  const isDevBypass =
+    process.env.NODE_ENV === "development" &&
+    process.env.DEV_BYPASS_AUTH === "true";
+
+  if (!user && !isPublicPath && !isDevBypass) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
