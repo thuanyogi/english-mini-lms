@@ -1,30 +1,46 @@
-export default function LibraryPage() {
+import { getApprovedActivities } from "@/server/library/service";
+import { ActivityList } from "./activity-list";
+
+export const dynamic = "force-dynamic";
+
+export default async function LibraryPage() {
+  const activities = await getApprovedActivities();
+
   return (
-    <div style={{ padding: "1.5rem" }}>
-      <h1
-        style={{
-          fontSize: "1.25rem",
-          fontWeight: 700,
-          color: "#0f172a",
-          margin: "0 0 1rem",
-        }}
-      >
-        📖 Thư viện
-      </h1>
-      <div
-        style={{
-          background: "white",
-          borderRadius: "12px",
-          padding: "2rem 1.5rem",
-          textAlign: "center",
-          border: "1px solid #e2e8f0",
-        }}
-      >
-        <p style={{ color: "#64748b", margin: 0 }}>
-          Danh sách bài học sẽ có ở Bước 2 — sau khi nạp nội dung từ
-          manifest.yaml.
+    <div
+      style={{
+        maxWidth: "640px",
+        margin: "0 auto",
+        padding: "16px 16px 24px",
+      }}
+    >
+      {/* Header trang */}
+      <div style={{ marginBottom: "16px" }}>
+        <h1
+          style={{
+            fontSize: "1.375rem",
+            fontWeight: 700,
+            color: "#0f172a",
+            margin: "0 0 4px",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          📖 Thư viện bài học
+        </h1>
+        <p
+          style={{
+            fontSize: "0.875rem",
+            color: "#64748b",
+            margin: 0,
+            lineHeight: 1.4,
+          }}
+        >
+          Luyện tập giao tiếp hội nghị, đọc–dịch chuyên khảo và phản xạ tiếng Anh lâm sàng.
         </p>
       </div>
+
+      {/* Danh sách & Bộ lọc */}
+      <ActivityList activities={activities} />
     </div>
   );
 }

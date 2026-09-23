@@ -12,7 +12,11 @@ export default async function MainLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  const isDevBypass =
+    process.env.NODE_ENV === "development" &&
+    process.env.DEV_BYPASS_AUTH === "true";
+
+  if (!user && !isDevBypass) {
     redirect("/login");
   }
 

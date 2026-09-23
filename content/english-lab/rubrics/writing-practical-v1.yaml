@@ -1,0 +1,16 @@
+id: writing-practical-v1
+title: "Practical Professional Email Rubric"
+description: "Tiêu chí đánh giá email giao tiếp công việc và học thuật thực tế"
+dimensions:
+  - key: clarity
+    name: "Clarity & Purpose"
+    weight: 0.35
+    description: "Mục đích rõ ràng, thông điệp trực diện, người đọc nắm bắt ngay yêu cầu."
+  - key: structure
+    name: "Structure & Cohesion"
+    weight: 0.35
+    description: "Cấu trúc email chuẩn: lời chào phù hợp, các đoạn có mạch lạc, kết thư trang trọng."
+  - key: tone_vocabulary
+    name: "Tone & Formal Vocabulary"
+    weight: 0.30
+    description: "Văn phong trang trọng, chuẩn mực, từ vựng học thuật/công vụ chính xác."

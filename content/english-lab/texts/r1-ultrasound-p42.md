@@ -1,0 +1,5 @@
+# Ultrasound-Guided Injections in Musculoskeletal Medicine (Page 42)
+
+Ultrasound guidance provides real-time visualization of anatomical structures, needle advancement, and injectate distribution during interventional pain procedures. When performing a suprascapular nerve block, dynamic high-resolution imaging enables precise localization of the nerve within the supraspinatus fossa, beneath the superior transverse scapular ligament. The high-frequency linear transducer should be aligned in a coronal oblique plane parallel to the spine of the scapula.
+
+Direct sonographic monitoring substantially minimizes the risk of accidental intravascular injection and pneumothorax compared with blind landmark-based approaches. Continuous observation verifies that the therapeutic solution distends the intended fascial compartment without traumatizing adjacent vascular bundles. Proper probe orientation, meticulous transducer stabilization, and an in-plane needle trajectory represent critical technical principles for achieving optimal clinical outcomes while maintaining patient safety throughout the intervention.

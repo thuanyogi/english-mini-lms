@@ -1,0 +1,89 @@
+# English Lab Manifest — Quản lý nguồn học, đoạn trích và bài tập
+# Chỉ các activity có review_state: approved mới được nạp vào DB để học
+
+version: 1
+timezone: Asia/Ho_Chi_Minh
+
+sources:
+  - id: src-ultrasound-handbook
+    title: "Sổ tay hướng dẫn các thủ thuật can thiệp giảm đau dưới siêu âm"
+    kind: book
+    permission: personal-study
+    locator_type: page
+    review_state: approved
+    notes: "Chỉ trích đoạn ngắn kèm số trang. Không copy toàn trang."
+
+  - id: src-conference-talk-01
+    title: "Ví dụ: bài nói hội nghị về chẩn đoán siêu âm"
+    kind: video
+    url: "https://www.youtube.com/watch?v=VIDEO_ID"
+    permission: public-embed
+    locator_type: seconds
+    review_state: draft
+
+segments:
+  - id: seg-r1
+    source_id: src-ultrasound-handbook
+    page: 42
+    text_file: texts/r1-ultrasound-p42.md
+    language: en
+
+  - id: seg-l1
+    source_id: src-conference-talk-01
+    start_seconds: 95
+    end_seconds: 155
+    transcript_file: transcripts/l1-conference-95-155.txt
+
+activities:
+  - id: W1
+    slot: W1
+    mode: writing
+    title: "Email xin tham dự hội nghị"
+    objective: "Viết email 120–150 từ, lịch sự, đủ mục đích – lý do – yêu cầu."
+    duration_minutes: 20
+    difficulty: trial
+    prompt_file: texts/w1-conference-email-prompt.md
+    output: text
+    feedback_guide: "Ưu tiên 3 lỗi: độ rõ, cấu trúc email, dùng từ trang trọng. Có ví dụ ngắn, yêu cầu viết lại 1 đoạn."
+    rubric_file: rubrics/writing-practical-v1.yaml
+    answer_reveal: none
+    purpose: baseline
+    review_state: approved
+
+  - id: R1
+    slot: R1
+    mode: reading
+    title: "Đọc–dịch đoạn sổ tay siêu âm tr.42"
+    objective: "Nêu ý chính, dịch sang tiếng Việt trung thành, giải thích 3 thuật ngữ."
+    duration_minutes: 25
+    segment_ids: [seg-r1]
+    output: text
+    feedback_guide: "Đối chiếu ý với đoạn gốc, chỉ vị trí bỏ sót/sai nghĩa; không nhận xét y khoa."
+    answer_reveal: on_request
+    purpose: baseline
+    review_state: approved
+
+  - id: L1
+    slot: L1
+    mode: listening
+    title: "Nghe đoạn hội nghị 60s"
+    objective: "Trả lời 3 câu hỏi ý chính trước khi mở transcript."
+    duration_minutes: 15
+    segment_ids: [seg-l1]
+    questions_file: texts/l1-questions.yaml
+    output: text
+    answer_reveal: after_submit
+    purpose: baseline
+    review_state: draft
+
+  - id: S1
+    slot: S1
+    mode: speaking
+    title: "Giới thiệu bản thân tại hội nghị (60–90s)"
+    objective: "Nói trôi chảy 60–90s: tên, chuyên khoa, nơi làm việc, mối quan tâm nghiên cứu."
+    duration_minutes: 15
+    prompt_file: texts/s1-self-intro-prompt.md
+    output: audio
+    feedback_guide: "Tối đa 3 điểm: từ vựng, cấu trúc câu, phát âm (chỉ khi có audio). Mời nói lại."
+    purpose: baseline
+    review_state: approved

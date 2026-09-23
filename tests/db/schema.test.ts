@@ -45,7 +45,7 @@ describe("Database Schema", () => {
       usageEvents: "usage_events",
     };
 
-    for (const [jsName, _sqlName] of Object.entries(tableNameMap)) {
+    for (const jsName of Object.keys(tableNameMap)) {
       const table = schema[jsName as keyof typeof schema] as { _: { name: string } };
       // Drizzle tables have a Symbol-based internal structure,
       // we verify the table object exists and is defined
