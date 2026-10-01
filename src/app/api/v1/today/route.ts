@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const targetMinParam = searchParams.get("targetMinutes");
+    const targetMinParam = searchParams.get("target_minutes");
     const targetMinutes = targetMinParam === "45" ? 45 : 30;
 
     const recommendation = await getTodayRecommendation(learner.id, targetMinutes);

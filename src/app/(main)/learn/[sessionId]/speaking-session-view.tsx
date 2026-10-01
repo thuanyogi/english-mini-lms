@@ -147,7 +147,7 @@ export function SpeakingSessionView({
       });
 
       const mediaData = await mediaRes.json();
-      if (!mediaRes.ok || !mediaData.mediaId) {
+      if (!mediaRes.ok || !mediaData.media_id) {
         throw new Error(mediaData.error || "Không thể tải file âm thanh lên hệ thống.");
       }
 
@@ -157,7 +157,7 @@ export function SpeakingSessionView({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          media_id: mediaData.mediaId,
+          media_id: mediaData.media_id,
           body: notes.trim() || undefined,
           parentId: parentId || undefined,
         }),

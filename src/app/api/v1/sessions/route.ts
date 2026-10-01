@@ -5,7 +5,7 @@ import { createSession } from "@/server/learning/service";
 
 const CreateSessionSchema = z.object({
   activityId: z.string().min(1, "Thiếu activityId"),
-  targetMinutes: z.number().int().positive().default(30),
+  targetMinutes: z.union([z.literal(30), z.literal(45)]).default(30),
 });
 
 export async function POST(req: NextRequest) {

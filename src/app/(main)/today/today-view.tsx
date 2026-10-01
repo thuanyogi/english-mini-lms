@@ -11,16 +11,17 @@ interface ActivityItem {
   durationMinutes: number | null;
   objective: string | null;
   difficulty: string | null;
+  actionType?: "continue_draft" | "start_revision" | "new_session";
+  sessionId?: string;
+  parentId?: string;
 }
 
 interface TodayRecommendationData {
   recommendedActivity: ActivityItem | null;
   reason: string;
-  ruleCode: string;
   alternateActivities: ActivityItem[];
   dueVocabCount: number;
   leastPracticedSkill: string;
-  activeDraftSessionId: string | null;
 }
 
 interface TodayViewProps {
@@ -82,12 +83,12 @@ export default function TodayView({
   const handleStartSession = async (activityId: string) => {
     setStarting(true);
     try {
-      // Nếu là phiên đang dở
+      // Nếu bài gợi ý là phiên đang dở → đi thẳng tới session đó
       if (
-        data?.activeDraftSessionId &&
-        selectedActivity?.id === data.recommendedActivity?.id
+        selectedActivity?.actionType === "continue_draft" &&
+        selectedActivity?.sessionId
       ) {
-        router.push(`/learn/${data.activeDraftSessionId}`);
+        router.push(`/learn/${selectedActivity.sessionId}`);
         return;
       }
 
@@ -95,14 +96,14 @@ export default function TodayView({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          activity_id: activityId,
-          target_minutes: targetMinutes,
+          activityId,
+          targetMinutes,
         }),
       });
 
       if (res.ok) {
         const json = await res.json();
-        router.push(`/learn/${json.session.id}`);
+        router.push(`/learn/${json.sessionId}`);
       } else {
         const err = await res.json();
         alert(err.error || "Không thể khởi tạo phiên học");
@@ -283,7 +284,7 @@ export default function TodayView({
                 <>
                   <span className="animate-spin">⏳</span> Đang mở bài...
                 </>
-              ) : data?.activeDraftSessionId && currentActivity.id === data.recommendedActivity?.id ? (
+              ) : currentActivity.actionType === "continue_draft" ? (
                 <>
                   <span>📝</span> Tiếp tục bài đang dở ({targetMinutes} phút)
                 </>
