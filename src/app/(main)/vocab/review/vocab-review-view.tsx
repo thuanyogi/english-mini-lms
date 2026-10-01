@@ -18,10 +18,10 @@ interface DueVocabItem {
 
 interface ReviewResult {
   evaluation: {
-    resultStatus: "correct" | "needs_improvement" | "incorrect";
+    resultStatus: "correct" | "partial" | "incorrect";
     aiAssessment: string;
-    naturalnessScore?: number;
-    improvedVersion?: string;
+    feedbackNotes?: string;
+    exampleCorrection?: string;
   };
   masteryLevel: number;
   intervalDays: number;
@@ -39,10 +39,10 @@ export default function VocabReviewView() {
   const [completedList, setCompletedList] = useState<
     Array<{
       phrase: string;
-      status: "correct" | "needs_improvement" | "incorrect";
+      status: "correct" | "partial" | "incorrect";
       intervalDays: number;
     }>
-  >([]);
+  >([]);;
 
   useEffect(() => {
     async function loadDueItems() {
@@ -348,6 +348,8 @@ export default function VocabReviewView() {
                 <span>
                   {reviewResult.evaluation.resultStatus === "correct"
                     ? "✅ Dùng từ chính xác!"
+                    : reviewResult.evaluation.resultStatus === "partial"
+                    ? "🟡 Tạm được — tiếp tục luyện"
                     : "⚠️ Cần hoàn thiện thêm"}
                 </span>
                 <span className="text-[11px] font-normal normal-case">
@@ -362,13 +364,24 @@ export default function VocabReviewView() {
                 </p>
               </div>
 
-              {reviewResult.evaluation.improvedVersion && (
+              {reviewResult.evaluation.feedbackNotes && (
+                <div className="bg-white/80 p-2.5 rounded-lg border border-black/10 text-xs">
+                  <span className="font-semibold text-slate-700 block mb-0.5">
+                    Phân tích collocation:
+                  </span>
+                  <p className="italic text-slate-800">
+                    {reviewResult.evaluation.feedbackNotes}
+                  </p>
+                </div>
+              )}
+
+              {reviewResult.evaluation.exampleCorrection && (
                 <div className="bg-white/80 p-2.5 rounded-lg border border-black/10 text-xs">
                   <span className="font-semibold text-slate-700 block mb-0.5">
                     Gợi ý diễn đạt tự nhiên hơn:
                   </span>
                   <p className="italic text-slate-800">
-                    &quot;{reviewResult.evaluation.improvedVersion}&quot;
+                    &quot;{reviewResult.evaluation.exampleCorrection}&quot;
                   </p>
                 </div>
               )}

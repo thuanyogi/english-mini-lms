@@ -47,7 +47,7 @@ export async function getCurrentLearner(): Promise<CurrentLearner | null> {
       .values({
         userId: user.id,
         displayName: user.email ? user.email.split("@")[0] : "BS. Minh",
-        role: "admin", // Người dùng duy nhất là admin
+        role: "learner", // Role mặc định là learner; muốn admin phải set tay trong DB
         preferences: { remindEnabled: false, remindTime: "20:00" },
       })
       .returning({

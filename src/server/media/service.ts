@@ -88,6 +88,14 @@ export async function uploadLearnerMedia(
     );
   }
 
+  // Kiểm tra thời lượng (tối đa 5 phút = 300 giây)
+  if (durationSeconds !== undefined && durationSeconds > 300) {
+    throw new MediaValidationError(
+      `Thời lượng ghi âm (${Math.round(durationSeconds)}s) vượt quá giới hạn 5 phút. Vui lòng ghi âm tối đa 300 giây.`,
+      422
+    );
+  }
+
   const ext = getFileExtension(mimeType);
   const mediaId = randomUUID();
   const storageKey = `learner_${learnerId}/${Date.now()}_${mediaId}.${ext}`;

@@ -267,7 +267,7 @@ export function ListeningSessionView({
         const secMatch = obs.location?.match(/(\d+)s/);
         if (secMatch) timestamp = parseInt(secMatch[1], 10);
         explanation = obs.suggestion || obs.issue;
-        const optMatch = obs.issue?.match(/Đáp án đúng là ([A-Za-z])/);
+        const optMatch = obs.issue?.match(/Đáp án đúng là \(([A-Za-z])\)/);
         if (optMatch) correctOption = optMatch[1].toLowerCase();
       }
 

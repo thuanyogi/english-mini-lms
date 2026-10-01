@@ -4,7 +4,7 @@ import { getCurrentLearner } from "@/server/auth";
 import { createSubmissionAndAssess, ValidationError } from "@/server/learning/service";
 
 const SubmissionSchema = z.object({
-  body: z.string().optional(),
+  body: z.string().max(20000, "Nội dung bài nộp quá dài (tối đa 20.000 ký tự)").optional(),
   parentId: z.string().uuid().optional(),
   mediaId: z.string().uuid().optional(),
   media_id: z.string().uuid().optional(),

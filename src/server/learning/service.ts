@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import yaml from "yaml";
-import { eq, and, desc, inArray } from "drizzle-orm";
+import { eq, and, desc, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import {
   learningSessions,
@@ -80,6 +80,63 @@ export async function recordSessionEvent(
   kind: "hint" | "reveal" | "pause" | "resume" | "finish",
   payload?: unknown
 ) {
+  // Xác minh session thuộc learner
+  const [session] = await db
+    .select({
+      id: learningSessions.id,
+      status: learningSessions.status,
+      activeSeconds: learningSessions.activeSeconds,
+    })
+    .from(learningSessions)
+    .where(and(eq(learningSessions.id, sessionId), eq(learningSessions.learnerId, learnerId)))
+    .limit(1);
+
+  if (!session) {
+    throw new ValidationError("Không tìm thấy phiên học hoặc phiên không thuộc người dùng.", 404);
+  }
+
+  // Tính activeSeconds từ event pause/resume gần nhất
+  if (kind === "pause" || kind === "resume" || kind === "finish") {
+    // Lấy event gần nhất để tính delta
+    const [lastEvent] = await db
+      .select({ kind: sessionEvents.kind, eventAt: sessionEvents.eventAt })
+      .from(sessionEvents)
+      .where(eq(sessionEvents.sessionId, sessionId))
+      .orderBy(desc(sessionEvents.eventAt))
+      .limit(1);
+
+    // Nếu event trước là resume (hoặc chưa có event pause nào) => đang active => cộng delta
+    const wasActive =
+      !lastEvent ||
+      lastEvent.kind === "resume" ||
+      (lastEvent.kind !== "pause" && lastEvent.kind !== "finish");
+
+    if (wasActive) {
+      const lastTime = lastEvent ? new Date(lastEvent.eventAt).getTime() : Date.now();
+      const deltaSec = Math.round((Date.now() - lastTime) / 1000);
+      const newActiveSeconds = (session.activeSeconds || 0) + Math.max(0, deltaSec);
+
+      await db
+        .update(learningSessions)
+        .set({
+          activeSeconds: newActiveSeconds,
+          status: kind === "finish" ? "completed" : kind === "pause" ? "paused" : session.status,
+          updatedAt: new Date(),
+        })
+        .where(eq(learningSessions.id, sessionId));
+    } else if (kind === "resume") {
+      await db
+        .update(learningSessions)
+        .set({ status: "active", updatedAt: new Date() })
+        .where(eq(learningSessions.id, sessionId));
+    } else if (kind === "finish") {
+      await db
+        .update(learningSessions)
+        .set({ status: "completed", updatedAt: new Date() })
+        .where(eq(learningSessions.id, sessionId));
+    }
+  }
+
   const [event] = await db
     .insert(sessionEvents)
     .values({
@@ -307,13 +364,8 @@ export async function createSubmissionAndAssess(
 
       evalResult = speakRes;
 
-      // Cập nhật transcript vào submission.body nếu ban đầu rỗng
-      if (!submission.body && speakRes.feedback.transcript) {
-        await db
-          .update(submissions)
-          .set({ body: speakRes.feedback.transcript })
-          .where(eq(submissions.id, submission.id));
-      }
+      // Không ghi đè body bài nộp — transcript AI chỉ lưu vào rubric_snapshot
+      // (Bất biến append-only: submissions.body không được sửa sau insert)
     } else if (activity.mode === "listening") {
       // 2. Chế độ Nghe: Chấm câu hỏi đóng và chỉ ra mốc giây gây nhầm
       let userAnswers: Record<string, string> = {};
@@ -479,11 +531,17 @@ export async function createSubmissionAndAssess(
       modelName: evalResult.modelName,
     });
 
-    // Cập nhật assessment thành feedback_ready
+    // Cập nhật assessment thành feedback_ready + đánh session completed
     await db
       .update(assessments)
       .set({ status: "feedback_ready", updatedAt: new Date() })
       .where(eq(assessments.id, assessment.id));
+
+    // Session chuyển completed khi nộp bài thành công
+    await db
+      .update(learningSessions)
+      .set({ status: "completed", updatedAt: new Date() })
+      .where(eq(learningSessions.id, sessionId));
 
     return {
       submission,
@@ -536,6 +594,16 @@ export async function retryAssessment(
     throw new ValidationError("Không tìm thấy assessment.", 404);
   }
 
+  // 409 nếu bài đã chấm xong — không cho chấm lại
+  if (assessment.status === "feedback_ready") {
+    throw new ValidationError("Bài đã được chấm xong. Không thể chấm lại bài đã có kết quả.", 409);
+  }
+
+  // Giới hạn số lần chấm lại ≤ 3
+  if (assessment.runVersion >= 3) {
+    throw new ValidationError("Bài này đã được chấm lại tối đa 3 lần. Vui lòng liên hệ quản trị.", 422);
+  }
+
   const [submission] = await db
     .select()
     .from(submissions)
@@ -581,6 +649,7 @@ export async function retryAssessment(
 
     if (activity.mode === "speaking") {
       let audioBuffer: Buffer | null = null;
+      let audioMimeType = "audio/webm";
       if (submission.mediaId) {
         const [media] = await db
           .select()
@@ -588,6 +657,7 @@ export async function retryAssessment(
           .where(eq(mediaObjects.id, submission.mediaId))
           .limit(1);
         if (media) {
+          audioMimeType = media.mimeType; // dùng mimeType thật thay hardcode
           try {
             audioBuffer = await downloadMediaBuffer(media.storageKey);
           } catch (e) {
@@ -596,11 +666,23 @@ export async function retryAssessment(
         }
       }
 
+      // Lấy verified transcript nếu có
+      let verifiedTranscript: string | undefined;
+      if (activity.segmentIds && activity.segmentIds.length > 0) {
+        const [seg] = await db
+          .select({ transcriptContent: sourceSegments.transcriptContent })
+          .from(sourceSegments)
+          .where(eq(sourceSegments.id, activity.segmentIds[0]))
+          .limit(1);
+        if (seg?.transcriptContent) verifiedTranscript = seg.transcriptContent;
+      }
+
       evalResult = await evaluateSpeaking(
-        audioBuffer ? { buffer: audioBuffer, mimeType: "audio/webm" } : null,
-        activity.promptText || activity.title
+        audioBuffer ? { buffer: audioBuffer, mimeType: audioMimeType } : null,
+        activity.promptText || activity.title,
+        verifiedTranscript
       );
-    } else if (activity.mode === "reading") {
+    } else if (activity.mode === "listening") {
       let segmentText = "";
       if (activity.segmentIds && activity.segmentIds.length > 0) {
         const [seg] = await db
@@ -865,13 +947,28 @@ export async function getSessionDetails(sessionId: string, learnerId: string) {
       }
     }
 
+    // Khoá transcript: chỉ trả khi đã reveal hoặc đã có submission cho session này
+    const [existingSubmission] = await db
+      .select({ id: submissions.id })
+      .from(submissions)
+      .where(
+        and(
+          eq(submissions.sessionId, sessionId),
+          eq(submissions.learnerId, learnerId),
+          isNull(submissions.deletedAt)
+        )
+      )
+      .limit(1);
+
+    const canRevealTranscript = isTranscriptRevealed || !!existingSubmission;
+
     listening = {
       videoUrl,
       startSeconds: startSec,
       endSeconds: endSec,
       questions: questionsList,
-      transcriptSegments,
-      isTranscriptRevealed,
+      transcriptSegments: canRevealTranscript ? transcriptSegments : [],
+      isTranscriptRevealed: canRevealTranscript,
     };
   }
 

@@ -6,8 +6,10 @@ import { submissions, mediaObjects } from "@/db/schema";
 import { getCurrentLearner } from "@/server/auth";
 import { createClient } from "@supabase/supabase-js";
 
+// PATCH chỉ cho phép sửa confirmed_transcript (modality=audio)
+// submissions.body KHÔNG được sửa — append-only invariant
 const UpdateSubmissionSchema = z.object({
-  body: z.string(),
+  confirmed_transcript: z.string().min(1, "confirmed_transcript không được rỗng"),
 });
 
 interface RouteProps {
@@ -32,7 +34,7 @@ export async function PATCH(req: NextRequest, { params }: RouteProps) {
     }
 
     const [existing] = await db
-      .select({ id: submissions.id })
+      .select({ id: submissions.id, modality: submissions.modality })
       .from(submissions)
       .where(and(eq(submissions.id, submissionId), eq(submissions.learnerId, learner.id)))
       .limit(1);
@@ -41,11 +43,20 @@ export async function PATCH(req: NextRequest, { params }: RouteProps) {
       return NextResponse.json({ error: "Bài nộp không tồn tại" }, { status: 404 });
     }
 
-    // Cập nhật transcript đã xác nhận / sửa của người học
+    // Chỉ bài nói (audio) mới được sửa transcript
+    if (existing.modality !== "audio") {
+      return NextResponse.json(
+        { error: "Chỉ bài nói (audio) mới được cập nhật transcript. Bài viết không thể sửa nội dung sau khi nộp." },
+        { status: 422 }
+      );
+    }
+
+    // Lưu confirmed_transcript vào cột riêng
     const [updated] = await db
       .update(submissions)
       .set({
-        body: parsed.data.body,
+        confirmedTranscript: parsed.data.confirmed_transcript,
+        updatedAt: new Date(),
       })
       .where(eq(submissions.id, submissionId))
       .returning();
@@ -141,4 +152,3 @@ export async function DELETE(req: NextRequest, { params }: RouteProps) {
     );
   }
 }
-

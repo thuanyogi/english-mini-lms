@@ -28,4 +28,7 @@ content/english-lab/**/*.mp4
 # dữ liệu học riêng, backup local
 private/
 backups/
-*.sql
+backups/*.sql
+# Chỉ ignore SQL trong thư mục backups, KHÔNG ignore migration files
+!src/db/migrations/**/*.sql
+!supabase/migrations/**/*.sql

@@ -201,8 +201,15 @@ const SPACED_INTERVALS_DAYS = [1, 3, 7, 14, 30];
 
 export function calculateNextReview(
   currentMastery: number,
-  isCorrect: boolean
+  isCorrect: boolean,
+  isPartial = false
 ): { nextMastery: number; nextDueAt: Date; intervalDays: number } {
+  if (isPartial) {
+    // Tạm được: giữ nguyên mastery và interval, không reset, không tiến
+    const currentInterval = SPACED_INTERVALS_DAYS[Math.min(currentMastery, SPACED_INTERVALS_DAYS.length - 1)] || 14;
+    const nextDueAt = new Date(Date.now() + currentInterval * 24 * 60 * 60 * 1000);
+    return { nextMastery: currentMastery, nextDueAt, intervalDays: currentInterval };
+  }
   if (isCorrect) {
     const nextMastery = Math.min(5, currentMastery + 1);
     const intervalDays =
@@ -345,11 +352,13 @@ export async function submitVocabularyReview(
     modelUsed = aiRes.modelName;
   }
 
-  // 3. Tính lịch ôn tập kế tiếp (1→3→7→14 ngày, sai về 1 ngày)
+  // 3. Tính lịch ôn tập kế tiếp (1→3→7→14→30 ngày; tạm được giữ yên; sai về 1 ngày)
   const isCorrect = evalResult.resultStatus === "correct";
+  const isPartial = evalResult.resultStatus === "partial";
   const { nextMastery, nextDueAt, intervalDays } = calculateNextReview(
     vocab.masteryLevel,
-    isCorrect
+    isCorrect,
+    isPartial
   );
 
   // 4. Ghi lịch sử vào vocabulary_reviews
@@ -369,14 +378,24 @@ export async function submitVocabularyReview(
     .returning();
 
   // 5. Cập nhật vocabulary_vault
+  const updateData: {
+    masteryLevel: number;
+    dueAt: Date;
+    updatedAt: Date;
+    myAttempt?: string;
+  } = {
+    masteryLevel: nextMastery,
+    dueAt: nextDueAt,
+    updatedAt: new Date(),
+  };
+  // Chỉ ghi my_attempt khi đang rỗng
+  if (!vocab.myAttempt || !vocab.myAttempt.trim()) {
+    updateData.myAttempt = userResponse.trim();
+  }
+
   const [updatedVocab] = await db
     .update(vocabularyVault)
-    .set({
-      masteryLevel: nextMastery,
-      dueAt: nextDueAt,
-      myAttempt: userResponse.trim(),
-      updatedAt: new Date(),
-    })
+    .set(updateData)
     .where(eq(vocabularyVault.id, vocab.id))
     .returning();
 

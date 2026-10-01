@@ -249,7 +249,8 @@ export const submissions = pgTable("submissions", {
   revision: integer("revision").notNull().default(1),
   parentId: uuid("parent_id"), // self-reference: previous submission
   modality: modalityEnum("modality").notNull().default("text"),
-  body: text("body"), // text content of submission
+  body: text("body"), // text content of submission — APPEND-ONLY, không UPDATE sau insert
+  confirmedTranscript: text("confirmed_transcript"), // transcript do người học xác nhận/sửa (chỉ modality=audio)
   mediaId: uuid("media_id").references(() => mediaObjects.id),
   // assisted is computed server-side from session_events (hint/reveal before submit)
   assisted: boolean("assisted").notNull().default(false),
@@ -259,6 +260,7 @@ export const submissions = pgTable("submissions", {
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   ...timestamps,
 });
+
 
 // ──────────────────────────────────────────────
 // 10. assessments

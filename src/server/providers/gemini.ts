@@ -96,6 +96,8 @@ QUY TẮC BẮT BUỘC:
  * Đánh giá bài viết sử dụng Gemini API với structured output và Zod validation.
  * Nếu JSON không khớp schema, tự động retry 1 lần.
  */
+const GEMINI_TIMEOUT_MS = 55_000; // 55 giây (dưới maxDuration=60s của Vercel)
+
 export async function evaluateWriting(
   promptText: string,
   rubricJson: unknown,
@@ -126,8 +128,10 @@ ${submissionText}
 
 Hãy phân tích bài viết trên và trả về kết quả JSON theo đúng schema.`;
 
-  // Helper hàm gọi API một lần
   async function callGeminiOnce() {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+    try {
     const response = await ai.models.generateContent({
       model: modelName,
       contents: userContent,
@@ -139,6 +143,7 @@ Hãy phân tích bài viết trên và trả về kết quả JSON theo đúng s
         temperature: 0.2,
       },
     });
+    clearTimeout(timeoutId);
 
     const responseText = response.text || "";
     const tokenInput = response.usageMetadata?.promptTokenCount || 0;
@@ -162,6 +167,13 @@ Hãy phân tích bài viết trên và trả về kết quả JSON theo đúng s
       tokenOutput,
       modelName,
     };
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (controller.signal.aborted) {
+        throw new Error("GEMINI_TIMEOUT: Gemini không phản hồi trong 55 giây.");
+      }
+      throw err;
+    }
   }
 
   // Gọi lần 1
