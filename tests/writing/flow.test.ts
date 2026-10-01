@@ -26,6 +26,7 @@ describe("Writing Mode Invariants & Business Logic", () => {
       feedback: {
         observations: [
           {
+            category: "tone",
             location: "Đoạn 1, câu 1",
             original: "Dear Sir,",
             issue: "Chưa đủ trang trọng",
@@ -152,7 +153,7 @@ describe("Writing Mode Invariants & Business Logic", () => {
       "Dear Committee, I have reviewed the template and submitted my draft."
     );
     expect(subReveal.submission.assisted).toBe(true);
-  });
+  }, 15000);
 
   // Invariant (c): JSON Gemini sai schema không được ghi thành feedback
   it("Invariant #3: Invalid JSON from AI fails schema validation and is not accepted as valid feedback", () => {

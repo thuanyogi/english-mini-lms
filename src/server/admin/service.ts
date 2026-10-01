@@ -7,6 +7,7 @@ import {
   learningSessions,
   learners,
   usageEvents,
+  feedbackVersions,
 } from "@/db/schema";
 
 export interface AdminActivityItem {
@@ -32,6 +33,19 @@ export interface AdminFailedAssessmentItem {
   submissionBodySnippet: string | null;
 }
 
+export interface AdminFlaggedFeedbackItem {
+  id: string;
+  submissionId: string;
+  learnerId: string;
+  learnerName: string | null;
+  activityTitle: string;
+  activityMode: string;
+  reviewState: string;
+  createdAt: Date;
+  observations: unknown;
+  submissionBodySnippet: string | null;
+}
+
 export interface MonthlyUsageSummary {
   month: string;
   totalRequests: number;
@@ -50,6 +64,7 @@ export interface MonthlyUsageSummary {
 export interface AdminDashboardData {
   activities: AdminActivityItem[];
   failedAssessments: AdminFailedAssessmentItem[];
+  flaggedFeedback: AdminFlaggedFeedbackItem[];
   usage: MonthlyUsageSummary;
 }
 
@@ -103,7 +118,43 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       : null,
   }));
 
-  // 3. Tổng token tháng từ usage_events
+  // 3. Danh sách nhận xét bị gắn cờ (reviewState === "under_review")
+  const flaggedList = await db
+    .select({
+      id: feedbackVersions.id,
+      submissionId: feedbackVersions.submissionId,
+      learnerId: feedbackVersions.learnerId,
+      learnerName: learners.displayName,
+      activityTitle: activities.title,
+      activityMode: activities.mode,
+      reviewState: feedbackVersions.reviewState,
+      createdAt: feedbackVersions.createdAt,
+      observations: feedbackVersions.observations,
+      submissionBody: submissions.body,
+    })
+    .from(feedbackVersions)
+    .innerJoin(submissions, eq(feedbackVersions.submissionId, submissions.id))
+    .innerJoin(learningSessions, eq(submissions.sessionId, learningSessions.id))
+    .innerJoin(activities, eq(learningSessions.activityId, activities.id))
+    .leftJoin(learners, eq(feedbackVersions.learnerId, learners.id))
+    .where(
+      and(
+        eq(feedbackVersions.reviewState, "under_review"),
+        isNull(submissions.deletedAt)
+      )
+    )
+    .orderBy(desc(feedbackVersions.createdAt))
+    .limit(50);
+
+  const formattedFlagged: AdminFlaggedFeedbackItem[] = flaggedList.map((item) => ({
+    ...item,
+    reviewState: item.reviewState || "under_review",
+    submissionBodySnippet: item.submissionBody
+      ? item.submissionBody.slice(0, 120) + (item.submissionBody.length > 120 ? "..." : "")
+      : null,
+  }));
+
+  // 4. Tổng token tháng từ usage_events
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
@@ -159,6 +210,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   return {
     activities: allActivities,
     failedAssessments: formattedFailed,
+    flaggedFeedback: formattedFlagged,
     usage: {
       month: currentMonthStr,
       totalRequests,

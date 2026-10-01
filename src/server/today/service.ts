@@ -203,34 +203,38 @@ export async function getTodayRecommendation(
   }
 
   if (!recommended) {
-    // Ưu tiên bài tập thuộc kỹ năng ít luyện nhất và khớp thời lượng
-    const matchingSkillActs = approvedActs.filter((a) => a.mode === leastPracticedMode);
-    const chosenAct =
-      matchingSkillActs.length > 0
-        ? matchingSkillActs[0]
-        : approvedActs.find((a) => a.mode === "speaking") || approvedActs[0];
+    if (approvedActs.length === 0) {
+      recommended = null;
+    } else {
+      // Ưu tiên bài tập thuộc kỹ năng ít luyện nhất và khớp thời lượng
+      const matchingSkillActs = approvedActs.filter((a) => a.mode === leastPracticedMode);
+      const chosenAct =
+        matchingSkillActs.length > 0
+          ? matchingSkillActs[0]
+          : approvedActs.find((a) => a.mode === "speaking") || approvedActs[0];
 
-    const leastCount = skillCounts[leastPracticedMode] || 0;
-    const reasonText =
-      leastCount === 0
-        ? `Quy tắc (c): Kỹ năng ${skillNamesVi[leastPracticedMode] || leastPracticedMode} chưa được luyện bài nào trong 7 ngày qua. Hãy thực hành để cân bằng cả 4 kỹ năng!`
-        : `Quy tắc (c) & (d): Kỹ năng ${skillNamesVi[leastPracticedMode] || leastPracticedMode} ít được luyện nhất tuần này (${leastCount} bài). Thời lượng ${targetMinutes} phút phù hợp để hoàn thành bài này.`;
+      const leastCount = skillCounts[leastPracticedMode] || 0;
+      const reasonText =
+        leastCount === 0
+          ? `Quy tắc (c): Kỹ năng ${skillNamesVi[leastPracticedMode] || leastPracticedMode} chưa được luyện bài nào trong 7 ngày qua. Hãy thực hành để cân bằng cả 4 kỹ năng!`
+          : `Quy tắc (c) & (d): Kỹ năng ${skillNamesVi[leastPracticedMode] || leastPracticedMode} ít được luyện nhất tuần này (${leastCount} bài). Thời lượng ${targetMinutes} phút phù hợp để hoàn thành bài này.`;
 
-    recommended = {
-      id: chosenAct.id,
-      slot: chosenAct.slot,
-      title: chosenAct.title,
-      mode: chosenAct.mode,
-      objective: chosenAct.objective,
-      durationMinutes: chosenAct.durationMinutes || 15,
-      reason: reasonText,
-      actionType: "new_session",
-    };
+      recommended = {
+        id: chosenAct.id,
+        slot: chosenAct.slot,
+        title: chosenAct.title,
+        mode: chosenAct.mode,
+        objective: chosenAct.objective,
+        durationMinutes: chosenAct.durationMinutes || 15,
+        reason: reasonText,
+        actionType: "new_session",
+      };
+    }
   }
 
   // Danh sách các bài tập thay thế khi bấm "Đổi bài khác"
   const alternateActivities = approvedActs
-    .filter((a) => a.id !== recommended.id)
+    .filter((a) => !recommended || a.id !== recommended.id)
     .map((a) => {
       let altReason = `Bài luyện kỹ năng ${skillNamesVi[a.mode] || a.mode} phù hợp với quỹ thời gian ${targetMinutes} phút.`;
       if (a.mode === leastPracticedMode) {

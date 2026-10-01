@@ -34,6 +34,16 @@ const MODE_LABELS: Record<string, string> = {
   listening: "Nghe",
 };
 
+interface FlaggedObservation {
+  location?: string;
+  category?: string;
+  issue?: string;
+  suggestion?: string;
+  original?: string;
+  flagged?: boolean;
+  flaggedReason?: string;
+}
+
 export default function AdminView() {
   const [data, setData] = useState<AdminDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +52,9 @@ export default function AdminView() {
   // Trạng thái retry assessment
   const [retryingId, setRetryingId] = useState<string | null>(null);
   const [retryMessage, setRetryMessage] = useState<string | null>(null);
+
+  // Trạng thái gỡ cờ feedback
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
 
   // Bộ lọc activity
   const [selectedStateFilter, setSelectedStateFilter] = useState<string>("all");
@@ -87,6 +100,27 @@ export default function AdminView() {
       alert("Lỗi chấm lại: " + (err instanceof Error ? err.message : ""));
     } finally {
       setRetryingId(null);
+    }
+  }
+
+  async function handleResolveFeedback(feedbackId: string) {
+    try {
+      setResolvingId(feedbackId);
+      const res = await fetch(`/api/v1/feedback/${feedbackId}/resolve`, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || "Không thể cập nhật trạng thái");
+      }
+
+      setRetryMessage("✓ Đã hoàn tất rà soát nhận xét bị gắn cờ!");
+      await fetchDashboard();
+    } catch (err) {
+      alert("Lỗi rà soát: " + (err instanceof Error ? err.message : ""));
+    } finally {
+      setResolvingId(null);
     }
   }
 
@@ -166,7 +200,7 @@ export default function AdminView() {
       )}
 
       {/* 2. Thẻ thống kê chi phí & Token tháng này */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
             Chi phí Gemini ({usage?.month})
@@ -214,6 +248,119 @@ export default function AdminView() {
             Cần chấm lại
           </p>
         </div>
+
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-1">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            Bị gắn cờ (Flagged)
+          </p>
+          <p className={`text-2xl font-bold ${(data?.flaggedFeedback || []).length > 0 ? "text-amber-600" : "text-slate-800"}`}>
+            {(data?.flaggedFeedback || []).length}
+          </p>
+          <p className="text-xs text-slate-500">
+            Cần rà soát
+          </p>
+        </div>
+      </div>
+
+      {/* Section: Nhận xét AI bị gắn cờ cần rà lại */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-slate-800 flex items-center gap-2">
+              <span>🚩</span> Nhận xét AI bị gắn cờ cần rà lại ({(data?.flaggedFeedback || []).length})
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Các nhận xét người học bấm &quot;Tôi không đồng ý&quot; do AI chấm chưa chuẩn hoặc máy móc.
+            </p>
+          </div>
+        </div>
+
+        {(data?.flaggedFeedback || []).length === 0 ? (
+          <div className="p-4 bg-slate-50 text-slate-600 rounded-lg text-sm border border-slate-200 flex items-center gap-2">
+            <span>✓</span> Không có nhận xét nào đang bị gắn cờ rà soát.
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 border rounded-lg overflow-hidden">
+            {data?.flaggedFeedback.map((item) => (
+              <div
+                key={item.id}
+                className="p-4 space-y-3 hover:bg-slate-50 transition"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-800">
+                      {item.activityTitle}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                      {MODE_LABELS[item.activityMode] || item.activityMode}
+                    </span>
+                    <span className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full font-medium">
+                      Under Review
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/my-work/${item.submissionId}`}
+                      className="text-xs text-blue-600 hover:underline font-medium"
+                    >
+                      Xem bài nộp ↗
+                    </Link>
+                    <button
+                      onClick={() => handleResolveFeedback(item.id)}
+                      disabled={resolvingId === item.id}
+                      className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition disabled:opacity-50"
+                    >
+                      {resolvingId === item.id ? "Đang xử lý..." : "✓ Đã duyệt / Bỏ qua"}
+                    </button>
+                  </div>
+                </div>
+
+                {item.submissionBodySnippet && (
+                  <p className="text-xs text-slate-600 italic bg-slate-50 p-2 rounded border border-slate-100">
+                    Trích đoạn bài: &quot;{item.submissionBodySnippet}&quot;
+                  </p>
+                )}
+
+                {/* Render observations có cờ */}
+                {Array.isArray(item.observations) && (
+                  <div className="space-y-2 mt-2">
+                    {item.observations.map((obs: FlaggedObservation, idx: number) => (
+                      <div
+                        key={idx}
+                        className={`text-xs p-3 rounded-lg border ${
+                          obs.flagged
+                            ? "bg-amber-50/70 border-amber-300 text-amber-900"
+                            : "bg-white border-slate-200 text-slate-700"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between font-semibold mb-1">
+                          <span>
+                            {obs.flagged ? "🚩 [Bị gắn cờ]" : "•"} Vị trí: {obs.location} ({obs.category || "ngữ pháp"})
+                          </span>
+                          {obs.flagged && (
+                            <span className="text-[11px] text-amber-700 font-normal">
+                              Lý do: {obs.flaggedReason || "Người học phản ánh"}
+                            </span>
+                          )}
+                        </div>
+                        <div className="italic text-slate-600 mb-1">
+                          &quot;{obs.original}&quot;
+                        </div>
+                        <div>
+                          <strong>Góp ý AI:</strong> {obs.issue} → <em>{obs.suggestion}</em>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <p className="text-[11px] text-slate-400">
+                  Thời gian: {new Date(item.createdAt).toLocaleString("vi-VN")} · Người học: {item.learnerName || "Bác sĩ Minh"}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 3. Section: Failed Assessments & Nút chấm lại */}

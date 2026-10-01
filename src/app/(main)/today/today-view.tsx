@@ -17,6 +17,8 @@ interface ActivityItem {
 }
 
 interface TodayRecommendationData {
+  learnerName?: string;
+  baselineStatus?: string;
   recommendedActivity: ActivityItem | null;
   reason: string;
   alternateActivities: ActivityItem[];
@@ -104,6 +106,16 @@ export default function TodayView({
       if (res.ok) {
         const json = await res.json();
         router.push(`/learn/${json.sessionId}`);
+      } else if (res.status === 409) {
+        const errJson = await res.json();
+        const shouldContinue = window.confirm(
+          "Bạn đang có một phiên học chưa hoàn thành cho bài này.\n\nBạn có muốn tiếp tục phiên đang dở không?"
+        );
+        if (shouldContinue && errJson.sessionId) {
+          router.push(`/learn/${errJson.sessionId}`);
+        } else {
+          setStarting(false);
+        }
       } else {
         const err = await res.json();
         alert(err.error || "Không thể khởi tạo phiên học");
@@ -188,6 +200,29 @@ export default function TodayView({
           </div>
         </div>
       </div>
+
+      {/* Banner Khảo sát năng lực đầu vào (Onboarding) nếu chưa hoàn thành */}
+      {data && data.baselineStatus && data.baselineStatus !== "completed" && (
+        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="text-2xl">📋</div>
+            <div>
+              <h3 className="text-sm font-bold text-indigo-950">
+                Bạn chưa hoàn tất khảo sát năng lực đầu vào!
+              </h3>
+              <p className="text-xs text-indigo-700 mt-0.5">
+                Thiết lập mục tiêu và hoàn thành khảo sát 15 phút để lộ trình học được cá nhân hoá chuẩn xác.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/onboarding"
+            className="inline-flex items-center justify-center whitespace-nowrap bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition shadow-sm"
+          >
+            Làm bài khảo sát ngay →
+          </Link>
+        </div>
+      )}
 
       {/* 2. Banner Ôn từ vựng đến hạn (Spaced Repetition) */}
       {data && data.dueVocabCount > 0 && (
@@ -305,19 +340,27 @@ export default function TodayView({
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
-          <div className="text-4xl mb-2">🎉</div>
+          <div className="text-4xl mb-3">📚</div>
           <h2 className="text-base font-bold text-slate-800">
-            Hiện chưa có bài học phù hợp trong Thư viện
+            Chưa có bài học nào được duyệt trong Thư viện
           </h2>
-          <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-            Vui lòng kiểm tra lại Thư viện bài học hoặc liên hệ quản trị viên để nạp thêm nội dung.
+          <p className="text-xs text-slate-500 mt-2 max-w-md mx-auto leading-relaxed">
+            Hệ thống chỉ gợi ý các bài học đã ở trạng thái <strong>Approved</strong>. Hãy vào Thư viện để duyệt bài học hoặc kiểm tra lại tệp manifest.yaml.
           </p>
-          <Link
-            href="/library"
-            className="inline-block mt-4 text-xs font-semibold bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-          >
-            Mở Thư viện →
-          </Link>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <Link
+              href="/library"
+              className="text-xs font-semibold bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Mở Thư viện bài học →
+            </Link>
+            <Link
+              href="/admin"
+              className="text-xs font-semibold bg-slate-100 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 transition border border-slate-200"
+            >
+              Trang Quản trị ⚙️
+            </Link>
+          </div>
         </div>
       )}
 

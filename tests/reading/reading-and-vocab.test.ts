@@ -27,6 +27,7 @@ describe("Reading Mode & Vocabulary Vault Tests", () => {
       feedback: {
         observations: [
           {
+            category: "vocabulary",
             location: "Câu 2, đoạn 1",
             original: "suprascapular nerve block",
             issue: "Dịch chưa sát thuật ngữ giải phẫu",

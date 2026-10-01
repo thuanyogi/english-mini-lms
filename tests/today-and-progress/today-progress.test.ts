@@ -101,7 +101,7 @@ describe("Step 6: Today Recommendation, Vocab Spaced Repetition, Progress & Onbo
 
     it("should create due vocabulary and retrieve up to 5 items", async () => {
       // Tạo từ vựng có due_at trong quá khứ (đến hạn)
-      const pastDate = new Date(Date.now() - 3600 * 1000);
+      const pastDate = new Date(Date.now() - 365 * 86400 * 1000);
       const [inserted] = await db
         .insert(vocabularyVault)
         .values({
