@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { YouGlishButton } from "@/components/youglish-widget";
 
 interface SmartCapturePopupProps {
   selectedText: string;
@@ -85,7 +86,13 @@ export function SmartCapturePopup({
   // Click outside listener
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      // Modal YouGlish render qua portal (ngoài popupRef trong DOM). Nếu không loại trừ,
+      // bấm vào modal sẽ làm popup đóng → modal và widget biến mất.
+      if (target instanceof Element && target.closest("[data-youglish-modal]")) {
+        return;
+      }
+      if (popupRef.current && !popupRef.current.contains(target)) {
         onClose();
       }
     }
@@ -273,6 +280,11 @@ export function SmartCapturePopup({
               &ldquo;{data.example_sentence}&rdquo;
             </div>
           )}
+
+          {/* Nghe người bản xứ nói cụm từ này (YouGlish) — mở modal, không nhúng sẵn */}
+          <div style={{ marginBottom: "8px" }}>
+            <YouGlishButton query={data.phrase} className="inline-flex w-full min-h-[44px] items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100" />
+          </div>
 
           {/* Nút 1-click Lưu vào sổ */}
           <button

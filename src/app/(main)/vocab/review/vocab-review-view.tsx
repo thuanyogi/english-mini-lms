@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { YouGlishButton } from "@/components/youglish-widget";
 
 interface DueVocabItem {
   id: string;
@@ -386,6 +387,12 @@ export default function VocabReviewView() {
                 </div>
               )}
             </div>
+
+            {/* Nghe người bản xứ nói từ vừa ôn (YouGlish) — mở modal, không nhúng sẵn */}
+            <YouGlishButton
+              query={currentItem.phrase}
+              className="w-full inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2.5 text-xs sm:text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
+            />
 
             <button
               onClick={handleNextWord}

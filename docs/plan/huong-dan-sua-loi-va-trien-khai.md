@@ -10,11 +10,11 @@ Cách làm y hệt như khi build: **mỗi phiên chat Antigravity làm đúng 1
 
 ## Trước tiên: trả lời 3 câu hỏi nhỏ (chỉ làm 1 lần)
 
-| # | Câu hỏi | Gợi ý của tôi (chọn cái này nếu anh không có ý kiến khác) |
-|---|---|---|
+| # | Câu hỏi                                                                                                    | Gợi ý của tôi (chọn cái này nếu anh không có ý kiến khác)                                                                            |
+| - | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1 | Phần transcript bài nói anh tự sửa sau khi nộp — có được phép sửa thẳng bài đã nộp không? | **Không** — lưu transcript đã sửa vào một chỗ riêng, bài gốc giữ nguyên (đúng nguyên tắc "bài nộp không bị ghi đè") |
-| 2 | Nhịp ôn từ vựng: tài liệu viết 1-3-7-14 ngày, code đang dùng 1-3-7-14-30 ngày? | Giữ **1-3-7-14-30** (như code), sửa tài liệu cho khớp |
-| 3 | Khi ôn từ mà trả lời "tạm được" (dùng đúng nhưng chưa tự nhiên): tính đúng hay sai? | **Tạm đạt** — từ không bị reset về ôn lại ngay ngày mai, nhưng cũng chưa được nhảy mốc |
+| 2 | Nhịp ôn từ vựng: tài liệu viết 1-3-7-14 ngày, code đang dùng 1-3-7-14-30 ngày?                    | Giữ**1-3-7-14-30** (như code), sửa tài liệu cho khớp                                                                                  |
+| 3 | Khi ôn từ mà trả lời "tạm được" (dùng đúng nhưng chưa tự nhiên): tính đúng hay sai?       | **Tạm đạt** — từ không bị reset về ôn lại ngay ngày mai, nhưng cũng chưa được nhảy mốc                                   |
 
 Nếu đồng ý gợi ý thì cứ dán prompt nguyên văn; muốn khác thì sửa dòng "Quyết định đã chốt" trong prompt tương ứng.
 
@@ -242,11 +242,11 @@ Thư viện đang có 4 bài (1 viết, 1 đọc, 1 nói, 1 nghe). Nên có ít 
 
 ## Bước 5 — Pilot 4 tuần (học thật hàng ngày)
 
-| Tuần | Việc |
-|---|---|
-| 1 | Làm bài onboarding + bài đầu vào: W1, R1, S1, L1 (mỗi bài 1 phiên 30 phút) |
-| 2–3 | Mỗi ngày mở Hôm nay làm theo gợi ý; ôn từ đến hạn trong /vocab/review; mỗi tuần thêm 2–3 bài mới vào thư viện |
-| 4 | Làm W4, R4, S4, L4 → vào /progress so sánh với tuần 1 |
+| Tuần | Việc                                                                                                                              |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Làm bài onboarding + bài đầu vào: W1, R1, S1, L1 (mỗi bài 1 phiên 30 phút)                                               |
+| 2–3  | Mỗi ngày mở Hôm nay làm theo gợi ý; ôn từ đến hạn trong /vocab/review; mỗi tuần thêm 2–3 bài mới vào thư viện |
+| 4     | Làm W4, R4, S4, L4 → vào /progress so sánh với tuần 1                                                                        |
 
 Cuối mỗi tuần: mở Antigravity 1 phiên ngắn — "Tuần này tôi thấy [vấn đề]. Sửa [cụ thể]." Xem chi phí Gemini ở trang /admin.
 
@@ -258,10 +258,10 @@ Nếu muốn nâng cấp: nhắn tôi để lên kế hoạch phase tiếp theo 
 
 ## Các rủi ro đã biết & cách xử lý
 
-| Rủi ro | Cách xử lý |
-|---|---|
-| Bài bị kẹt "đang chấm" khi Gemini chậm | Sau Vá 4 sẽ tự báo lỗi + nút Chấm lại; nếu vẫn gặp → vào /admin bấm Chấm lại |
-| Ghi âm không chạy trong trình duyệt Zalo | Mở app bằng Safari/Chrome — app có banner nhắc sẵn |
-| Quên backup | Đặt nhắc lịch hàng tuần; script chỉ 1 lệnh |
-| Chi phí Gemini cao hơn dự kiến | Xem /admin mỗi tuần; RUNBOOK có câu SQL tổng token (đúng sau Vá 5) |
-| Người lạ đăng ký được | Tắt signup trong Supabase dashboard (Bước 1) + Vá 5 đổi role mặc định |
+| Rủi ro                                       | Cách xử lý                                                                                |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Bài bị kẹt "đang chấm" khi Gemini chậm  | Sau Vá 4 sẽ tự báo lỗi + nút Chấm lại; nếu vẫn gặp → vào /admin bấm Chấm lại |
+| Ghi âm không chạy trong trình duyệt Zalo | Mở app bằng Safari/Chrome — app có banner nhắc sẵn                                     |
+| Quên backup                                  | Đặt nhắc lịch hàng tuần; script chỉ 1 lệnh                                           |
+| Chi phí Gemini cao hơn dự kiến            | Xem /admin mỗi tuần; RUNBOOK có câu SQL tổng token (đúng sau Vá 5)                   |
+| Người lạ đăng ký được                | Tắt signup trong Supabase dashboard (Bước 1) + Vá 5 đổi role mặc định               |

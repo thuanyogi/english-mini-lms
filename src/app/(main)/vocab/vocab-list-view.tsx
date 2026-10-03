@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { YouGlishButton } from "@/components/youglish-widget";
 
 export interface VocabularyItem {
   id: string;
@@ -546,6 +547,11 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
                             </span>
                           </div>
                         )}
+
+                        {/* 2b. Nghe người bản xứ nói cụm từ (YouGlish) — mở modal khi bấm */}
+                        <div style={{ marginBottom: "14px" }}>
+                          <YouGlishButton query={item.phrase} />
+                        </div>
 
                         {/* 3. Ô "Câu của tôi" (my_attempt) */}
                         <div style={{ marginBottom: "14px" }}>
