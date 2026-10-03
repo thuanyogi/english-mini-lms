@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AudioRecorder } from "./audio-recorder";
 import { SpeakingFeedback } from "@/server/providers/gemini";
 import { SessionWrapUpModal } from "./session-wrap-up-modal";
+import { SessionGrid } from "./components/session-grid";
 
 interface SpeakingSessionViewProps {
   sessionId: string;
@@ -178,14 +179,7 @@ export function SpeakingSessionView({
   }
 
   return (
-    <div
-      style={{
-        maxWidth: "768px",
-        margin: "0 auto",
-        padding: "16px 16px 40px",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="mx-auto min-h-screen w-full max-w-[768px] px-4 pt-4 pb-10 lg:max-w-[1200px]">
       {/* Thanh điều hướng quay lại & Đồng hồ đếm ngược */}
       <div
         style={{
@@ -314,6 +308,9 @@ export function SpeakingSessionView({
         )}
       </div>
 
+      <SessionGrid
+        left={
+          <>
       {/* Hiển thị bản nói trước đó nếu đang sửa bài */}
       {parentData && (
         <div
@@ -491,6 +488,10 @@ export function SpeakingSessionView({
         </div>
       </div>
 
+          </>
+        }
+        right={
+          <>
       {/* Khu vực ghi âm */}
       <div
         style={{
@@ -623,6 +624,9 @@ export function SpeakingSessionView({
           </p>
         )}
       </div>
+          </>
+        }
+      />
 
       {/* Modal đề nghị lưu/khép phiên tự pause ở phút 30/45 không xoá nháp */}
       <SessionWrapUpModal

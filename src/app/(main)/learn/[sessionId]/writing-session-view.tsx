@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SessionWrapUpModal } from "./session-wrap-up-modal";
 import { WritingFeedback } from "@/server/providers/gemini";
+import { SessionGrid } from "./components/session-grid";
 
 interface WritingSessionViewProps {
   sessionId: string;
@@ -217,13 +218,7 @@ export function WritingSessionView({
   }
 
   return (
-    <div
-      style={{
-        maxWidth: "768px",
-        margin: "0 auto",
-        padding: "16px 16px 40px",
-      }}
-    >
+    <div className="mx-auto w-full max-w-[768px] px-4 pt-4 pb-10 lg:max-w-[1200px]">
       {/* Loading Overlay khi Gemini đang chấm */}
       {isSubmitting && (
         <div
@@ -342,6 +337,9 @@ export function WritingSessionView({
         </div>
       </div>
 
+      <SessionGrid
+        left={
+          <>
       {/* Thông tin bài & Đề bài */}
       <div
         style={{
@@ -562,6 +560,10 @@ export function WritingSessionView({
         </div>
       )}
 
+          </>
+        }
+        right={
+          <>
       {/* Khung soạn thảo văn bản */}
       <div
         style={{
@@ -684,6 +686,9 @@ export function WritingSessionView({
           </button>
         </div>
       </div>
+          </>
+        }
+      />
 
       {/* Modal đề nghị lưu/khép phiên tự pause ở phút 30/45 không xoá nháp */}
       <SessionWrapUpModal

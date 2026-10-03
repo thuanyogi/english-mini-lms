@@ -143,7 +143,7 @@ export default function TodayView({
     : null;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-6">
       {/* 1. Header & Lời chào */}
       <div className="rounded-2xl p-6 text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-500 shadow-md">
         <div className="flex items-center justify-between">
@@ -313,6 +313,7 @@ export default function TodayView({
             <button
               onClick={() => handleStartSession(currentActivity.id)}
               disabled={starting}
+              data-tour="today-start"
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition shadow-md hover:shadow-lg disabled:opacity-50 text-center flex items-center justify-center gap-2"
             >
               {starting ? (

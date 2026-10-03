@@ -164,7 +164,7 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
   }
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "16px 16px 60px" }}>
+    <div className="mx-auto w-full max-w-[800px] px-4 pt-4 pb-[60px] lg:max-w-[1100px]">
       {/* Header trang */}
       <div
         style={{
@@ -195,6 +195,7 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           <Link
             href="/vocab/review"
+            data-tour="vocab-review"
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -381,7 +382,7 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
             </div>
 
             {/* Các thẻ từ vựng trong ngày */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">
               {dateItems.map((item) => {
                 const isExpanded = expandedId === item.id;
                 const isDue = new Date(item.dueAt) <= now && item.masteryLevel < 4;
@@ -390,6 +391,7 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
                 return (
                   <div
                     key={item.id}
+                    data-tour={item.id === filteredItems[0]?.id ? "vocab-item" : undefined}
                     style={{
                       background: "#ffffff",
                       borderRadius: "14px",

@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { YouTubePlayer } from "./youtube-player";
+import { YouTubePlayer, type YouTubePlayerHandle } from "./youtube-player";
 import type { SpeakingFeedback } from "@/server/providers/gemini";
 import { SessionWrapUpModal } from "./session-wrap-up-modal";
 import { ListeningQuestions } from "./components/listening-questions";
 import { ListeningTranscript } from "./components/listening-transcript";
 import { ListeningReview, type QuestionFeedback } from "./components/listening-review";
 import { ListeningShadowing } from "./components/listening-shadowing";
+import { SessionGrid } from "./components/session-grid";
+import { useListeningHotkeys } from "./components/use-listening-hotkeys";
 
 interface Question {
   id: string;
@@ -63,6 +65,10 @@ export function ListeningSessionView({
 
   // Player seek controller
   const [seekTo, setSeekTo] = useState<number | null>(null);
+
+  // Phím tắt (Space, ←/→) — chỉ có tác dụng với bàn phím vật lý (desktop)
+  const playerControlRef = useRef<YouTubePlayerHandle>(null);
+  useListeningHotkeys(playerControlRef);
 
   // Submission state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -277,14 +283,7 @@ export function ListeningSessionView({
   }
 
   return (
-    <div
-      style={{
-        maxWidth: "768px",
-        margin: "0 auto",
-        padding: "16px 16px 40px",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="mx-auto min-h-screen w-full max-w-[768px] px-4 pt-4 pb-10 lg:max-w-[1200px]">
       {/* Top Bar: Thoát + Đồng hồ */}
       <div
         style={{
@@ -411,102 +410,121 @@ export function ListeningSessionView({
         )}
       </div>
 
-      {/* Trình phát YouTube */}
-      <YouTubePlayer
-        videoUrl={listening.videoUrl || "https://www.youtube.com/watch?v=M7lc1UVf-VE"}
-        startSeconds={listening.startSeconds}
-        endSeconds={listening.endSeconds}
-        seekTo={seekTo}
-      />
+      <SessionGrid
+        left={
+          <>
+            {/* Trình phát YouTube */}
+            <YouTubePlayer
+              videoUrl={listening.videoUrl || "https://www.youtube.com/watch?v=M7lc1UVf-VE"}
+              startSeconds={listening.startSeconds}
+              endSeconds={listening.endSeconds}
+              seekTo={seekTo}
+              controlRef={playerControlRef}
+            />
 
-      {/* TRẠNG THÁI CHƯA NỘP: HIỆN CÂU HỎI TRƯỚC, KHOÁ TRANSCRIPT & ĐÁP ÁN */}
-      {!submissionResult ? (
-        <ListeningQuestions
-          questions={listening.questions}
-          answers={answers}
-          onSelectOption={handleSelectOption}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          submitError={submitError}
-        >
-          <ListeningTranscript
-            isRevealed={isRevealed}
-            isRevealing={isRevealing}
-            onReveal={handleRevealTranscript}
-            segments={listening.transcriptSegments}
-            onSeek={(s) => setSeekTo(s)}
-          />
-        </ListeningQuestions>
-      ) : (
-        /* TRẠNG THÁI ĐÃ NỘP: XEM LẠI ĐÁP ÁN, GIẢI THÍCH & TAB SHADOWING */
-        <div>
-          {/* Thanh chuyển tab sau khi nộp */}
-          <div
-            style={{
-              display: "flex",
-              background: "#ffffff",
-              borderRadius: "12px",
-              padding: "4px",
-              border: "1px solid #e2e8f0",
-              marginBottom: "16px",
-            }}
-          >
-            <button
-              onClick={() => setActiveTab("review")}
-              style={{
-                flex: 1,
-                padding: "10px",
-                background: activeTab === "review" ? "#2563eb" : "transparent",
-                color: activeTab === "review" ? "#ffffff" : "#475569",
-                border: "none",
-                borderRadius: "8px",
-                fontWeight: 700,
-                fontSize: "0.875rem",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-            >
-              📝 Đáp án & Giải thích
-            </button>
-            <button
-              onClick={() => setActiveTab("shadowing")}
-              style={{
-                flex: 1,
-                padding: "10px",
-                background: activeTab === "shadowing" ? "#2563eb" : "transparent",
-                color: activeTab === "shadowing" ? "#ffffff" : "#475569",
-                border: "none",
-                borderRadius: "8px",
-                fontWeight: 700,
-                fontSize: "0.875rem",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-              }}
-            >
-              🎙️ Luyện Shadowing từng câu
-            </button>
-          </div>
+            {/* Gợi ý phím tắt — chỉ hiện trên desktop */}
+            <p className="mb-4 hidden text-xs text-slate-500 lg:block">
+              ⌨️ Phím tắt: <kbd className="rounded border border-slate-300 bg-white px-1.5">Space</kbd>{" "}
+              phát/dừng · <kbd className="rounded border border-slate-300 bg-white px-1.5">←</kbd>{" "}
+              <kbd className="rounded border border-slate-300 bg-white px-1.5">→</kbd> tua 5 giây
+              (bấm ra ngoài khung video trước khi dùng).
+            </p>
 
-          {activeTab === "review" ? (
-            <ListeningReview
-              assisted={submissionResult.assisted}
-              questionsReview={questionsReview}
-              onSeek={(s) => setSeekTo(s)}
+            {/* Transcript bị khoá cho đến khi nộp (mở sớm = có trợ giúp) */}
+            {!submissionResult && (
+              <ListeningTranscript
+                isRevealed={isRevealed}
+                isRevealing={isRevealing}
+                onReveal={handleRevealTranscript}
+                segments={listening.transcriptSegments}
+                onSeek={(s) => setSeekTo(s)}
+              />
+            )}
+          </>
+        }
+        right={
+          !submissionResult ? (
+            /* TRẠNG THÁI CHƯA NỘP: HIỆN CÂU HỎI TRƯỚC, KHOÁ TRANSCRIPT & ĐÁP ÁN */
+            <ListeningQuestions
+              questions={listening.questions}
+              answers={answers}
+              onSelectOption={handleSelectOption}
+              onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
+              submitError={submitError}
             />
           ) : (
-            <ListeningShadowing
-              segments={listening.transcriptSegments}
-              shadowingIndex={shadowingIndex}
-              onSelectShadowingIndex={setShadowingIndex}
-              shadowingLoading={shadowingLoading}
-              shadowingError={shadowingError}
-              shadowingResults={shadowingResults}
-              onShadowingComplete={handleShadowingComplete}
-              onSeek={(s) => setSeekTo(s)}
-            />
-          )}
-        </div>
-      )}
+            /* TRẠNG THÁI ĐÃ NỘP: XEM LẠI ĐÁP ÁN, GIẢI THÍCH & TAB SHADOWING */
+            <div>
+              {/* Thanh chuyển tab sau khi nộp */}
+              <div
+                style={{
+                  display: "flex",
+                  background: "#ffffff",
+                  borderRadius: "12px",
+                  padding: "4px",
+                  border: "1px solid #e2e8f0",
+                  marginBottom: "16px",
+                }}
+              >
+                <button
+                  onClick={() => setActiveTab("review")}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    background: activeTab === "review" ? "#2563eb" : "transparent",
+                    color: activeTab === "review" ? "#ffffff" : "#475569",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  📝 Đáp án & Giải thích
+                </button>
+                <button
+                  onClick={() => setActiveTab("shadowing")}
+                  style={{
+                    flex: 1,
+                    padding: "10px",
+                    background: activeTab === "shadowing" ? "#2563eb" : "transparent",
+                    color: activeTab === "shadowing" ? "#ffffff" : "#475569",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  🎙️ Luyện Shadowing từng câu
+                </button>
+              </div>
+
+              {activeTab === "review" ? (
+                <ListeningReview
+                  assisted={submissionResult.assisted}
+                  questionsReview={questionsReview}
+                  onSeek={(s) => setSeekTo(s)}
+                />
+              ) : (
+                <ListeningShadowing
+                  segments={listening.transcriptSegments}
+                  shadowingIndex={shadowingIndex}
+                  onSelectShadowingIndex={setShadowingIndex}
+                  shadowingLoading={shadowingLoading}
+                  shadowingError={shadowingError}
+                  shadowingResults={shadowingResults}
+                  onShadowingComplete={handleShadowingComplete}
+                  onSeek={(s) => setSeekTo(s)}
+                />
+              )}
+            </div>
+          )
+        }
+      />
 
       {/* Modal đề nghị lưu/khép phiên tự pause ở phút 30/45 không xoá nháp */}
       <SessionWrapUpModal

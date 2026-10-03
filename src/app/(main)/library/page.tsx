@@ -7,13 +7,7 @@ export default async function LibraryPage() {
   const activities = await getApprovedActivities();
 
   return (
-    <div
-      style={{
-        maxWidth: "640px",
-        margin: "0 auto",
-        padding: "16px 16px 24px",
-      }}
-    >
+    <div className="mx-auto w-full max-w-[640px] px-4 pt-4 pb-6 lg:max-w-[1100px]">
       {/* Header trang */}
       <div style={{ marginBottom: "16px" }}>
         <h1

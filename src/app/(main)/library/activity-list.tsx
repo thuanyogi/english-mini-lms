@@ -166,8 +166,8 @@ export function ActivityList({
           </p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          {filteredActivities.map((act) => {
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+          {filteredActivities.map((act, index) => {
             const config = MODE_CONFIG[act.mode] || {
               label: act.mode,
               icon: "📌",
@@ -180,6 +180,7 @@ export function ActivityList({
               <Link
                 key={act.id}
                 href={`/library/${act.id}`}
+                data-tour={index === 0 ? "library-card" : undefined}
                 style={{
                   display: "block",
                   textDecoration: "none",

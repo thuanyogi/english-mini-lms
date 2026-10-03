@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { BottomNav } from "@/components/bottom-nav";
+import { BottomNav, SideNav } from "@/components/bottom-nav";
 
 export default async function MainLayout({
   children,
@@ -21,26 +21,16 @@ export default async function MainLayout({
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        display: "flex",
-        flexDirection: "column",
-        background: "#f8fafc",
-      }}
-    >
-      {/* Main content area — scrollable, with padding for bottom nav */}
-      <main
-        style={{
-          flex: 1,
-          paddingBottom: "var(--nav-height)",
-          overflowY: "auto",
-        }}
-      >
+    <div className="flex min-h-dvh flex-col bg-slate-50">
+      {/* Sidebar (≥1024px) */}
+      <SideNav />
+
+      {/* Main content area — chừa chỗ cho bottom nav (mobile) hoặc sidebar (desktop) */}
+      <main className="flex-1 pb-[var(--nav-height)] lg:pb-0 lg:pl-60">
         {children}
       </main>
 
-      {/* Bottom navigation — fixed */}
+      {/* Bottom navigation (<1024px) — fixed */}
       <BottomNav />
     </div>
   );

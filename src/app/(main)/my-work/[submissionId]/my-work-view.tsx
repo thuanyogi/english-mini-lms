@@ -170,13 +170,7 @@ export function MyWorkView({
   }
 
   return (
-    <div
-      style={{
-        maxWidth: "768px",
-        margin: "0 auto",
-        padding: "16px 16px 40px",
-      }}
-    >
+    <div className="mx-auto w-full max-w-[768px] px-4 pt-4 pb-10 lg:max-w-[1200px]">
       {/* 1. Header & Điều hướng */}
       <MyWorkHeader
         activity={activity}
@@ -196,27 +190,33 @@ export function MyWorkView({
         onRetry={handleRetry}
       />
 
-      {/* 3. Nội dung bài làm & So sánh */}
-      {activeTab === "compare" && parent ? (
-        <MyWorkCompare
-          currentSubmission={submission}
-          currentFeedback={feedback}
-          parent={parent}
-          renderSubmissionContent={renderSubmissionContent}
-        />
-      ) : (
-        <MyWorkSubmissionBody
-          submissionId={submission.id}
-          activityMode={activity.mode}
-          body={submission.body}
-          confirmedTranscript={submission.confirmedTranscript}
-          audioUrl={submission.audioUrl}
-          renderSubmissionContent={renderSubmissionContent}
-        />
-      )}
+      <div className="grid grid-cols-1 items-start gap-x-6 lg:grid-cols-2">
+        <div className="min-w-0">
+          {/* 3. Nội dung bài làm & So sánh */}
+          {activeTab === "compare" && parent ? (
+            <MyWorkCompare
+              currentSubmission={submission}
+              currentFeedback={feedback}
+              parent={parent}
+              renderSubmissionContent={renderSubmissionContent}
+            />
+          ) : (
+            <MyWorkSubmissionBody
+              submissionId={submission.id}
+              activityMode={activity.mode}
+              body={submission.body}
+              confirmedTranscript={submission.confirmedTranscript}
+              audioUrl={submission.audioUrl}
+              renderSubmissionContent={renderSubmissionContent}
+            />
+          )}
+        </div>
 
-      {/* 4. Nhận xét chi tiết từ AI (Observations, Scores, Strengths, Limitations) */}
-      <MyWorkFeedback feedback={feedback} />
+        {/* 4. Nhận xét chi tiết từ AI (Observations, Scores, Strengths, Limitations) */}
+        <div className="min-w-0">
+          <MyWorkFeedback feedback={feedback} />
+        </div>
+      </div>
     </div>
   );
 }

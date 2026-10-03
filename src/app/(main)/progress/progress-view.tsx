@@ -26,7 +26,7 @@ export default function ProgressView({ initialSummary }: ProgressViewProps) {
       : 0;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-3xl lg:max-w-5xl mx-auto px-4 py-6 space-y-6">
       {/* 1. Header */}
       <div className="flex items-center justify-between gap-4">
         <div>
@@ -111,8 +111,12 @@ export default function ProgressView({ initialSummary }: ProgressViewProps) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
       {/* 4. Bài theo kỹ năng (Tách Độc lập & Có hỗ trợ) */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+      <div
+        data-tour="progress-chart"
+        className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4"
+      >
         <div className="flex items-center justify-between border-b pb-3">
           <h2 className="text-sm font-bold text-slate-900">
             Phân bổ bài tập theo kỹ năng
@@ -240,6 +244,7 @@ export default function ProgressView({ initialSummary }: ProgressViewProps) {
             ))}
           </div>
         )}
+      </div>
       </div>
 
       {/* 6. Danh sách bài có bản sửa để so sánh */}

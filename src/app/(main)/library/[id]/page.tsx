@@ -32,13 +32,7 @@ export default async function ActivityDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "640px",
-        margin: "0 auto",
-        padding: "16px 16px 32px",
-      }}
-    >
+    <div className="mx-auto w-full max-w-[640px] px-4 pt-4 pb-8 lg:max-w-[800px]">
       {/* Nút quay lại */}
       <div style={{ marginBottom: "16px" }}>
         <Link

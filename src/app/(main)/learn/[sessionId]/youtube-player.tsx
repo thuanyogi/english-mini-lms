@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, useCallback } from "react";
 
 // Khai báo kiểu cho YouTube IFrame API
 declare global {
@@ -11,12 +11,20 @@ declare global {
   }
 }
 
+/** Điều khiển từ bên ngoài (phím tắt trên desktop). */
+export interface YouTubePlayerHandle {
+  togglePlay: () => void;
+  /** Tua tương đối (giây), luôn giữ trong đoạn [startSeconds, endSeconds]. */
+  seekBy: (deltaSeconds: number) => void;
+}
+
 interface YouTubePlayerProps {
   videoUrl: string;
   startSeconds: number;
   endSeconds: number;
   seekTo?: number | null;
   onTimeUpdate?: (currentSec: number) => void;
+  controlRef?: React.Ref<YouTubePlayerHandle>;
 }
 
 export function YouTubePlayer({
@@ -25,6 +33,7 @@ export function YouTubePlayer({
   endSeconds,
   seekTo,
   onTimeUpdate,
+  controlRef,
 }: YouTubePlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -212,6 +221,24 @@ export function YouTubePlayer({
       // ignore
     }
   };
+
+  // Điều khiển: Tua tương đối (±N giây), kẹp trong đoạn học
+  const seekBy = (deltaSeconds: number) => {
+    if (!playerRef.current || !isReady) return;
+    try {
+      const curr = playerRef.current.getCurrentTime();
+      const target = Math.min(
+        Math.max(startSeconds, endSeconds - 1),
+        Math.max(startSeconds, curr + deltaSeconds),
+      );
+      playerRef.current.seekTo(target, true);
+    } catch {
+      // ignore
+    }
+  };
+
+  // Cho phép trang cha gọi togglePlay/seekBy (phím tắt)
+  useImperativeHandle(controlRef, () => ({ togglePlay, seekBy }));
 
   // Điều khiển: Đổi tốc độ (0.75x hoặc 1.0x)
   const changeSpeed = (rate: 0.75 | 1) => {
