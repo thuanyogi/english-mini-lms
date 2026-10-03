@@ -168,8 +168,155 @@ async function main() {
       console.log(`   ✔ Activity [${act.id}] (${act.mode}): ${act.title}`);
     }
 
-    console.log("\n🎉 HOÀN TẤT NẠP NỘI DUNG THÀNH CÔNG!");
+    console.log("\n🎉 HOÀN TẤT NẠP NỘI DUNG ACTIVITIES THÀNH CÔNG!");
     console.log(`Đã nạp / cập nhật ${parsed.activitiesToUpsert.length} activities: ${parsed.activitiesToUpsert.map((a) => a.id).join(", ")}`);
+
+    // 6. Upsert demo vocabulary items for existing learners
+    console.log("\n📦 Đang nạp danh mục từ vựng mẫu (Vocabulary Vault)...");
+    const existingLearners = await db
+      .select({ id: schema.learners.id })
+      .from(schema.learners);
+
+    if (existingLearners.length > 0) {
+      const demoVocabularies = [
+        {
+          phrase: "suprascapular nerve",
+          ipa: "/ˌsuːprəˈskæpjələr nɜːrv/",
+          contextMeaning:
+            "Thần kinh trên vai (chi phối vận động cơ trên gai, dưới gai và cảm giác khớp vai)",
+          originalSentence:
+            "When performing a suprascapular nerve block, dynamic high-resolution imaging enables precise localization.",
+          sourceType: "book",
+          sourceRef: "Sổ tay siêu âm tr.42",
+          myAttempt:
+            "I routinely use ultrasound to identify the suprascapular nerve for chronic shoulder pain.",
+          masteryLevel: 2,
+        },
+        {
+          phrase: "hydrodissection",
+          ipa: "/ˌhaɪdroʊdɪˈsɛkʃən/",
+          contextMeaning:
+            "Thủ thuật bóc tách bằng thủy dịch (dùng áp lực dịch lỏng giải phóng chèn ép dính thần kinh)",
+          originalSentence:
+            "Ultrasound-guided median nerve hydrodissection provides immediate decompressive relief.",
+          sourceType: "article",
+          sourceRef: "Carpal Tunnel Protocol",
+          myAttempt:
+            "Hydrodissection is effective for liberating entrapped peripheral nerves without surgery.",
+          masteryLevel: 1,
+        },
+        {
+          phrase: "radicular pain",
+          ipa: "/rəˈdɪkjələr peɪn/",
+          contextMeaning:
+            "Đau rễ thần kinh (cơn đau buốt nhói lan dọc theo dải cảm giác da tương ứng do chèn ép rễ)",
+          originalSentence:
+            "That classic dermatomal radiation points strongly toward an L5-S1 lumbar radiculopathy.",
+          sourceType: "clinical",
+          sourceRef: "Clinical consultation",
+          myAttempt:
+            "The patient complained of severe radicular pain radiating down the posterior thigh.",
+          masteryLevel: 3,
+        },
+        {
+          phrase: "anechoic",
+          ipa: "/ˌæn.ɛˈkoʊ.ɪk/",
+          contextMeaning:
+            "Không có hồi âm / trống âm (vùng đen tuyền trên siêu âm, đặc trưng cho chất lỏng như máu, dịch khớp)",
+          originalSentence:
+            "The effusion appears as an anechoic fluid collection distending the joint capsule.",
+          sourceType: "book",
+          sourceRef: "Musculoskeletal Ultrasound Handbook",
+          myAttempt:
+            "We identified an anechoic pocket of fluid inside the suprapatellar bursa.",
+          masteryLevel: 2,
+        },
+        {
+          phrase: "in-plane needle trajectory",
+          ipa: "/ɪn pleɪn ˈniːdl trəˈdʒɛktəri/",
+          contextMeaning:
+            "Kỹ thuật đưa kim trong mặt phẳng (quan sát toàn bộ thân kim và đầu kim theo trục dọc đầu dò)",
+          originalSentence:
+            "An in-plane needle trajectory represents a critical technical principle for achieving safety.",
+          sourceType: "book",
+          sourceRef: "Ultrasound Handbook p.42",
+          myAttempt:
+            "Maintaining an in-plane needle trajectory prevents accidental vascular penetration.",
+          masteryLevel: 1,
+        },
+        {
+          phrase: "subacromial impingement",
+          ipa: "/ˌsʌb.əˈkroʊ.mi.əl ɪmˈpɪndʒ.mənt/",
+          contextMeaning: "Hội chứng xung đột / chèn ép dưới mỏm cùng vai",
+          originalSentence:
+            "Notice how dynamic scanning easily identifies subacromial impingement during active abduction.",
+          sourceType: "video",
+          sourceRef: "Conference talk 01",
+          myAttempt:
+            "Dynamic ultrasound is helpful for confirming painful subacromial impingement.",
+          masteryLevel: 0,
+        },
+        {
+          phrase: "paresthesia",
+          ipa: "/ˌpær.ɪsˈθiː.ʒə/",
+          contextMeaning: "Dị cảm (cảm giác tê rần rần, châm chích như kiến bò)",
+          originalSentence:
+            "The patient reported numbness and paresthesia in the distribution of the median nerve.",
+          sourceType: "clinical",
+          sourceRef: "Clinical rounds",
+          myAttempt:
+            "She experienced nocturnal paresthesia affecting the thumb and index finger.",
+          masteryLevel: 2,
+        },
+        {
+          phrase: "point-of-care ultrasound",
+          ipa: "/pɔɪnt əv ker ˈʌltrəsaʊnd/",
+          contextMeaning:
+            "Siêu âm tại giường bệnh / siêu âm tức thì (POCUS)",
+          originalSentence:
+            "Point-of-care ultrasound has transitioned to an indispensable diagnostic pillar in pain management.",
+          sourceType: "video",
+          sourceRef: "Symposium 2026",
+          myAttempt:
+            "Integrating point-of-care ultrasound allows prompt intervention during clinical evaluation.",
+          masteryLevel: 3,
+        },
+      ];
+
+      for (const learner of existingLearners) {
+        for (const item of demoVocabularies) {
+          const [exists] = await db
+            .select({ id: schema.vocabularyVault.id })
+            .from(schema.vocabularyVault)
+            .where(
+              sql`${schema.vocabularyVault.learnerId} = ${learner.id} AND ${schema.vocabularyVault.phrase} = ${item.phrase}`
+            )
+            .limit(1);
+
+          if (!exists) {
+            await db.insert(schema.vocabularyVault).values({
+              learnerId: learner.id,
+              phrase: item.phrase,
+              ipa: item.ipa,
+              contextMeaning: item.contextMeaning,
+              originalSentence: item.originalSentence,
+              sourceType: item.sourceType,
+              sourceRef: item.sourceRef,
+              myAttempt: item.myAttempt,
+              masteryLevel: item.masteryLevel,
+              dueAt: new Date(),
+            });
+            console.log(
+              `   ✔ Added vocabulary "${item.phrase}" for learner ${learner.id}`
+            );
+          }
+        }
+      }
+    } else {
+      console.log(
+        "   ℹ Chưa có learner nào trong DB. Từ vựng sẽ được nạp sau khi người dùng đăng nhập lần đầu."
+      );
+    }
   } catch (err) {
     console.error("\n❌ Lỗi khi ghi vào database:", err);
     process.exit(1);

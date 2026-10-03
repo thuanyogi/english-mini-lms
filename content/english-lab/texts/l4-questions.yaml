@@ -1,0 +1,50 @@
+# Bộ câu hỏi nghe hiểu cho bài L4 (Thuyết trình hội nghị: Vai trò của POCUS trong Quản lý Đau)
+# Đáp án bị khóa đến khi nộp bài (answer_reveal: after_submit)
+
+title: "Nghe hiểu: Bước tiến của Siêu âm tại giường (POCUS) trong can thiệp giảm đau"
+segment_id: "seg-l4"
+questions:
+  - id: "q1"
+    prompt: "So với chụp X-quang tăng sáng (fluoroscopy), ưu điểm sinh học quan trọng nhất của siêu âm được diễn giả nhấn mạnh là gì?"
+    options:
+      - id: "A"
+        text: "Không gây phơi nhiễm bức xạ ion hóa nguy hại cho cả bệnh nhân lẫn bác sĩ."
+      - id: "B"
+        text: "Thời gian khởi động máy siêu âm nhanh hơn 5 phút."
+      - id: "C"
+        text: "Không đòi hỏi bác sĩ phải đeo găng tay vô khuẩn."
+      - id: "D"
+        text: "Có thể tạo ra hình ảnh 3D màu sắc bắt mắt hơn."
+    correct_option_id: "A"
+    explanation: "Ở mốc 12–25s, diễn giả nêu rõ: 'Unlike fluoroscopy, which exposes both the patient and the physician to ionizing radiation, sonography delivers instantaneous visualization... without biological hazards.'"
+    timestamp_reference: 18
+
+  - id: "q2"
+    prompt: "Đánh giá động (dynamic assessment) dưới siêu âm giúp ích gì ngay tại giường bệnh?"
+    options:
+      - id: "A"
+        text: "Đo nồng độ oxy trong máu tĩnh mạch sâu."
+      - id: "B"
+        text: "Quan sát độ vững của khớp và sự trượt gân trong các nghiệm pháp vận động gây đau."
+      - id: "C"
+        text: "Định lượng chính xác mật độ khoáng của xương cột sống."
+      - id: "D"
+        text: "Phát hiện đột biến gen gây ung thư xương."
+    correct_option_id: "B"
+    explanation: "Ở mốc 25–38s, diễn giả chỉ ra: 'dynamic assessment allows clinicians to evaluate joint stability and tendon glide during provocative physical maneuvers right at the patient's bedside.'"
+    timestamp_reference: 30
+
+  - id: "q3"
+    prompt: "Theo diễn giả, việc loại bỏ kỹ thuật tiêm mù dựa vào mốc giải phẫu giúp tăng độ chính xác điều trị lên mức nào?"
+    options:
+      - id: "A"
+        text: "Từ 10% lên 50%."
+      - id: "B"
+        text: "Từ 60% lên trên 95%."
+      - id: "C"
+        text: "Tăng khoảng 15% đối với mọi ca bệnh."
+      - id: "D"
+        text: "Không có sự khác biệt đáng kể về độ chính xác."
+    correct_option_id: "B"
+    explanation: "Ở mốc 38–50s, diễn giả kết luận: 'we not only improve therapeutic accuracy from sixty percent to over ninety-five percent, but also build immediate patient trust.'"
+    timestamp_reference: 44

@@ -1,0 +1,5 @@
+# Ultrasound-Guided Interscalene Brachial Plexus Block (NYSORA Excerpt)
+
+The interscalene approach to the brachial plexus is indicated for surgical procedures involving the shoulder and upper arm, as well as postoperative analgesia. Under ultrasound visualization, the cervical nerve roots (C5, C6, and C7) appear as round to oval hypoechoic nodules stacked vertically between the anterior and middle scalene muscles. A high-frequency linear transducer is positioned transversely across the lateral neck at the level of the cricoid cartilage.
+
+To perform the block safely, the needle is inserted in-plane from posterior to anterior, traversing the middle scalene muscle toward the interscalene groove. Real-time sonography is essential to avoid penetrating the prevertebral fascia excessively or injuring the dorsal scapular and long thoracic nerves, which often course through the body of the middle scalene muscle. Slow, fractional injection of local anesthetic allows sonographic confirmation of donut-shaped spread around the neural elements without producing high intraneural injection pressures.

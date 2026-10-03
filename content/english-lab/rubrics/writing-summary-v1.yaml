@@ -1,0 +1,16 @@
+id: writing-summary-v1
+title: "Medical & Technical Summary Rubric"
+description: "Tiêu chí đánh giá khả năng tóm tắt ngắn gọn đoạn văn bản y khoa / kỹ thuật can thiệp"
+dimensions:
+  - key: fidelity_accuracy
+    name: "Fidelity & Core Points"
+    weight: 0.40
+    description: "Nắm bắt chính xác các ý cốt lõi, không thêm thắt suy đoán cá nhân hoặc thông tin sai lệch so với bài gốc."
+  - key: conciseness_synthesis
+    name: "Conciseness & Synthesis"
+    weight: 0.35
+    description: "Khả năng cô đọng ý, tránh sao chép nguyên văn (paraphrasing tốt), nằm trong giới hạn số từ quy định."
+  - key: academic_vocabulary
+    name: "Academic & Medical Vocabulary"
+    weight: 0.25
+    description: "Sử dụng từ vựng chuyên ngành cơ xương khớp và liên từ mạch lạc chính xác."

@@ -1,0 +1,5 @@
+0|10|Doctor: Good afternoon Mr. Davis, please tell me what brings you to our spine clinic today.
+10|24|Patient: Well doctor, for the past three weeks, I've had sharp, shooting pain starting in my lower back, traveling straight down my right buttock into my calf.
+24|36|Doctor: I see. Does the pain worsen when you cough, bend forward, or after prolonged sitting?
+36|47|Patient: Exactly. Sitting at my desk is excruciating, and I've started noticing a tingling sensation, almost like pins and needles, around my outer foot.
+47|60|Doctor: That classic dermatomal radiation points strongly toward an L5-S1 lumbar radiculopathy, likely due to disk herniation. Let us perform a focused neurological exam.

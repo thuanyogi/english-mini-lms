@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { TOUR_DONE_KEY, TOUR_STEP_KEY } from "@/components/tour-host";
 
 interface SubmissionItem {
   id: string;
@@ -104,6 +105,23 @@ export default function SettingsView() {
     } finally {
       setSavingPrefs(false);
     }
+  }
+
+  // Xem lại hướng dẫn: xoá cờ đã xem rồi mở tour từ bước đầu ở trang Hôm nay
+  async function handleReplayTour() {
+    try {
+      localStorage.removeItem(TOUR_DONE_KEY);
+      sessionStorage.removeItem(TOUR_STEP_KEY);
+    } catch {
+      // bỏ qua nếu trình duyệt chặn storage
+    }
+    // Không chặn điều hướng nếu lưu cờ thất bại: ?tour=1 đã đủ để khởi động
+    await fetch("/api/v1/settings/preferences", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tourCompleted: false }),
+    }).catch(() => undefined);
+    router.push("/today?tour=1");
   }
 
   async function handleExportData() {
@@ -268,6 +286,24 @@ export default function SettingsView() {
           </div>
         )}
       </div>
+      {/* 3b. Hướng dẫn sử dụng */}
+      <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-3">
+        <div>
+          <h2 className="text-base font-semibold text-slate-800">
+            Hướng dẫn sử dụng
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Xem lại tour ngắn chỉ vị trí các khu vực chính: Hôm nay, Thư viện, Sổ từ, Tiến độ.
+          </p>
+        </div>
+        <button
+          onClick={handleReplayTour}
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-sm font-semibold transition"
+        >
+          <span>▶️</span> Xem lại hướng dẫn
+        </button>
+      </div>
+
 
       {/* 4. Xuất dữ liệu cá nhân (JSON + link audio) */}
       <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200 space-y-3">

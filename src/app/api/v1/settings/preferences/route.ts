@@ -3,6 +3,10 @@ import { eq } from "drizzle-orm";
 import { getCurrentLearner } from "@/server/auth";
 import { db } from "@/db";
 import { learners } from "@/db/schema";
+import {
+  mergePreferences,
+  preferencesPatchSchema,
+} from "@/server/settings/preferences";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +20,14 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const { remindEnabled, remindTime } = body;
+    const body = await req.json().catch(() => null);
+    const parsed = preferencesPatchSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Dữ liệu cài đặt không hợp lệ" },
+        { status: 400 }
+      );
+    }
 
     // Lấy preferences hiện tại
     const [current] = await db
@@ -26,19 +36,10 @@ export async function PATCH(req: NextRequest) {
       .where(eq(learners.id, learner.id))
       .limit(1);
 
-    const existingPrefs = (current?.preferences as Record<string, unknown>) || {};
-    const updatedPreferences = {
-      ...existingPrefs,
-      remindEnabled:
-        typeof remindEnabled === "boolean"
-          ? remindEnabled
-          : existingPrefs.remindEnabled ?? false,
-      remindTime:
-        typeof remindTime === "string"
-          ? remindTime
-          : (existingPrefs.remindTime as string) || "20:00",
-      updatedAt: new Date().toISOString(),
-    };
+    const updatedPreferences = mergePreferences(
+      current?.preferences as Record<string, unknown> | null,
+      parsed.data
+    );
 
     await db
       .update(learners)

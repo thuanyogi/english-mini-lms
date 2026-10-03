@@ -1,6 +1,9 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentLearner } from "@/server/auth";
 import { BottomNav, SideNav } from "@/components/bottom-nav";
+import { TourHost } from "@/components/tour-host";
 
 export default async function MainLayout({
   children,
@@ -20,6 +23,10 @@ export default async function MainLayout({
     redirect("/login");
   }
 
+  // Cờ đã xem hướng dẫn nhanh — nếu không đọc được learner thì coi như đã xem để không làm phiền
+  const learner = await getCurrentLearner().catch(() => null);
+  const tourCompleted = learner ? Boolean(learner.preferences?.tourCompleted) : true;
+
   return (
     <div className="flex min-h-dvh flex-col bg-slate-50">
       {/* Sidebar (≥1024px) */}
@@ -32,6 +39,11 @@ export default async function MainLayout({
 
       {/* Bottom navigation (<1024px) — fixed */}
       <BottomNav />
+
+      {/* Hướng dẫn nhanh (guided tour) — useSearchParams cần Suspense */}
+      <Suspense fallback={null}>
+        <TourHost tourCompleted={tourCompleted} />
+      </Suspense>
     </div>
   );
 }

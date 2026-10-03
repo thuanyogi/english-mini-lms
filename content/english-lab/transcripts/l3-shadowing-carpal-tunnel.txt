@@ -1,0 +1,4 @@
+0|10|In refractory carpal tunnel syndrome, ultrasound-guided median nerve hydrodissection provides immediate decompressive relief.
+10|22|Using high-resolution short-axis views, the swollen median nerve is identified deep to the flexor retinaculum.
+22|34|An in-plane ulnar approach enables precise needle tip positioning directly beneath the epineurium.
+34|45|Slow injection of twenty milliliters of five percent dextrose effectively frees the nerve from surrounding fibrous adhesions.

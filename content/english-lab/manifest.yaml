@@ -21,11 +21,58 @@ sources:
     locator_type: seconds
     review_state: approved
 
+  - id: src-nysora-guide
+    title: "NYSORA Guidelines on Ultrasound-Guided Regional Anesthesia"
+    kind: book
+    permission: personal-study
+    locator_type: page
+    review_state: approved
+    notes: "Tài liệu học thuật tham khảo cá nhân."
+
+  - id: src-open-access-journal
+    title: "Open Access Musculoskeletal Ultrasound Literature"
+    kind: article
+    permission: cc
+    locator_type: page
+    review_state: approved
+
+  - id: src-clinical-audio-series
+    title: "Clinical Consultation and Audio Training Series"
+    kind: audio
+    permission: personal-study
+    locator_type: seconds
+    review_state: approved
+
+  - id: src-conference-talk-02
+    title: "International Symposium on POCUS and Interventional Pain"
+    kind: video
+    permission: public-embed
+    locator_type: seconds
+    review_state: approved
+
 segments:
   - id: seg-r1
     source_id: src-ultrasound-handbook
     page: 42
     text_file: texts/r1-ultrasound-p42.md
+    language: en
+
+  - id: seg-r2
+    source_id: src-nysora-guide
+    page: 105
+    text_file: texts/r2-nysora-interscalene.md
+    language: en
+
+  - id: seg-r3
+    source_id: src-open-access-journal
+    page: 1
+    text_file: texts/r3-abstract-rotator-cuff.md
+    language: en
+
+  - id: seg-r4
+    source_id: src-ultrasound-handbook
+    page: 68
+    text_file: texts/r4-knee-ultrasound.md
     language: en
 
   - id: seg-l1
@@ -35,7 +82,29 @@ segments:
     transcript_file: transcripts/l1-conference-95-155.txt
     verified_transcript: true
 
+  - id: seg-l2
+    source_id: src-clinical-audio-series
+    start_seconds: 0
+    end_seconds: 60
+    transcript_file: transcripts/l2-clinical-consultation.txt
+    verified_transcript: true
+
+  - id: seg-l3
+    source_id: src-clinical-audio-series
+    start_seconds: 0
+    end_seconds: 45
+    transcript_file: transcripts/l3-shadowing-carpal-tunnel.txt
+    verified_transcript: true
+
+  - id: seg-l4
+    source_id: src-conference-talk-02
+    start_seconds: 0
+    end_seconds: 60
+    transcript_file: transcripts/l4-pocus-symposium.txt
+    verified_transcript: true
+
 activities:
+  # ── WRITING ─────────────────────────────────────────────────────────────
   - id: W1
     slot: W1
     mode: writing
@@ -51,12 +120,59 @@ activities:
     purpose: baseline
     review_state: approved
 
+  - id: W2
+    slot: W2
+    mode: writing
+    title: "Tóm tắt hướng dẫn phong bế đám rối cánh tay"
+    objective: "Viết đoạn tóm tắt kỹ thuật 80–100 từ, cô đọng, đúng nguyên tắc tiêm an toàn."
+    duration_minutes: 15
+    difficulty: beginner
+    prompt_file: texts/w2-summary-ultrasound-prompt.md
+    output: text
+    feedback_guide: "Đánh giá 3 tiêu chí: độ trung thành ý gốc, tính cô đọng (paraphrasing), từ vựng giải phẫu cơ xương khớp."
+    rubric_file: rubrics/writing-summary-v1.yaml
+    answer_reveal: none
+    purpose: practice
+    review_state: approved
+
+  - id: W3
+    slot: W3
+    mode: writing
+    title: "Trả lời email hội chẩn ca đau rễ thần kinh"
+    objective: "Viết email trao đổi chuyên môn 100–130 từ, trang trọng, lập luận rõ ràng về can thiệp tối thiểu."
+    duration_minutes: 20
+    difficulty: intermediate
+    prompt_file: texts/w3-colleague-email-prompt.md
+    output: text
+    feedback_guide: "Đánh giá tính chuyên nghiệp, cấu trúc email lâm sàng và thuật ngữ đau thần kinh."
+    rubric_file: rubrics/writing-practical-v1.yaml
+    answer_reveal: none
+    purpose: practice
+    review_state: approved
+
+  - id: W4
+    slot: W4
+    mode: writing
+    title: "Email xin điều chỉnh tóm tắt báo cáo khoa học"
+    objective: "Viết thư gửi Ban thư ký hội nghị 120–150 từ xin cập nhật số liệu và bổ sung tác giả."
+    duration_minutes: 20
+    difficulty: intermediate
+    prompt_file: texts/w4-revision-request-email-prompt.md
+    output: text
+    feedback_guide: "Đánh giá tính chuẩn mực trong giao tiếp học thuật, nêu rõ mã bài và đề nghị hợp lý."
+    rubric_file: rubrics/writing-practical-v1.yaml
+    answer_reveal: none
+    purpose: assessment
+    review_state: approved
+
+  # ── READING ─────────────────────────────────────────────────────────────
   - id: R1
     slot: R1
     mode: reading
     title: "Đọc–dịch đoạn sổ tay siêu âm tr.42"
     objective: "Nêu ý chính, dịch sang tiếng Việt trung thành, giải thích 3 thuật ngữ."
     duration_minutes: 25
+    difficulty: trial
     segment_ids: [seg-r1]
     output: text
     feedback_guide: "Đối chiếu ý với đoạn gốc, chỉ vị trí bỏ sót/sai nghĩa; không nhận xét y khoa."
@@ -64,12 +180,56 @@ activities:
     purpose: baseline
     review_state: approved
 
+  - id: R2
+    slot: R2
+    mode: reading
+    title: "Đọc–dịch NYSORA: Phong bế liên cơ bậc thang"
+    objective: "Nêu ý chính, dịch sang tiếng Việt trung thực, giải thích 3 thuật ngữ: hypoechoic, in-plane approach, intraneural."
+    duration_minutes: 25
+    difficulty: intermediate
+    segment_ids: [seg-r2]
+    output: text
+    feedback_guide: "Đối chiếu độ chính xác dịch thuật, lưu ý các thuật ngữ giải phẫu vùng cổ và nguyên tắc an toàn."
+    answer_reveal: on_request
+    purpose: practice
+    review_state: approved
+
+  - id: R3
+    slot: R3
+    mode: reading
+    title: "Đọc–dịch Abstract: Siêu âm động vs MRI chóp xoay"
+    objective: "Nêu ý chính các phần Background-Methods-Results-Conclusion, dịch đoạn Kết luận và giải thích các chỉ số chẩn đoán."
+    duration_minutes: 25
+    difficulty: advanced
+    segment_ids: [seg-r3]
+    output: text
+    feedback_guide: "Nhận xét cấu trúc câu học thuật y khoa, thuật ngữ thống kê và độ chính xác dịch thuật."
+    answer_reveal: on_request
+    purpose: practice
+    review_state: approved
+
+  - id: R4
+    slot: R4
+    mode: reading
+    title: "Đọc–dịch: Kỹ thuật tiêm khớp gối dưới siêu âm"
+    objective: "Dịch trung thành quy trình định vị đầu dò, chọc hút dịch bao hoạt dịch trên xương bánh chè và giải thích các mốc giải phẫu."
+    duration_minutes: 20
+    difficulty: beginner
+    segment_ids: [seg-r4]
+    output: text
+    feedback_guide: "Kiểm tra độ chính xác thuật ngữ giải phẫu khớp gối và cách dịch quy trình kỹ thuật can thiệp."
+    answer_reveal: on_request
+    purpose: practice
+    review_state: approved
+
+  # ── LISTENING ───────────────────────────────────────────────────────────
   - id: L1
     slot: L1
     mode: listening
     title: "Nghe đoạn hội nghị 60s"
     objective: "Trả lời 3 câu hỏi ý chính trước khi mở transcript."
     duration_minutes: 15
+    difficulty: trial
     segment_ids: [seg-l1]
     questions_file: texts/l1-questions.yaml
     output: text
@@ -77,14 +237,98 @@ activities:
     purpose: baseline
     review_state: approved
 
+  - id: L2
+    slot: L2
+    mode: listening
+    title: "Nghe hội thoại lâm sàng: Tư vấn đau rễ thần kinh"
+    objective: "Nghe đoạn hội thoại 60s và trả lời 3 câu hỏi trắc nghiệm kiểm tra khả năng nắm bắt triệu chứng bệnh nhân."
+    duration_minutes: 15
+    difficulty: intermediate
+    segment_ids: [seg-l2]
+    questions_file: texts/l2-questions.yaml
+    output: text
+    answer_reveal: after_submit
+    purpose: practice
+    review_state: approved
+
+  - id: L3
+    slot: L3
+    mode: listening
+    title: "Shadowing 45s: Bóc tách thủy dịch thần kinh giữa"
+    objective: "Nghe sâu và thực hành nói nhại (shadowing) theo đoạn mô tả kỹ thuật can thiệp hội chứng ống cổ tay."
+    duration_minutes: 15
+    difficulty: intermediate
+    segment_ids: [seg-l3]
+    prompt_file: texts/l3-shadowing-prompt.md
+    output: text
+    feedback_guide: "Đánh giá khả năng nắm bắt thuật ngữ can thiệp và độ hoàn thiện bài tóm tắt."
+    answer_reveal: on_request
+    purpose: practice
+    review_state: approved
+
+  - id: L4
+    slot: L4
+    mode: listening
+    title: "Nghe thuyết trình hội nghị: Bước tiến của POCUS"
+    objective: "Nghe đoạn báo cáo 60s và trả lời 3 câu hỏi trắc nghiệm về ưu điểm của siêu âm tại giường so với X-quang tăng sáng."
+    duration_minutes: 15
+    difficulty: intermediate
+    segment_ids: [seg-l4]
+    questions_file: texts/l4-questions.yaml
+    output: text
+    answer_reveal: after_submit
+    purpose: assessment
+    review_state: approved
+
+  # ── SPEAKING ────────────────────────────────────────────────────────────
   - id: S1
     slot: S1
     mode: speaking
     title: "Giới thiệu bản thân tại hội nghị (60–90s)"
     objective: "Nói trôi chảy 60–90s: tên, chuyên khoa, nơi làm việc, mối quan tâm nghiên cứu."
     duration_minutes: 15
+    difficulty: trial
     prompt_file: texts/s1-self-intro-prompt.md
     output: audio
     feedback_guide: "Tối đa 3 điểm: từ vựng, cấu trúc câu, phát âm (chỉ khi có audio). Mời nói lại."
     purpose: baseline
+    review_state: approved
+
+  - id: S2
+    slot: S2
+    mode: speaking
+    title: "Giải thích thủ thuật tiêm can thiệp cho bệnh nhân"
+    objective: "Nói 60–90s bằng tiếng Anh gần gũi, trấn an, giải thích rõ vì sao cần dùng siêu âm dẫn đường."
+    duration_minutes: 15
+    difficulty: beginner
+    prompt_file: texts/s2-patient-explanation-prompt.md
+    output: audio
+    feedback_guide: "Tối đa 3 điểm: độ đồng cảm và dễ hiểu với bệnh nhân, từ vựng lâm sàng, cấu trúc câu mạch lạc."
+    purpose: practice
+    review_state: approved
+
+  - id: S3
+    slot: S3
+    mode: speaking
+    title: "Trả lời câu hỏi phản biện (Q&A) tại hội nghị"
+    objective: "Phản hồi tự tin 60–90s trước câu hỏi của chủ tọa về thể tích tiêm và kết quả theo dõi 6 tháng."
+    duration_minutes: 15
+    difficulty: advanced
+    prompt_file: texts/s3-conference-qa-prompt.md
+    output: audio
+    feedback_guide: "Đánh giá phong thái học thuật, cấu trúc câu mở đầu trang trọng và sự rõ ràng trong số liệu."
+    purpose: practice
+    review_state: approved
+
+  - id: S4
+    slot: S4
+    mode: speaking
+    title: "Trình bày tóm tắt ca lâm sàng đau thần kinh tọa"
+    objective: "Trình bày mạch lạc trong 90–120s theo cấu trúc: Bệnh sử - Khám & Chẩn đoán hình ảnh - Can thiệp - Kết cục."
+    duration_minutes: 20
+    difficulty: intermediate
+    prompt_file: texts/s4-case-presentation-prompt.md
+    output: audio
+    feedback_guide: "Đánh giá cấu trúc báo cáo ca bệnh chuẩn quốc tế, thuật ngữ chuyên ngành và tính liên kết giữa các phần."
+    purpose: assessment
     review_state: approved

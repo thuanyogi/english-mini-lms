@@ -1,0 +1,50 @@
+# Bộ câu hỏi nghe hiểu cho bài L2 (Hội thoại lâm sàng: Tư vấn đau rễ thần kinh)
+# Đáp án bị khóa đến khi nộp bài (answer_reveal: after_submit)
+
+title: "Nghe hiểu: Tư vấn lâm sàng bệnh nhân đau rễ thần kinh thắt lưng"
+segment_id: "seg-l2"
+questions:
+  - id: "q1"
+    prompt: "Bệnh nhân mô tả vị trí và hướng lan của cơn đau như thế nào?"
+    options:
+      - id: "A"
+        text: "Đau âm ỉ vùng thượng vị lan lên ngực trái."
+      - id: "B"
+        text: "Đau buốt nhói từ thắt lưng lan xuống mông phải và bắp chân."
+      - id: "C"
+        text: "Đau khớp gối hai bên kèm theo cứng khớp buổi sáng."
+      - id: "D"
+        text: "Đau đầu dữ dội kèm theo cảm giác hoa mắt chóng mặt."
+    correct_option_id: "B"
+    explanation: "Ở mốc 10–24s, bệnh nhân nói: 'I've had sharp, shooting pain starting in my lower back, traveling straight down my right buttock into my calf.'"
+    timestamp_reference: 16
+
+  - id: "q2"
+    prompt: "Tư thế hoặc động tác nào khiến cơn đau của bệnh nhân trở nên tồi tệ nhất?"
+    options:
+      - id: "A"
+        text: "Nằm ngửa gác chân cao trên gối."
+      - id: "B"
+        text: "Ngồi lâu tại bàn làm việc."
+      - id: "C"
+        text: "Đi bộ nhẹ nhàng trên đường bằng phẳng."
+      - id: "D"
+        text: "Uống nước ấm vào buổi sáng."
+    correct_option_id: "B"
+    explanation: "Ở mốc 36–47s, bệnh nhân khẳng định: 'Sitting at my desk is excruciating...'"
+    timestamp_reference: 38
+
+  - id: "q3"
+    prompt: "Dựa trên các triệu chứng lâm sàng, bác sĩ nghĩ nhiều nhất đến chẩn đoán nào?"
+    options:
+      - id: "A"
+        text: "Viêm ruột thừa cấp thể sau manh tràng."
+      - id: "B"
+        text: "Hội chứng ống cổ tay thể trung bình."
+      - id: "C"
+        text: "Bệnh lý rễ thần kinh L5-S1 nghi do thoát vị đĩa đệm."
+      - id: "D"
+        text: "Gãy lún đốt sống ngực do loãng xương nặng."
+    correct_option_id: "C"
+    explanation: "Ở mốc 47–60s, bác sĩ kết luận: 'That classic dermatomal radiation points strongly toward an L5-S1 lumbar radiculopathy, likely due to disk herniation.'"
+    timestamp_reference: 52
