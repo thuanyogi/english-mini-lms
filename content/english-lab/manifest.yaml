@@ -14,9 +14,9 @@ sources:
     notes: "Chỉ trích đoạn ngắn kèm số trang. Không copy toàn trang."
 
   - id: src-conference-talk-01
-    title: "Bài nói hội nghị về chẩn đoán siêu âm cơ xương khớp"
+    title: "NYSORA: Định nghĩa phong bế thần kinh & Nguyên lý siêu âm"
     kind: video
-    url: "https://www.youtube.com/watch?v=M7lc1UVf-VE"
+    url: "https://www.youtube.com/watch?v=uVSiFJ85EtM"
     permission: public-embed
     locator_type: seconds
     review_state: approved
@@ -37,15 +37,25 @@ sources:
     review_state: approved
 
   - id: src-clinical-audio-series
-    title: "Clinical Consultation and Audio Training Series"
-    kind: audio
-    permission: personal-study
+    title: "NYSORA: Kích thích thần kinh & Đánh giá giải phẫu siêu âm"
+    kind: video
+    url: "https://www.youtube.com/watch?v=6orck_Vkdlo"
+    permission: public-embed
+    locator_type: seconds
+    review_state: approved
+
+  - id: src-carpal-tunnel-video
+    title: "NYSORA: Thủ thuật phong bế cổ tay & Giải ép ống cổ tay"
+    kind: video
+    url: "https://www.youtube.com/watch?v=lKdttUr0VrA"
+    permission: public-embed
     locator_type: seconds
     review_state: approved
 
   - id: src-conference-talk-02
-    title: "International Symposium on POCUS and Interventional Pain"
+    title: "NYSORA: Độ an toàn trong can thiệp giảm đau & Gây tê vùng"
     kind: video
+    url: "https://www.youtube.com/watch?v=asrFNM07pc4"
     permission: public-embed
     locator_type: seconds
     review_state: approved
@@ -90,7 +100,7 @@ segments:
     verified_transcript: true
 
   - id: seg-l3
-    source_id: src-clinical-audio-series
+    source_id: src-carpal-tunnel-video
     start_seconds: 0
     end_seconds: 45
     transcript_file: transcripts/l3-shadowing-carpal-tunnel.txt

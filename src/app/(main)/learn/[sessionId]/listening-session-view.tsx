@@ -415,7 +415,7 @@ export function ListeningSessionView({
           <>
             {/* Trình phát YouTube */}
             <YouTubePlayer
-              videoUrl={listening.videoUrl || "https://www.youtube.com/watch?v=M7lc1UVf-VE"}
+              videoUrl={listening.videoUrl || "https://www.youtube.com/watch?v=uVSiFJ85EtM"}
               startSeconds={listening.startSeconds}
               endSeconds={listening.endSeconds}
               seekTo={seekTo}

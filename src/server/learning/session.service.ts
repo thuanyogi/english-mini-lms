@@ -313,7 +313,7 @@ export async function getSessionDetails(sessionId: string, learnerId: string) {
 
     let startSec = 95;
     let endSec = 155;
-    let videoUrl = "https://www.youtube.com/watch?v=M7lc1UVf-VE";
+    let videoUrl = "https://www.youtube.com/watch?v=uVSiFJ85EtM";
     let rawTranscript = "";
 
     if (activity.segmentIds && activity.segmentIds.length > 0) {
