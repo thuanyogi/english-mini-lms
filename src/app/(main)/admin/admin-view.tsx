@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { AdminDashboardData } from "@/server/admin/service";
+import { getTopicMeta } from "@/lib/topics";
+import ContentManager from "./content/content-manager";
+import DriveSync from "./content/drive-sync";
 
 const REVIEW_STATE_BADGES: Record<string, { label: string; className: string }> = {
   approved: {
@@ -58,6 +61,9 @@ export default function AdminView() {
 
   // Bộ lọc activity
   const [selectedStateFilter, setSelectedStateFilter] = useState<string>("all");
+
+  // Tab: tổng quan (dashboard) | quản lý nội dung học | drive sync
+  const [tab, setTab] = useState<"overview" | "content" | "sync">("overview");
 
   useEffect(() => {
     fetchDashboard();
@@ -193,6 +199,33 @@ export default function AdminView() {
         </div>
       </div>
 
+      <div role="tablist" className="flex gap-2">
+        {([
+          ["overview", "📊 Tổng quan"],
+          ["content", "📚 Nội dung học"],
+          ["sync", "☁️ Drive Sync"],
+        ] as const).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            id={`admin-tab-${key}`}
+            aria-selected={tab === key}
+            onClick={() => setTab(key)}
+            className={`min-h-[44px] px-4 rounded-lg text-base font-medium transition ${
+              tab === key ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "content" && <ContentManager />}
+      {tab === "sync" && <DriveSync />}
+
+      {tab === "overview" && (
+      <>
       {retryMessage && (
         <div className="p-3 bg-emerald-50 text-emerald-800 text-sm rounded-lg border border-emerald-200">
           {retryMessage}
@@ -511,6 +544,7 @@ export default function AdminView() {
                 <th className="py-2.5 px-3">Mã bài (ID)</th>
                 <th className="py-2.5 px-3">Tiêu đề</th>
                 <th className="py-2.5 px-3">Kỹ năng</th>
+                <th className="py-2.5 px-3">Chủ đề</th>
                 <th className="py-2.5 px-3">Thời lượng</th>
                 <th className="py-2.5 px-3">Độ khó</th>
                 <th className="py-2.5 px-3">Trạng thái (review_state)</th>
@@ -519,7 +553,7 @@ export default function AdminView() {
             <tbody className="divide-y divide-slate-100">
               {filteredActivities.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-6 text-center text-slate-400 italic">
+                  <td colSpan={7} className="py-6 text-center text-slate-400 italic">
                     Không có bài học nào khớp với bộ lọc.
                   </td>
                 </tr>
@@ -542,6 +576,9 @@ export default function AdminView() {
                           {MODE_LABELS[act.mode] || act.mode}
                         </span>
                       </td>
+                      <td className="py-2.5 px-3 whitespace-nowrap">
+                        {getTopicMeta(act.topic).icon} {getTopicMeta(act.topic).name}
+                      </td>
                       <td className="py-2.5 px-3">
                         {act.durationMinutes ? `${act.durationMinutes} phút` : "—"}
                       </td>
@@ -563,6 +600,8 @@ export default function AdminView() {
           </table>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

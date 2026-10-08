@@ -1,6 +1,10 @@
 import fs from "fs";
 import path from "path";
 import yaml from "yaml";
+import { isValidTopicKey, UNCATEGORIZED_TOPIC } from "../../lib/topics";
+
+// FileReader abstraction — allows Drive sync to provide its own reader
+export type SyncFileReader = (relativePath: string) => Promise<string | null>;
 
 export interface ManifestSource {
   id: string;
@@ -50,6 +54,7 @@ export interface ManifestActivity {
   segment_ids?: string[];
   questions_file?: string;
   output?: string;
+  topic?: string;
 }
 
 export interface ManifestData {
@@ -101,7 +106,30 @@ export interface ParsedManifestResult {
     segmentIds: string[];
     questionsFile: string | null;
     output: string | null;
+    topic: string | null;
   }>;
+}
+
+/**
+ * Parses manifest YAML string into ManifestData WITHOUT validating referenced files.
+ * Use this when the file contents are loaded externally (e.g., from Google Drive).
+ * Returns { success, data, errors }.
+ */
+export function parseManifestYaml(
+  manifestYamlContent: string
+): { success: true; data: ManifestData } | { success: false; errors: string[] } {
+  try {
+    const data = yaml.parse(manifestYamlContent) as ManifestData;
+    if (!data || typeof data !== "object") {
+      return { success: false, errors: ["Manifest rỗng hoặc định dạng không đúng."] };
+    }
+    return { success: true, data };
+  } catch (err) {
+    return {
+      success: false,
+      errors: [`Không thể parse YAML của manifest: ${err instanceof Error ? err.message : String(err)}`],
+    };
+  }
 }
 
 /**
@@ -156,6 +184,15 @@ export function parseAndValidateManifest(
 
   // 1. Validation phase: check all referenced files for approved activities
   for (const act of approvedActivities) {
+    if (act.topic !== undefined && act.topic !== null) {
+      const topicKey = String(act.topic).trim();
+      if (topicKey !== "" && (!isValidTopicKey(topicKey) || topicKey === UNCATEGORIZED_TOPIC)) {
+        errors.push(
+          `Activity "${act.id}" ("${act.title}") có topic không hợp lệ: "${topicKey}" (chỉ dùng chữ thường/số nối bằng dấu gạch ngang, và không dùng "${UNCATEGORIZED_TOPIC}")`
+        );
+      }
+    }
+
     if (act.prompt_file) {
       const fullPath = path.resolve(baseDir, act.prompt_file);
       if (!fs.existsSync(fullPath)) {
@@ -311,6 +348,7 @@ export function parseAndValidateManifest(
       segmentIds: act.segment_ids ?? [],
       questionsFile: act.questions_file ?? null,
       output: act.output ?? null,
+      topic: act.topic ? String(act.topic).trim() || null : null,
     };
   });
 

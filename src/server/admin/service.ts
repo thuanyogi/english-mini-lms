@@ -17,6 +17,7 @@ export interface AdminActivityItem {
   durationMinutes: number | null;
   difficulty: string | null;
   reviewState: string;
+  topic: string | null;
   updatedAt: Date;
 }
 
@@ -78,6 +79,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       durationMinutes: activities.durationMinutes,
       difficulty: activities.difficulty,
       reviewState: activities.reviewState,
+      topic: activities.topic,
       updatedAt: activities.updatedAt,
     })
     .from(activities)

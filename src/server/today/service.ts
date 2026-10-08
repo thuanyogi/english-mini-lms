@@ -1,31 +1,29 @@
-import { eq, and, desc, gte, lte, isNull, sql } from "drizzle-orm";
+import { eq, and, lte, inArray, desc } from "drizzle-orm";
 import { db } from "@/db";
+import { activities, vocabularyVault, learners, learningSessions } from "@/db/schema";
 import {
-  activities,
-  learningSessions,
-  submissions,
-  drafts,
-  vocabularyVault,
-  learners,
-} from "@/db/schema";
+  getLearnerPracticeContext,
+  pickRecommendedActivity,
+  SKILL_NAMES_VI,
+  type RecommendedActivity,
+} from "./pick-activity";
+
+export interface InProgressSessionInfo {
+  sessionId: string;
+  activityId: string;
+  targetMinutes: number;
+  status: "active" | "paused";
+  title: string;
+  mode: string;
+  slot: string | null;
+}
 
 export interface TodayRecommendation {
   learnerName: string;
   baselineStatus: string;
   targetMinutes: 30 | 45;
   reason: string;
-  recommendedActivity: {
-    id: string;
-    slot: string | null;
-    title: string;
-    mode: string;
-    objective: string | null;
-    durationMinutes: number;
-    reason: string;
-    actionType: "continue_draft" | "start_revision" | "new_session";
-    sessionId?: string;
-    parentId?: string;
-  } | null;
+  recommendedActivity: RecommendedActivity | null;
   alternateActivities: Array<{
     id: string;
     slot: string | null;
@@ -37,6 +35,51 @@ export interface TodayRecommendation {
   }>;
   dueVocabCount: number;
   leastPracticedSkill: string;
+  streakDays: number;
+  inProgressSession: InProgressSessionInfo | null;
+}
+
+function computeStreakDays(completedDates: Date[], timeZone = "Asia/Ho_Chi_Minh"): number {
+  if (completedDates.length === 0) return 0;
+
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  const uniqueDays = Array.from(
+    new Set(completedDates.map((d) => formatter.format(d)))
+  ).sort().reverse();
+
+  if (uniqueDays.length === 0) return 0;
+
+  const today = new Date();
+  const todayStr = formatter.format(today);
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const yesterdayStr = formatter.format(yesterday);
+
+  // Nếu ngày gần nhất không phải hôm nay và cũng không phải hôm qua thì chuỗi đã đứt
+  const mostRecent = uniqueDays[0];
+  if (mostRecent !== todayStr && mostRecent !== yesterdayStr) {
+    return 0;
+  }
+
+  let streak = 0;
+  let cursor = new Date(mostRecent === todayStr ? today : yesterday);
+
+  for (const dayStr of uniqueDays) {
+    const expectedStr = formatter.format(cursor);
+    if (dayStr === expectedStr) {
+      streak++;
+      cursor = new Date(cursor.getTime() - 24 * 60 * 60 * 1000);
+    } else if (dayStr < expectedStr) {
+      break;
+    }
+  }
+
+  return streak;
 }
 
 export async function getTodayRecommendation(
@@ -64,95 +107,11 @@ export async function getTodayRecommendation(
     .where(and(eq(vocabularyVault.learnerId, learnerId), lte(vocabularyVault.dueAt, now)));
   const dueVocabCount = dueVocab.length;
 
-  // 3. Quy tắc (a): Kiểm tra bản nháp dở hoặc bài cần sửa (Revision 2)
-  // 3.1 Nháp dở chưa nộp
-  const [latestDraft] = await db
-    .select({
-      draftId: drafts.id,
-      sessionId: drafts.sessionId,
-      content: drafts.content,
-      activityId: learningSessions.activityId,
-      sessionStatus: learningSessions.status,
-    })
-    .from(drafts)
-    .innerJoin(learningSessions, eq(drafts.sessionId, learningSessions.id))
-    .where(
-      and(
-        eq(drafts.learnerId, learnerId),
-        eq(learningSessions.status, "active"),
-        sql`length(coalesce(${drafts.content}, '')) > 20`
-      )
-    )
-    .orderBy(desc(drafts.updatedAt))
-    .limit(1);
+  // 3. Ngữ cảnh luyện tập: nháp dở, bài cần sửa, cân bằng 4 kỹ năng (module dùng chung)
+  const ctx = await getLearnerPracticeContext(learnerId);
+  const leastPracticedMode = ctx.leastPracticedMode;
 
-  // 3.2 Bài tập Bản 1 cần sửa (chưa có bản revision 2)
-  const recentSubmissions = await db
-    .select({
-      id: submissions.id,
-      revision: submissions.revision,
-      sessionId: submissions.sessionId,
-      activityId: learningSessions.activityId,
-      parentId: submissions.parentId,
-      submittedAt: submissions.submittedAt,
-    })
-    .from(submissions)
-    .innerJoin(learningSessions, eq(submissions.sessionId, learningSessions.id))
-    .where(
-      and(
-        eq(submissions.learnerId, learnerId),
-        isNull(submissions.deletedAt)
-      )
-    )
-    .orderBy(desc(submissions.submittedAt))
-    .limit(20);
-
-  const parentIds = new Set(recentSubmissions.map((s) => s.parentId).filter(Boolean));
-  const unrevisedSubmission = recentSubmissions.find(
-    (s) => s.revision === 1 && !parentIds.has(s.id)
-  );
-
-  // 4. Quy tắc (c): Phân tích cân bằng 4 kỹ năng trong 7 ngày qua
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const weeklySubmissions = await db
-    .select({
-      mode: activities.mode,
-    })
-    .from(submissions)
-    .innerJoin(learningSessions, eq(submissions.sessionId, learningSessions.id))
-    .innerJoin(activities, eq(learningSessions.activityId, activities.id))
-    .where(
-      and(
-        eq(submissions.learnerId, learnerId),
-        isNull(submissions.deletedAt),
-        gte(submissions.submittedAt, sevenDaysAgo)
-      )
-    );
-
-  const skillCounts: Record<string, number> = {
-    writing: 0,
-    reading: 0,
-    speaking: 0,
-    listening: 0,
-  };
-  for (const s of weeklySubmissions) {
-    if (s.mode && skillCounts[s.mode] !== undefined) {
-      skillCounts[s.mode]++;
-    }
-  }
-
-  // Sắp xếp kỹ năng ít luyện nhất lên đầu
-  const sortedSkills = Object.entries(skillCounts).sort((a, b) => a[1] - b[1]);
-  const leastPracticedMode = sortedSkills[0][0]; // "speaking", "listening", "writing", or "reading"
-
-  const skillNamesVi: Record<string, string> = {
-    writing: "Viết",
-    reading: "Đọc - Dịch y khoa",
-    speaking: "Nói",
-    listening: "Nghe & Shadowing",
-  };
-
-  // 5. Lấy danh sách các hoạt động đã được phê duyệt (approved)
+  // 4. Lấy danh sách các hoạt động đã được phê duyệt (approved)
   const approvedActs = await db
     .select({
       id: activities.id,
@@ -165,80 +124,16 @@ export async function getTodayRecommendation(
     .from(activities)
     .where(eq(activities.reviewState, "approved"));
 
-  // Lựa chọn bài tập chính được đề xuất
-  let recommended: TodayRecommendation["recommendedActivity"] | null = null;
-
-  if (latestDraft && latestDraft.activityId) {
-    const act = approvedActs.find((a) => a.id === latestDraft.activityId);
-    if (act) {
-      recommended = {
-        id: act.id,
-        slot: act.slot,
-        title: act.title,
-        mode: act.mode,
-        objective: act.objective,
-        durationMinutes: act.durationMinutes || 15,
-        reason: `Quy tắc (a): Bạn có một bản nháp đang viết dở cho bài học này. Hãy tiếp tục để hoàn thiện.`,
-        actionType: "continue_draft",
-        sessionId: latestDraft.sessionId,
-      };
-    }
-  }
-
-  if (!recommended && unrevisedSubmission && unrevisedSubmission.activityId) {
-    const act = approvedActs.find((a) => a.id === unrevisedSubmission.activityId);
-    if (act) {
-      recommended = {
-        id: act.id,
-        slot: act.slot,
-        title: act.title,
-        mode: act.mode,
-        objective: act.objective,
-        durationMinutes: act.durationMinutes || 15,
-        reason: `Quy tắc (a): Bạn đã có bài nộp Bản 1 kèm nhận xét từ AI. Hãy thực hiện Bản 2 (nói/viết lại) để khắc phục các lỗi ưu tiên.`,
-        actionType: "start_revision",
-        parentId: unrevisedSubmission.id,
-      };
-    }
-  }
-
-  if (!recommended) {
-    if (approvedActs.length === 0) {
-      recommended = null;
-    } else {
-      // Ưu tiên bài tập thuộc kỹ năng ít luyện nhất và khớp thời lượng
-      const matchingSkillActs = approvedActs.filter((a) => a.mode === leastPracticedMode);
-      const chosenAct =
-        matchingSkillActs.length > 0
-          ? matchingSkillActs[0]
-          : approvedActs.find((a) => a.mode === "speaking") || approvedActs[0];
-
-      const leastCount = skillCounts[leastPracticedMode] || 0;
-      const reasonText =
-        leastCount === 0
-          ? `Quy tắc (c): Kỹ năng ${skillNamesVi[leastPracticedMode] || leastPracticedMode} chưa được luyện bài nào trong 7 ngày qua. Hãy thực hành để cân bằng cả 4 kỹ năng!`
-          : `Quy tắc (c) & (d): Kỹ năng ${skillNamesVi[leastPracticedMode] || leastPracticedMode} ít được luyện nhất tuần này (${leastCount} bài). Thời lượng ${targetMinutes} phút phù hợp để hoàn thành bài này.`;
-
-      recommended = {
-        id: chosenAct.id,
-        slot: chosenAct.slot,
-        title: chosenAct.title,
-        mode: chosenAct.mode,
-        objective: chosenAct.objective,
-        durationMinutes: chosenAct.durationMinutes || 15,
-        reason: reasonText,
-        actionType: "new_session",
-      };
-    }
-  }
+  // 5. Lựa chọn bài tập chính được đề xuất (luật rule-based dùng chung với /library)
+  const recommended = pickRecommendedActivity(approvedActs, ctx, targetMinutes);
 
   // Danh sách các bài tập thay thế khi bấm "Đổi bài khác"
   const alternateActivities = approvedActs
     .filter((a) => !recommended || a.id !== recommended.id)
     .map((a) => {
-      let altReason = `Bài luyện kỹ năng ${skillNamesVi[a.mode] || a.mode} phù hợp với quỹ thời gian ${targetMinutes} phút.`;
+      let altReason = `Bài luyện kỹ năng ${SKILL_NAMES_VI[a.mode] || a.mode} phù hợp với quỹ thời gian ${targetMinutes} phút.`;
       if (a.mode === leastPracticedMode) {
-        altReason = `Lựa chọn thay thế giúp rèn luyện kỹ năng ${skillNamesVi[a.mode]} đang cần bổ sung.`;
+        altReason = `Lựa chọn thay thế giúp rèn luyện kỹ năng ${SKILL_NAMES_VI[a.mode]} đang cần bổ sung.`;
       }
       return {
         id: a.id,
@@ -251,6 +146,56 @@ export async function getTodayRecommendation(
       };
     });
 
+  // 6. Tính số ngày học liên tiếp (Streak) từ learning_sessions có status = 'completed'
+  const completedSessions = await db
+    .select({
+      updatedAt: learningSessions.updatedAt,
+    })
+    .from(learningSessions)
+    .where(
+      and(
+        eq(learningSessions.learnerId, learnerId),
+        eq(learningSessions.status, "completed")
+      )
+    )
+    .orderBy(desc(learningSessions.updatedAt));
+
+  const streakDays = computeStreakDays(completedSessions.map((s) => s.updatedAt));
+
+  // 7. Tìm phiên học đang dở (active hoặc paused) gần nhất
+  const [inProgress] = await db
+    .select({
+      sessionId: learningSessions.id,
+      activityId: learningSessions.activityId,
+      targetMinutes: learningSessions.targetMinutes,
+      status: learningSessions.status,
+      activityTitle: activities.title,
+      activityMode: activities.mode,
+      activitySlot: activities.slot,
+    })
+    .from(learningSessions)
+    .innerJoin(activities, eq(learningSessions.activityId, activities.id))
+    .where(
+      and(
+        eq(learningSessions.learnerId, learnerId),
+        inArray(learningSessions.status, ["active", "paused"])
+      )
+    )
+    .orderBy(desc(learningSessions.updatedAt))
+    .limit(1);
+
+  const inProgressSession: InProgressSessionInfo | null = inProgress
+    ? {
+        sessionId: inProgress.sessionId,
+        activityId: inProgress.activityId,
+        targetMinutes: inProgress.targetMinutes,
+        status: inProgress.status as "active" | "paused",
+        title: inProgress.activityTitle,
+        mode: inProgress.activityMode,
+        slot: inProgress.activitySlot,
+      }
+    : null;
+
   return {
     learnerName,
     baselineStatus,
@@ -259,6 +204,8 @@ export async function getTodayRecommendation(
     recommendedActivity: recommended,
     alternateActivities,
     dueVocabCount,
-    leastPracticedSkill: skillNamesVi[leastPracticedMode] || leastPracticedMode,
+    leastPracticedSkill: SKILL_NAMES_VI[leastPracticedMode] || leastPracticedMode,
+    streakDays,
+    inProgressSession,
   };
 }

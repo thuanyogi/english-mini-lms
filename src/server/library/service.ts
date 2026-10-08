@@ -1,6 +1,7 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { activities, sources, sourceSegments } from "@/db/schema";
+import { UNCATEGORIZED_TOPIC, compareTopicKeys } from "@/lib/topics";
 
 export interface ActivityListItem {
   id: string;
@@ -12,6 +13,19 @@ export interface ActivityListItem {
   difficulty: (typeof activities.$inferSelect)["difficulty"];
   purpose: string | null;
   output: string | null;
+  topic: string | null;
+  /** Trạng thái học tập của learner với bài này */
+  learningStatus?: "not_started" | "in_progress" | "completed";
+  /** Số lần learner đã nộp bài (>= 1 submission chưa xoá) */
+  submissionCount?: number;
+}
+
+export interface TopicSummary {
+  /** null = nhóm "Chưa phân loại" */
+  topic: string | null;
+  activityCount: number;
+  /** Số bài learner đã nộp ít nhất 1 lần (0 nếu không truyền learnerId) */
+  learnedCount: number;
 }
 
 export interface ActivityDetail {
@@ -24,6 +38,7 @@ export interface ActivityDetail {
   difficulty: (typeof activities.$inferSelect)["difficulty"];
   purpose: string | null;
   output: string | null;
+  topic: string | null;
   promptText: string | null;
   feedbackGuide: string | null;
   sourceContext?: {
@@ -38,11 +53,53 @@ export interface ActivityDetail {
  * ĐẢM BẢO AN TOÀN TUYỆT ĐỐI:
  * - Chỉ nạp review_state = approved (bỏ qua draft, reviewing, rejected, retired).
  * - Tuyệt đối không chọn questions_file, rubric_json, đáp án ra ngoài client.
+ *
+ * topicFilter: undefined/"all" = không lọc; "uncategorized" = bài chưa có topic;
+ * giá trị khác = đúng chủ đề đó.
+ *
+ * learnerId (tùy chọn): nếu truyền sẽ join tính trạng thái học gộp (Đang học dở / Đã nộp N lần / Chưa học).
  */
 export async function getApprovedActivities(
-  modeFilter?: string
+  modeFilter?: string,
+  topicFilter?: string,
+  learnerId?: string
 ): Promise<ActivityListItem[]> {
-  const query = db
+  const conditions = [eq(activities.reviewState, "approved")];
+
+  if (modeFilter && modeFilter !== "all") {
+    conditions.push(
+      eq(activities.mode, modeFilter as (typeof activities.$inferSelect)["mode"])
+    );
+  }
+
+  if (topicFilter && topicFilter !== "all") {
+    conditions.push(
+      topicFilter === UNCATEGORIZED_TOPIC
+        ? isNull(activities.topic)
+        : eq(activities.topic, topicFilter)
+    );
+  }
+
+  const inProgressExpr = learnerId
+    ? sql<boolean>`exists (
+        select 1 from learning_sessions ls
+        where ls.activity_id = activities.id
+          and ls.learner_id = ${learnerId}
+          and ls.status in ('active', 'paused')
+      )`
+    : sql<boolean>`false`;
+
+  const submissionCountExpr = learnerId
+    ? sql<number>`coalesce((
+        select count(s.id)::int from submissions s
+        inner join learning_sessions ls on s.session_id = ls.id
+        where ls.activity_id = activities.id
+          and s.learner_id = ${learnerId}
+          and s.deleted_at is null
+      ), 0)`
+    : sql<number>`0`;
+
+  const rows = await db
     .select({
       id: activities.id,
       slot: activities.slot,
@@ -53,19 +110,75 @@ export async function getApprovedActivities(
       difficulty: activities.difficulty,
       purpose: activities.purpose,
       output: activities.output,
+      topic: activities.topic,
+      hasInProgress: inProgressExpr,
+      submissionCount: submissionCountExpr,
     })
     .from(activities)
-    .where(
-      modeFilter && modeFilter !== "all"
-        ? and(
-            eq(activities.reviewState, "approved"),
-            eq(activities.mode, modeFilter as (typeof activities.$inferSelect)["mode"])
-          )
-        : eq(activities.reviewState, "approved")
-    )
+    .where(and(...conditions))
     .orderBy(activities.slot, activities.id);
 
-  return await query;
+  return rows.map((r) => {
+    const subCount = Number(r.submissionCount || 0);
+    let learningStatus: "not_started" | "in_progress" | "completed" = "not_started";
+    if (r.hasInProgress) {
+      learningStatus = "in_progress";
+    } else if (subCount > 0) {
+      learningStatus = "completed";
+    }
+
+    return {
+      id: r.id,
+      slot: r.slot,
+      mode: r.mode,
+      title: r.title,
+      objective: r.objective,
+      durationMinutes: r.durationMinutes,
+      difficulty: r.difficulty,
+      purpose: r.purpose,
+      output: r.output,
+      topic: r.topic,
+      learningStatus,
+      submissionCount: subCount,
+    };
+  });
+}
+
+/**
+ * Danh sách chủ đề (distinct) của các bài đã approved, kèm số bài.
+ * Nếu truyền learnerId: kèm số bài learner đã nộp (≥1 submission chưa xoá).
+ * Thứ tự: chủ đề đã chốt → chủ đề lạ (ABC) → "Chưa phân loại" cuối.
+ */
+export async function getTopics(learnerId?: string): Promise<TopicSummary[]> {
+  // Lưu ý: Drizzle bỏ tiền tố bảng cho cột trong truy vấn 1 bảng → dùng alias SQL tường minh
+  // trong subquery để không bị "ambiguous column id".
+  const learnedExpr = learnerId
+    ? sql<string>`count(*) filter (where exists (
+        select 1 from submissions s
+        inner join learning_sessions ls on s.session_id = ls.id
+        where ls.activity_id = activities.id
+          and s.learner_id = ${learnerId}
+          and s.deleted_at is null
+      ))`
+    : sql<string>`0`;
+
+  const rows = await db
+    .select({
+      topic: activities.topic,
+      activityCount: sql<string>`count(*)`,
+      learnedCount: learnedExpr,
+    })
+    .from(activities)
+    .where(eq(activities.reviewState, "approved"))
+    .groupBy(activities.topic);
+
+  return rows
+    .map((r) => ({
+      topic: r.topic,
+      activityCount: Number(r.activityCount),
+      learnedCount: Number(r.learnedCount),
+    }))
+    .sort((a, b) => compareTopicKeys(a.topic, b.topic));
 }
 
 /**
@@ -86,6 +199,7 @@ export async function getActivityDetail(
       difficulty: activities.difficulty,
       purpose: activities.purpose,
       output: activities.output,
+      topic: activities.topic,
       promptText: activities.promptText,
       feedbackGuide: activities.feedbackGuide,
       segmentIds: activities.segmentIds,
@@ -137,6 +251,7 @@ export async function getActivityDetail(
     difficulty: act.difficulty,
     purpose: act.purpose,
     output: act.output,
+    topic: act.topic,
     promptText: act.promptText,
     feedbackGuide: act.feedbackGuide,
     sourceContext,

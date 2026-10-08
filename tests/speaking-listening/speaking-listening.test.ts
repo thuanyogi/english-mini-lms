@@ -213,6 +213,8 @@ describe("Step 5: Speaking (S1) & Listening/Shadowing (L1) Tests", () => {
         o.location?.includes("q2") || o.original?.includes("q2")
     );
     expect(wrongQuestionObs).toBeDefined();
+    // Hồi quy NC2: chấm đọc đúng correct_option_id → chỉ q2 sai (trước đây cả 3 câu bị tính sai)
+    expect(observations).toHaveLength(1);
     expect(wrongQuestionObs?.location).toMatch(/\d+s/); // Có chỉ ra mốc giây
   });
 });

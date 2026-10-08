@@ -82,6 +82,8 @@ export function ReadingSessionView({
   } | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const isDemoContent = !segment?.textContent;
+
   const segmentContent =
     segment?.textContent ||
     `Ultrasound guidance provides real-time visualization of anatomical structures, needle advancement, and injectate distribution during interventional pain procedures. When performing a suprascapular nerve block, dynamic high-resolution imaging enables precise localization of the nerve within the supraspinatus fossa, beneath the superior transverse scapular ligament. The high-frequency linear transducer should be aligned in a coronal oblique plane parallel to the spine of the scapula.
@@ -411,6 +413,26 @@ Direct sonographic monitoring substantially minimizes the risk of accidental int
         <p style={{ fontSize: "0.875rem", color: "#475569", margin: 0 }}>
           {activity.objective || "Nêu ý chính, dịch sang tiếng Việt trung thành, giải thích 3 thuật ngữ."}
         </p>
+
+        {isDemoContent && (
+          <div
+            style={{
+              marginTop: "12px",
+              padding: "10px 14px",
+              background: "#fefce8",
+              border: "1px solid #fde047",
+              borderRadius: "10px",
+              color: "#854d0e",
+              fontSize: "0.8125rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <span>⚠️</span>
+            <span><strong>Bài này thiếu đoạn trích/video thật — nội dung demo tạm</strong> (chưa gắn source segment trong cơ sở dữ liệu).</span>
+          </div>
+        )}
       </div>
 
       {/* Khung làm việc 2 cột */}

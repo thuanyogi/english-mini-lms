@@ -413,6 +413,27 @@ export function ListeningSessionView({
       <SessionGrid
         left={
           <>
+            {/* Banner cảnh báo nếu thiếu video thật */}
+            {!listening.videoUrl && (
+              <div
+                style={{
+                  marginBottom: "12px",
+                  padding: "10px 14px",
+                  background: "#fefce8",
+                  border: "1px solid #fde047",
+                  borderRadius: "10px",
+                  color: "#854d0e",
+                  fontSize: "0.8125rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                }}
+              >
+                <span>⚠️</span>
+                <span><strong>Bài này thiếu đoạn trích/video thật — nội dung demo tạm</strong> (đang phát video minh hoạ mặc định).</span>
+              </div>
+            )}
+
             {/* Trình phát YouTube */}
             <YouTubePlayer
               videoUrl={listening.videoUrl || "https://www.youtube.com/watch?v=uVSiFJ85EtM"}
@@ -521,6 +542,37 @@ export function ListeningSessionView({
                   onSeek={(s) => setSeekTo(s)}
                 />
               )}
+
+              {/* Nút hoàn thành và sang bài tiếp theo */}
+              <div
+                style={{
+                  marginTop: "20px",
+                  paddingTop: "16px",
+                  borderTop: "1px solid #e2e8f0",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Link
+                  href="/today"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "#2563eb",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    padding: "10px 20px",
+                    borderRadius: "10px",
+                    textDecoration: "none",
+                    boxShadow: "0 2px 4px rgba(37,99,235,0.2)",
+                  }}
+                >
+                  <span>Bài tiếp theo</span>
+                  <span>→</span>
+                </Link>
+              </div>
             </div>
           )
         }

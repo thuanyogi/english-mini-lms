@@ -1,6 +1,3 @@
-import fs from "fs";
-import path from "path";
-import yaml from "yaml";
 import { eq, and, desc, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db";
 import {
@@ -26,6 +23,8 @@ import {
   getMediaSignedUrl,
 } from "@/server/media/service";
 import { ValidationError } from "./session.service";
+import { loadListeningQuestions } from "./listening-questions";
+import { getCorrectOptionId, getTimestampReference } from "@/lib/listening-questions";
 
 /**
  * 1. Nộp bài (submissions APPEND-ONLY) và kích hoạt chấm AI
@@ -202,18 +201,8 @@ export async function createSubmissionAndAssess(
 
       evalResult = await evaluateReading(segmentText, readingSubmission);
     } else if (activity.mode === "listening") {
-      const baseDir = path.resolve(process.cwd(), "content/english-lab");
-      const qFile = path.resolve(baseDir, activity.questionsFile || "texts/l1-questions.yaml");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let questionsList: any[] = [];
-      if (fs.existsSync(qFile)) {
-        try {
-          const parsed = yaml.parse(fs.readFileSync(qFile, "utf-8"));
-          if (parsed?.questions) questionsList = parsed.questions;
-        } catch (e) {
-          console.warn("Could not parse listening questions file:", e);
-        }
-      }
+      // Câu hỏi: ưu tiên activities.questions (DB), rồi file yaml
+      const questionsList = loadListeningQuestions(activity);
 
       let userAnswers: Record<string, string> = {};
       try {
@@ -225,20 +214,20 @@ export async function createSubmissionAndAssess(
 
       let correctCount = 0;
       const totalCount = questionsList.length;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const detailedFeedback = questionsList.map((q: any) => {
-        const userChoice = (userAnswers[q.id] || "").trim().toUpperCase();
-        const correctOpt = (q.correct_option || "").trim().toUpperCase();
-        const isCorrect = userChoice === correctOpt;
+      const detailedFeedback = questionsList.map((q) => {
+        const qId = String(q.id ?? "");
+        const userChoice = (userAnswers[qId] || "").trim().toUpperCase();
+        const correctOpt = getCorrectOptionId(q);
+        const isCorrect = correctOpt !== "" && userChoice === correctOpt;
         if (isCorrect) correctCount++;
         return {
-          id: q.id,
+          id: qId,
           prompt: q.prompt,
           userOption: userChoice,
           correctOption: correctOpt,
           isCorrect,
-          explanation: q.explanation,
-          timestamp: q.timestamp_seconds,
+          explanation: q.explanation as string | undefined,
+          timestamp: getTimestampReference(q),
         };
       });
 

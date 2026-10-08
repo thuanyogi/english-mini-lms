@@ -117,6 +117,7 @@ activities:
   # ── WRITING ─────────────────────────────────────────────────────────────
   - id: W1
     slot: W1
+    topic: giao-tiep-hoi-nghi
     mode: writing
     title: "Email xin tham dự hội nghị"
     objective: "Viết email 120–150 từ, lịch sự, đủ mục đích – lý do – yêu cầu."
@@ -132,6 +133,7 @@ activities:
 
   - id: W2
     slot: W2
+    topic: doc-sach-y-khoa
     mode: writing
     title: "Tóm tắt hướng dẫn phong bế đám rối cánh tay"
     objective: "Viết đoạn tóm tắt kỹ thuật 80–100 từ, cô đọng, đúng nguyên tắc tiêm an toàn."
@@ -147,6 +149,7 @@ activities:
 
   - id: W3
     slot: W3
+    topic: giao-tiep-lam-sang
     mode: writing
     title: "Trả lời email hội chẩn ca đau rễ thần kinh"
     objective: "Viết email trao đổi chuyên môn 100–130 từ, trang trọng, lập luận rõ ràng về can thiệp tối thiểu."
@@ -162,6 +165,7 @@ activities:
 
   - id: W4
     slot: W4
+    topic: giao-tiep-hoi-nghi
     mode: writing
     title: "Email xin điều chỉnh tóm tắt báo cáo khoa học"
     objective: "Viết thư gửi Ban thư ký hội nghị 120–150 từ xin cập nhật số liệu và bổ sung tác giả."
@@ -178,6 +182,7 @@ activities:
   # ── READING ─────────────────────────────────────────────────────────────
   - id: R1
     slot: R1
+    topic: doc-sach-y-khoa
     mode: reading
     title: "Đọc–dịch đoạn sổ tay siêu âm tr.42"
     objective: "Nêu ý chính, dịch sang tiếng Việt trung thành, giải thích 3 thuật ngữ."
@@ -192,6 +197,7 @@ activities:
 
   - id: R2
     slot: R2
+    topic: doc-sach-y-khoa
     mode: reading
     title: "Đọc–dịch NYSORA: Phong bế liên cơ bậc thang"
     objective: "Nêu ý chính, dịch sang tiếng Việt trung thực, giải thích 3 thuật ngữ: hypoechoic, in-plane approach, intraneural."
@@ -206,6 +212,7 @@ activities:
 
   - id: R3
     slot: R3
+    topic: doc-sach-y-khoa
     mode: reading
     title: "Đọc–dịch Abstract: Siêu âm động vs MRI chóp xoay"
     objective: "Nêu ý chính các phần Background-Methods-Results-Conclusion, dịch đoạn Kết luận và giải thích các chỉ số chẩn đoán."
@@ -220,6 +227,7 @@ activities:
 
   - id: R4
     slot: R4
+    topic: doc-sach-y-khoa
     mode: reading
     title: "Đọc–dịch: Kỹ thuật tiêm khớp gối dưới siêu âm"
     objective: "Dịch trung thành quy trình định vị đầu dò, chọc hút dịch bao hoạt dịch trên xương bánh chè và giải thích các mốc giải phẫu."
@@ -235,6 +243,7 @@ activities:
   # ── LISTENING ───────────────────────────────────────────────────────────
   - id: L1
     slot: L1
+    topic: giao-tiep-hoi-nghi
     mode: listening
     title: "Nghe đoạn hội nghị 60s"
     objective: "Trả lời 3 câu hỏi ý chính trước khi mở transcript."
@@ -249,6 +258,7 @@ activities:
 
   - id: L2
     slot: L2
+    topic: giao-tiep-lam-sang
     mode: listening
     title: "Nghe hội thoại lâm sàng: Tư vấn đau rễ thần kinh"
     objective: "Nghe đoạn hội thoại 60s và trả lời 3 câu hỏi trắc nghiệm kiểm tra khả năng nắm bắt triệu chứng bệnh nhân."
@@ -263,6 +273,7 @@ activities:
 
   - id: L3
     slot: L3
+    topic: doc-sach-y-khoa
     mode: listening
     title: "Shadowing 45s: Bóc tách thủy dịch thần kinh giữa"
     objective: "Nghe sâu và thực hành nói nhại (shadowing) theo đoạn mô tả kỹ thuật can thiệp hội chứng ống cổ tay."
@@ -278,6 +289,7 @@ activities:
 
   - id: L4
     slot: L4
+    topic: giao-tiep-hoi-nghi
     mode: listening
     title: "Nghe thuyết trình hội nghị: Bước tiến của POCUS"
     objective: "Nghe đoạn báo cáo 60s và trả lời 3 câu hỏi trắc nghiệm về ưu điểm của siêu âm tại giường so với X-quang tăng sáng."
@@ -293,6 +305,7 @@ activities:
   # ── SPEAKING ────────────────────────────────────────────────────────────
   - id: S1
     slot: S1
+    topic: giao-tiep-hoi-nghi
     mode: speaking
     title: "Giới thiệu bản thân tại hội nghị (60–90s)"
     objective: "Nói trôi chảy 60–90s: tên, chuyên khoa, nơi làm việc, mối quan tâm nghiên cứu."
@@ -306,6 +319,7 @@ activities:
 
   - id: S2
     slot: S2
+    topic: giao-tiep-lam-sang
     mode: speaking
     title: "Giải thích thủ thuật tiêm can thiệp cho bệnh nhân"
     objective: "Nói 60–90s bằng tiếng Anh gần gũi, trấn an, giải thích rõ vì sao cần dùng siêu âm dẫn đường."
@@ -319,6 +333,7 @@ activities:
 
   - id: S3
     slot: S3
+    topic: giao-tiep-hoi-nghi
     mode: speaking
     title: "Trả lời câu hỏi phản biện (Q&A) tại hội nghị"
     objective: "Phản hồi tự tin 60–90s trước câu hỏi của chủ tọa về thể tích tiêm và kết quả theo dõi 6 tháng."
@@ -332,6 +347,7 @@ activities:
 
   - id: S4
     slot: S4
+    topic: giao-tiep-lam-sang
     mode: speaking
     title: "Trình bày tóm tắt ca lâm sàng đau thần kinh tọa"
     objective: "Trình bày mạch lạc trong 90–120s theo cấu trúc: Bệnh sử - Khám & Chẩn đoán hình ảnh - Can thiệp - Kết cục."

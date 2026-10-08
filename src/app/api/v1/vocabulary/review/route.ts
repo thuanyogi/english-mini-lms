@@ -3,7 +3,9 @@ import { z } from "zod";
 import { getCurrentLearner } from "@/server/auth";
 import {
   getDueVocabularyForReview,
+  getVocabularyForFlashcards,
   submitVocabularyReview,
+  submitQuickFlashcardReviews,
   ValidationError,
 } from "@/server/vocabulary/service";
 
@@ -12,6 +14,18 @@ const SubmitReviewSchema = z.object({
   scenario: z.string().min(1, "scenario is required"),
   user_response: z.string().min(1, "user_response is required"),
   modality: z.enum(["text", "audio"]).default("text"),
+});
+
+const QuickReviewItemSchema = z.object({
+  vocab_id: z.string().uuid("vocab_id must be a valid UUID"),
+  result: z.enum(["know", "dont_know"]),
+});
+
+const SubmitQuickReviewSchema = z.object({
+  mode: z.literal("quick"),
+  vocab_id: z.string().uuid().optional(),
+  result: z.enum(["know", "dont_know"]).optional(),
+  reviews: z.array(QuickReviewItemSchema).optional(),
 });
 
 export const maxDuration = 60;
@@ -24,6 +38,27 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
+    const mode = searchParams.get("mode");
+
+    // Chế độ Flashcard Quick Review
+    if (mode === "quick") {
+      const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit")) || 20));
+      const isFreePractice =
+        searchParams.get("free") === "true" || searchParams.get("all") === "true";
+
+      const items = await getVocabularyForFlashcards(
+        learner.id,
+        limit,
+        isFreePractice ? "all" : "due"
+      );
+
+      return NextResponse.json({
+        items,
+        count: items.length,
+      });
+    }
+
+    // Chế độ Micro-challenge thông thường
     const allowExtra = searchParams.get("extra") === "true";
     const limit = Math.min(10, Math.max(1, Number(searchParams.get("limit")) || 5));
 
@@ -50,6 +85,41 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+
+    // 1. Kiểm tra nếu là mode="quick" (Flashcards SRS không gọi AI)
+    if (body?.mode === "quick") {
+      const parsedQuick = SubmitQuickReviewSchema.safeParse(body);
+      if (!parsedQuick.success) {
+        return NextResponse.json(
+          {
+            error: "Dữ liệu flashcard không hợp lệ",
+            details: parsedQuick.error.format(),
+          },
+          { status: 422 }
+        );
+      }
+
+      const reviewsToProcess: Array<{ vocab_id: string; result: "know" | "dont_know" }> = [];
+
+      if (parsedQuick.data.reviews && parsedQuick.data.reviews.length > 0) {
+        reviewsToProcess.push(...parsedQuick.data.reviews);
+      } else if (parsedQuick.data.vocab_id && parsedQuick.data.result) {
+        reviewsToProcess.push({
+          vocab_id: parsedQuick.data.vocab_id,
+          result: parsedQuick.data.result,
+        });
+      } else {
+        return NextResponse.json(
+          { error: "Cần cung cấp vocab_id + result hoặc mảng reviews" },
+          { status: 422 }
+        );
+      }
+
+      const quickResult = await submitQuickFlashcardReviews(learner.id, reviewsToProcess);
+      return NextResponse.json(quickResult, { status: 200 });
+    }
+
+    // 2. Chế độ Micro-challenge truyền thống qua Gemini
     const parsed = SubmitReviewSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(

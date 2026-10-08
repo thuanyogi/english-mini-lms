@@ -143,6 +143,7 @@ async function main() {
           segmentIds: act.segmentIds,
           questionsFile: act.questionsFile,
           output: act.output,
+          topic: act.topic,
         })
         .onConflictDoUpdate({
           target: schema.activities.id,
@@ -162,6 +163,7 @@ async function main() {
             segmentIds: sql`excluded.segment_ids`,
             questionsFile: sql`excluded.questions_file`,
             output: sql`excluded.output`,
+            topic: sql`excluded.topic`,
             updatedAt: new Date(),
           },
         });

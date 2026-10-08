@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getActivityDetail } from "@/server/library/service";
 import { StartSessionButtons } from "./start-session-buttons";
+import { getTopicMeta, UNCATEGORIZED_TOPIC } from "@/lib/topics";
 
 export const dynamic = "force-dynamic";
 
@@ -31,12 +32,17 @@ export default async function ActivityDetailPage({ params }: PageProps) {
     bg: "#f8fafc",
   };
 
+  const topicMeta = getTopicMeta(activity.topic);
+  const topicHref = `/library?topic=${encodeURIComponent(
+    activity.topic ?? UNCATEGORIZED_TOPIC
+  )}`;
+
   return (
     <div className="mx-auto w-full max-w-[640px] px-4 pt-4 pb-8 lg:max-w-[800px]">
-      {/* Nút quay lại */}
+      {/* Nút quay lại đúng chủ đề của bài */}
       <div style={{ marginBottom: "16px" }}>
         <Link
-          href="/library"
+          href={topicHref}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -48,7 +54,9 @@ export default async function ActivityDetailPage({ params }: PageProps) {
             minHeight: "44px",
           }}
         >
-          <span>← Quay lại Thư viện</span>
+          <span>
+            ← Quay lại {topicMeta.icon} {topicMeta.name}
+          </span>
         </Link>
       </div>
 
@@ -84,6 +92,22 @@ export default async function ActivityDetailPage({ params }: PageProps) {
           >
             {activity.slot || activity.id} · {modeInfo.label}
           </span>
+
+          <Link
+            href={topicHref}
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              padding: "4px 10px",
+              borderRadius: "999px",
+              background: "#f1f5f9",
+              color: "#334155",
+              textDecoration: "none",
+              border: "1px solid #e2e8f0",
+            }}
+          >
+            {topicMeta.icon} {topicMeta.name}
+          </Link>
 
           {activity.durationMinutes && (
             <span

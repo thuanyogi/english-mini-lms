@@ -5,7 +5,7 @@ dotenv.config();
 import { describe, it, expect } from "vitest";
 import { db } from "@/db";
 import { activities as activitiesTable } from "@/db/schema";
-import { getApprovedActivities, getActivityDetail } from "@/server/library/service";
+import { getApprovedActivities, getActivityDetail, getTopics } from "@/server/library/service";
 
 describe("Library Service", () => {
   it("getApprovedActivities should only return approved activities", async () => {
@@ -94,5 +94,62 @@ describe("Library Service", () => {
   it("getActivityDetail should return null for non-existent id", async () => {
     const result = await getActivityDetail("UNKNOWN-ACTIVITY-ID");
     expect(result).toBeNull();
+  });
+
+  describe("topics (needs db:migrate + seed)", () => {
+    it("getApprovedActivities can filter by topic and exposes topic on each item", async () => {
+      const hoiNghi = await getApprovedActivities(undefined, "giao-tiep-hoi-nghi");
+      const ids = hoiNghi.map((a) => a.id);
+
+      expect(ids).toEqual(expect.arrayContaining(["W1", "W4", "S1", "S3", "L1", "L4"]));
+      expect(ids).not.toContain("R1");
+      for (const act of hoiNghi) {
+        expect(act.topic).toBe("giao-tiep-hoi-nghi");
+      }
+    });
+
+    it("topic filter can be combined with mode filter", async () => {
+      const speaking = await getApprovedActivities("speaking", "giao-tiep-hoi-nghi");
+      expect(speaking.map((a) => a.id).sort()).toEqual(["S1", "S3"]);
+    });
+
+    it("topic 'uncategorized' returns only activities without a topic", async () => {
+      const none = await getApprovedActivities(undefined, "uncategorized");
+      for (const act of none) {
+        expect(act.topic).toBeNull();
+      }
+    });
+
+    it("getTopics returns distinct approved topics with counts and never counts drafts", async () => {
+      const topics = await getTopics();
+      const byTopic = Object.fromEntries(topics.map((t) => [t.topic, t.activityCount]));
+
+      expect(byTopic["giao-tiep-hoi-nghi"]).toBe(6);
+      expect(byTopic["doc-sach-y-khoa"]).toBe(6);
+      expect(byTopic["giao-tiep-lam-sang"]).toBe(4);
+      // TEST-DRAFT-99 (draft) must not inflate any group
+      const total = topics.reduce((sum, t) => sum + t.activityCount, 0);
+      const approved = await getApprovedActivities();
+      expect(total).toBe(approved.length);
+      // Without learnerId, no learned counts
+      expect(topics.every((t) => t.learnedCount === 0)).toBe(true);
+    });
+
+    it("getActivityDetail includes topic", async () => {
+      const w1 = await getActivityDetail("W1");
+      expect(w1?.topic).toBe("giao-tiep-hoi-nghi");
+    });
+
+    it("getTopics(learnerId) runs the learned-count query and keeps counts consistent", async () => {
+      // learner không có bài nộp → học 0, nhưng câu SQL (subquery tương quan) phải chạy được
+      const topics = await getTopics("00000000-0000-0000-0000-0000000000aa");
+      const withoutLearner = await getTopics();
+
+      expect(topics.map((t) => t.topic)).toEqual(withoutLearner.map((t) => t.topic));
+      for (const t of topics) {
+        expect(t.learnedCount).toBe(0);
+        expect(t.learnedCount).toBeLessThanOrEqual(t.activityCount);
+      }
+    });
   });
 });

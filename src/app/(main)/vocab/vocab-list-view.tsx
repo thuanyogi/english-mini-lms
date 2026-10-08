@@ -194,6 +194,25 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
 
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           <Link
+            href="/vocab/flashcards"
+            data-tour="vocab-flashcards"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "8px 14px",
+              borderRadius: "10px",
+              background: "#059669",
+              color: "#ffffff",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              minHeight: "44px",
+            }}
+          >
+            <span>🃏</span> Ôn nhanh bằng thẻ
+          </Link>
+          <Link
             href="/vocab/review"
             data-tour="vocab-review"
             style={{
@@ -385,8 +404,11 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
             <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">
               {dateItems.map((item) => {
                 const isExpanded = expandedId === item.id;
-                const isDue = new Date(item.dueAt) <= now && item.masteryLevel < 4;
+                const dueDate = new Date(item.dueAt);
+                const isDue = dueDate <= now && item.masteryLevel < 4;
                 const isMastered = item.masteryLevel >= 4;
+                const diffMs = dueDate.getTime() - now.getTime();
+                const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
                 return (
                   <div
@@ -459,7 +481,7 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
                           >
                             ⭐ Đã thuộc
                           </span>
-                        ) : isDue ? (
+                        ) : isDue || diffDays <= 0 ? (
                           <span
                             style={{
                               fontSize: "0.75rem",
@@ -471,7 +493,7 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
                               border: "1px solid #fecaca",
                             }}
                           >
-                            ⏰ Đến hạn ôn
+                            ⏰ Đến hạn
                           </span>
                         ) : (
                           <span
@@ -483,7 +505,7 @@ export function VocabListView({ initialItems }: VocabListViewProps) {
                               borderRadius: "6px",
                             }}
                           >
-                            ⏳ Ngày mai ôn
+                            ⏳ Ôn sau {diffDays} ngày nữa
                           </span>
                         )}
 

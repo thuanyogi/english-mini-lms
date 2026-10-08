@@ -16,6 +16,16 @@ interface ActivityItem {
   parentId?: string;
 }
 
+interface InProgressSessionItem {
+  sessionId: string;
+  activityId: string;
+  targetMinutes: number;
+  status: "active" | "paused";
+  title: string;
+  mode: string;
+  slot: string | null;
+}
+
 interface TodayRecommendationData {
   learnerName?: string;
   baselineStatus?: string;
@@ -24,6 +34,8 @@ interface TodayRecommendationData {
   alternateActivities: ActivityItem[];
   dueVocabCount: number;
   leastPracticedSkill: string;
+  streakDays?: number;
+  inProgressSession?: InProgressSessionItem | null;
 }
 
 interface TodayViewProps {
@@ -47,15 +59,18 @@ export default function TodayView({
   const [targetMinutes, setTargetMinutes] = useState<30 | 45>(initialTargetMinutes);
   const [data, setData] = useState<TodayRecommendationData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadCounter, setReloadCounter] = useState(0);
   const [starting, setStarting] = useState(false);
   const [showAlternates, setShowAlternates] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<ActivityItem | null>(null);
 
   useEffect(() => {
     let active = true;
+
     fetch(`/api/v1/today?target_minutes=${targetMinutes}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Network response error");
+        if (!res.ok) throw new Error("Không thể kết nối máy chủ");
         return res.json();
       })
       .then((json: TodayRecommendationData) => {
@@ -63,23 +78,36 @@ export default function TodayView({
           setData(json);
           setSelectedActivity(json.recommendedActivity);
           setLoading(false);
+          setError(null);
         }
       })
       .catch((err) => {
         console.error("Lỗi tải gợi ý học tập:", err);
-        if (active) setLoading(false);
+        if (active) {
+          setError(
+            err instanceof Error ? err.message : "Đã có lỗi xảy ra khi tải bài học gợi ý."
+          );
+          setLoading(false);
+        }
       });
 
     return () => {
       active = false;
     };
-  }, [targetMinutes]);
+  }, [targetMinutes, reloadCounter]);
 
   const handleSelectMinutes = (mins: 30 | 45) => {
     if (mins !== targetMinutes) {
       setLoading(true);
+      setError(null);
       setTargetMinutes(mins);
     }
+  };
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setReloadCounter((c) => c + 1);
   };
 
   const handleStartSession = async (activityId: string) => {
@@ -146,11 +174,19 @@ export default function TodayView({
     <div className="max-w-2xl lg:max-w-4xl mx-auto px-4 py-6 space-y-6">
       {/* 1. Header & Lời chào */}
       <div className="rounded-2xl p-6 text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-500 shadow-md">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">
-              Xin chào, {displayName || "Bác sĩ"}! 👋
-            </h1>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold">
+                Xin chào, {displayName || "Bác sĩ"}! 👋
+              </h1>
+              {data && typeof data.streakDays === "number" && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-amber-950 shadow-xs border border-amber-300">
+                  <span>🔥</span>
+                  <span>{data.streakDays > 0 ? `${data.streakDays} ngày liên tiếp` : "0 ngày liên tiếp"}</span>
+                </span>
+              )}
+            </div>
             <p className="text-blue-100 text-sm mt-1">
               Duy trì 30–45 phút mỗi ngày để nâng cao phản xạ tiếng Anh y khoa.
             </p>
@@ -201,6 +237,68 @@ export default function TodayView({
         </div>
       </div>
 
+      {/* Card báo lỗi khi tải dữ liệu thất bại */}
+      {error && !loading && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-start gap-3">
+            <div className="text-xl">⚠️</div>
+            <div>
+              <h3 className="text-sm font-bold text-red-900">
+                Không thể tải gợi ý bài học hôm nay
+              </h3>
+              <p className="text-xs text-red-700 mt-0.5">
+                {error}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleRetry}
+            className="inline-flex items-center justify-center whitespace-nowrap bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-xs cursor-pointer"
+          >
+            Thử lại 🔄
+          </button>
+        </div>
+      )}
+
+      {/* Khối Tiếp tục phiên đang dở — luôn hiện khi có session active/paused */}
+      {data?.inProgressSession && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-2xl p-5 shadow-xs space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-900 bg-amber-200/90 px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1">
+                <span>⏳</span>
+                <span>Phiên đang dở</span>
+              </span>
+              <span className="text-xs text-amber-800 font-medium">
+                {data.inProgressSession.slot ? `${data.inProgressSession.slot} · ` : ""}
+                {MODE_LABELS[data.inProgressSession.mode]?.label || data.inProgressSession.mode}
+              </span>
+            </div>
+            <span className="text-xs text-amber-800/80 font-medium">
+              ⏱️ Mục tiêu {data.inProgressSession.targetMinutes} phút
+            </span>
+          </div>
+
+          <div>
+            <h3 className="text-base font-bold text-slate-900">
+              {data.inProgressSession.title}
+            </h3>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Bạn có một phiên học chưa khép lại. Nhấp để vào thẳng không gian học và tiếp tục bài làm.
+            </p>
+          </div>
+
+          <div className="pt-1">
+            <Link
+              href={`/learn/${data.inProgressSession.sessionId}`}
+              className="inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-xl transition shadow-xs"
+            >
+              <span>▶️</span> Tiếp tục phiên đang dở ngay →
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Banner Khảo sát năng lực đầu vào (Onboarding) nếu chưa hoàn thành */}
       {data && data.baselineStatus && data.baselineStatus !== "completed" && (
         <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
@@ -234,16 +332,24 @@ export default function TodayView({
                 Có {data.dueVocabCount} từ vựng đến hạn ôn tập!
               </h3>
               <p className="text-xs text-amber-700 mt-0.5">
-                Ôn ngay với thử thách micro-challenge ngắn (1-2 phút) để củng cố trí nhớ dài hạn.
+                Ôn nhanh bằng flashcard vuốt 60s hoặc làm thử thách micro-challenge ngắn.
               </p>
             </div>
           </div>
-          <Link
-            href="/vocab/review"
-            className="inline-flex items-center justify-center whitespace-nowrap bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition shadow-sm"
-          >
-            Ôn từ ngay (tối đa 5 từ) →
-          </Link>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              href="/vocab/flashcards"
+              className="inline-flex items-center justify-center whitespace-nowrap bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-lg transition shadow-xs"
+            >
+              🃏 Ôn nhanh bằng thẻ →
+            </Link>
+            <Link
+              href="/vocab/review"
+              className="inline-flex items-center justify-center whitespace-nowrap bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow-xs"
+            >
+              Thử thách câu →
+            </Link>
+          </div>
         </div>
       )}
 

@@ -139,4 +139,54 @@ activities:
     expect(result.success).toBe(true);
     expect(result.activitiesToUpsert).toHaveLength(0);
   });
+
+  it("should parse topic key, treat empty topic as null", () => {
+    const manifest = `
+version: 1
+sources: []
+segments: []
+activities:
+  - id: T-A
+    mode: writing
+    title: "Has topic"
+    topic: giao-tiep-hoi-nghi
+    review_state: approved
+  - id: T-B
+    mode: writing
+    title: "Empty topic"
+    topic: ""
+    review_state: approved
+  - id: T-C
+    mode: writing
+    title: "No topic"
+    review_state: approved
+`;
+    const result = parseAndValidateManifest(baseDir, manifest);
+
+    expect(result.success).toBe(true);
+    const byId = Object.fromEntries(result.activitiesToUpsert.map((a) => [a.id, a]));
+    expect(byId["T-A"].topic).toBe("giao-tiep-hoi-nghi");
+    expect(byId["T-B"].topic).toBeNull();
+    expect(byId["T-C"].topic).toBeNull();
+  });
+
+  it("should reject an invalid topic slug and not proceed", () => {
+    const manifest = `
+version: 1
+sources: []
+segments: []
+activities:
+  - id: T-BAD
+    mode: writing
+    title: "Bad topic"
+    topic: "Giao Tiếp!"
+    review_state: approved
+`;
+    const result = parseAndValidateManifest(baseDir, manifest);
+
+    expect(result.success).toBe(false);
+    expect(result.errors[0]).toContain("T-BAD");
+    expect(result.errors[0]).toContain("topic");
+    expect(result.activitiesToUpsert).toHaveLength(0);
+  });
 });

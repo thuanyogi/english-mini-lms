@@ -38,21 +38,59 @@ export function MyWorkHeader({
 
   return (
     <>
-      {/* Nút quay lại */}
-      <div style={{ marginBottom: "14px" }}>
+      {/* Nút quay lại & Bài tiếp theo */}
+      <div style={{ marginBottom: "14px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <Link
+            href="/my-work"
+            style={{
+              fontSize: "0.875rem",
+              color: "#64748b",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              minHeight: "44px",
+            }}
+          >
+            ← Bài của tôi
+          </Link>
+          <span style={{ color: "#cbd5e1" }}>·</span>
+          <Link
+            href="/library"
+            style={{
+              fontSize: "0.875rem",
+              color: "#64748b",
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              minHeight: "44px",
+            }}
+          >
+            Thư viện
+          </Link>
+        </div>
+
         <Link
-          href="/library"
+          href="/today"
           style={{
             fontSize: "0.875rem",
-            color: "#64748b",
+            fontWeight: 600,
+            color: "#2563eb",
             textDecoration: "none",
             display: "inline-flex",
             alignItems: "center",
             gap: "4px",
-            minHeight: "44px",
+            padding: "6px 14px",
+            borderRadius: "8px",
+            background: "#eff6ff",
+            border: "1px solid #dbeafe",
+            minHeight: "40px",
           }}
         >
-          ← Về Thư viện bài học
+          <span>Bài tiếp theo</span>
+          <span>→</span>
         </Link>
       </div>
 
@@ -171,6 +209,27 @@ export function MyWorkHeader({
                 : `Viết bản sửa (Bản ${submission.revision + 1})`}
             </span>
           </button>
+
+          <Link
+            href="/today"
+            style={{
+              padding: "10px 18px",
+              background: "#0f172a",
+              color: "#ffffff",
+              borderRadius: "10px",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              textDecoration: "none",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              minHeight: "44px",
+              boxShadow: "0 2px 4px rgba(15,23,42,0.15)",
+            }}
+          >
+            <span>Bài tiếp theo</span>
+            <span>→</span>
+          </Link>
 
           {hasParent && (
             <div style={{ display: "flex", gap: "6px" }}>

@@ -115,6 +115,7 @@ export const sources = pgTable("sources", {
   url: text("url"),
   reviewState: reviewStateEnum("review_state").notNull().default("draft"),
   notes: text("notes"),
+  origin: text("origin").default("seed"), // 'seed' | 'drive' | 'admin'
   ...timestamps,
 });
 
@@ -135,6 +136,7 @@ export const sourceSegments = pgTable("source_segments", {
   verifiedTranscript: boolean("verified_transcript").default(false),
   language: text("language").default("en"),
   checksum: text("checksum"),
+  origin: text("origin").default("seed"), // 'seed' | 'drive' | 'admin'
   ...timestamps,
 });
 
@@ -158,7 +160,10 @@ export const activities = pgTable("activities", {
   reviewState: reviewStateEnum("review_state").notNull().default("draft"),
   segmentIds: jsonb("segment_ids").$type<string[]>(), // references to source_segments
   questionsFile: text("questions_file"), // path for listening questions
+  questions: jsonb("questions"), // câu hỏi nghe do admin nhập (ưu tiên hơn questionsFile); null = dùng file
   output: text("output"), // text | audio
+  topic: text("topic"), // topic key slug (1 bài = 1 chủ đề), null = chưa phân loại
+  origin: text("origin").default("seed"), // 'seed' | 'drive' | 'admin'
   ...timestamps,
 });
 

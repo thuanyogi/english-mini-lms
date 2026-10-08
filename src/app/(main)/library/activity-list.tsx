@@ -76,8 +76,11 @@ const FILTER_TABS = [
 
 export function ActivityList({
   activities,
+  suggestedActivityId,
 }: {
   activities: ActivityListItem[];
+  /** Bài được gắn nhãn "💡 Gợi ý" (chọn rule-based, dùng chung với /today) */
+  suggestedActivityId?: string | null;
 }) {
   const [selectedMode, setSelectedMode] = useState<string>("all");
 
@@ -227,6 +230,66 @@ export function ActivityList({
                         }}
                       >
                         Thử nghiệm
+                      </span>
+                    )}
+                    {suggestedActivityId === act.id && (
+                      <span
+                        style={{
+                          fontSize: "0.6875rem",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          background: "#fef9c3",
+                          color: "#854d0e",
+                          border: "1px solid #fde68a",
+                        }}
+                      >
+                        💡 Gợi ý
+                      </span>
+                    )}
+
+                    {/* Trạng thái học tập */}
+                    {act.learningStatus === "in_progress" ? (
+                      <span
+                        style={{
+                          fontSize: "0.6875rem",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          background: "#fff7ed",
+                          color: "#c2410c",
+                          border: "1px solid #fed7aa",
+                        }}
+                      >
+                        ⏳ Đang học dở
+                      </span>
+                    ) : (act.submissionCount ?? 0) > 0 ? (
+                      <span
+                        style={{
+                          fontSize: "0.6875rem",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          background: "#f0fdf4",
+                          color: "#15803d",
+                          border: "1px solid #bbf7d0",
+                        }}
+                      >
+                        ✅ Đã nộp {act.submissionCount} lần
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          fontSize: "0.6875rem",
+                          fontWeight: 500,
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          background: "#f8fafc",
+                          color: "#64748b",
+                          border: "1px solid #e2e8f0",
+                        }}
+                      >
+                        ⚪ Chưa học
                       </span>
                     )}
                   </div>
